@@ -2,3 +2,5 @@ steps:
 - name: node
   entrypoint: npm
   args: ['install']
+options:
+  logging: CLOUD_LOGGING_ONLY
