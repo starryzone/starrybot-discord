@@ -1,2 +1,10 @@
 runtime: nodejs16
+env_variables:
+  DB_HOST: '35.239.247.110'
+  DB_USER: 'starrybot'
+  DB_PASS: 'c9npd;R7[]=\U#HT'
+  DB_NAME: 'starrybot'
+  INSTANCE_CONNECTION_NAME: <MY-PROJECT>:<INSTANCE-REGION>:<INSTANCE-NAME>
 
+beta_settings:
+  cloud_sql_instances: <MY-PROJECT>:<INSTANCE-REGION>:<INSTANCE-NAME>

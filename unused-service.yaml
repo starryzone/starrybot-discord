@@ -1,0 +1,13 @@
+# [START cloud_sql_postgres_knex_gke_quickstart_service]
+apiVersion: v1
+kind: Service
+metadata:
+  name: starrybot-app
+spec:
+  type: LoadBalancer
+  selector:
+    app: starrybot-app
+  ports:
+  - port: 80
+    targetPort: 8080
+# [END cloud_sql_postgres_knex_gke_quickstart_service]

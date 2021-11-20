@@ -1,5 +1,5 @@
 {
-	"name": "queenbot",
+	"name": "starrybot-discord",
 	"version": "1.0.1",
 	"private": true,
 	"description": "QUEENBOT Help users join membership enabled discord rooms",
@@ -7,14 +7,18 @@
 	"author": "@anselm",
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/anselm/queenbot.git"
+		"url": "https://github.com/starryzone/starrybot-discord.git"
 	},
 	"engines": {
-		"node": ">=14.0.0"
+		"node": ">=16.0.0"
 	},
 	"dependencies": {
 		"discord.js": "^13.3.1",
-		"express": "^4.17.1"
+		"express": "^4.17.1",
+	    "@google-cloud/logging-winston": "^4.0.0",
+	    "knex": "^0.95.14",
+	    "pg": "^8.7.1",
+	    "winston": "^3.1.0"
 	},
 	"scripts": {
 		"start": "node server.js"
