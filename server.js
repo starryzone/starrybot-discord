@@ -85,11 +85,15 @@ const getVoteCount = async (pool, candidate) => {
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// express 
+// express glue
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 const express = require('express');
+const cors = require('cors');
 const app = express();
+
+// There's probably some settings we can customize for cors here
+app.use(cors());
 
 app.enable('trust proxy');
 app.use(express.urlencoded({extended: false}));
@@ -114,6 +118,9 @@ app.use(async (req, res, next) => {
 	}
 });
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// a silly test
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 app.get('/test',async(req,res) => {
 	res.status(200).send("key is " + myconfig.DB_KEY);
@@ -251,6 +258,31 @@ app.get('/spaces', async (req, res) => {
 	res.status(200).send(`Successfully voted for ${team} at ${timestamp}`).end();
 });
 
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// the signing stuff
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+const { serializeSignDoc } = require('@cosmjs/amino');
+const { Secp256k1, Secp256k1Signature, sha256 } = require('@cosmjs/crypto');
+const { fromBase64 } = require('@cosmjs/encoding');
+
+app.get('/starry-backend', (req, res) => {
+  res.send({ express: 'I could have access to your database rows because I am a message from the backend. Sincerely, the backend' });
+});
+
+app.post('/keplr-signed', (req, res) => {
+  console.log('req', req);
+  console.log('res', res);
+
+  let allIsGood = true;
+
+  if (allIsGood) {
+    res.sendStatus(200);
+  } else {
+    // Bad Request, you're grounded
+    res.sendStatus(400);
+  }
+});
 
 const PORT = myconfig.PORT || 8080;
 const server = app.listen(PORT, () => {
