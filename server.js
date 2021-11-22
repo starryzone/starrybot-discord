@@ -167,7 +167,7 @@ client.on("messageCreate", async message => {
 	const command = args.shift().toLowerCase()
 
 	switch(command) {
-		case "sm":
+		case "starry":
 			let uuid = author.id
 			const memberExists = await db.memberExists(uuid, guildId);
 
@@ -196,7 +196,7 @@ client.on("messageCreate", async message => {
 			await message.channel.send("Check your DM's");
 			await message.author.send({ embeds: [exampleEmbed] });
 			break
-		case "delme":
+		case "starry-delete":
 			await db.memberDelete(author.id, guildId)
 			await message.channel.send("You've been brought back to earth. (And removed as requested.)")
 			break
