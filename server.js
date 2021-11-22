@@ -7,16 +7,11 @@ const myconfig = require("./auth.json");
 // Create a Winston logger that streams to Stackdriver Logging
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-function log() { console.log(...arguments) }
-function info() { console.info(...arguments) }
-function error() { console.error(...arguments) }
-
 let logger = {
-	info: info,
-	log: log,
-	fails: () => { console.log(...arguments) }, // i guess closures are not functions
-	err: error,
-	error: error,
+	info: (...args) => { console.info(...args) },
+	log: (...args) => { console.log(...args) },
+	err: (...args) => { console.error(...args) },
+	error: (...args) => { console.error(...args) },
 }
 
 if(myconfig.WINSTON) {
@@ -27,12 +22,11 @@ if(myconfig.WINSTON) {
 		level: 'info',
 		transports: [new winston.transports.Console(), loggingWinston],
 	});
-	logger.info = () => { wlog.log(...arguments) }
-	logger.log = () => { wlog.log(...arguments) }
-	logger.err = () => { wlog.info('error',...arguments) }
-	logger.error = () => { wlog.info('error',...arguments) }
+	logger.info = (...args) => { wlog.log(...args) }
+	logger.log = (...args) => { wlog.log(...args) }
+	logger.err = (...args) => { wlog.info('error',...args) }
+	logger.error = (...args) => { wlog.info('error',...args) }
 }
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // database
