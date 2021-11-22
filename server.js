@@ -7,13 +7,32 @@ const myconfig = require("./auth.json");
 // Create a Winston logger that streams to Stackdriver Logging
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-const winston = require('winston');
-const {LoggingWinston} = require('@google-cloud/logging-winston');
-const loggingWinston = new LoggingWinston();
-const logger = winston.createLogger({
-  level: 'info',
-  transports: [new winston.transports.Console(), loggingWinston],
-});
+function log() { console.log(...arguments) }
+function info() { console.info(...arguments) }
+function error() { console.error(...arguments) }
+
+let logger = {
+	info: info,
+	log: log,
+	fails: () => { console.log(...arguments) }, // i guess closures are not functions
+	err: error,
+	error: error,
+}
+
+if(myconfig.WINSTON) {
+	const winston = require('winston');
+	const {LoggingWinston} = require('@google-cloud/logging-winston');
+	const loggingWinston = new LoggingWinston();
+	const wlog = winston.createLogger({
+		level: 'info',
+		transports: [new winston.transports.Console(), loggingWinston],
+	});
+	logger.info = () => { wlog.log(...arguments) }
+	logger.log = () => { wlog.log(...arguments) }
+	logger.err = () => { wlog.info('error',...arguments) }
+	logger.error = () => { wlog.info('error',...arguments) }
+}
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // database
@@ -58,7 +77,7 @@ const createPoolAndEnsureSchema = async () => {
 		}
 		return pool
 	} catch(err) {
-		logger.log('error',err);
+		logger.error(err);
 		throw err;
 	}
 	return 0
@@ -161,7 +180,7 @@ app.use(async (req, res, next) => {
 		pool = await createPoolAndEnsureSchema()
 		next()
 	} catch (err) {
-		logger.log('error',err)
+		logger.error(err)
 		return next(err)
 	}
 })
@@ -299,14 +318,14 @@ app.get('/', async (req, res) => {
 	try {
 		pool = pool || (await createPoolAndEnsureSchema());
 	} catch(e) {
-		logger.log('error',"failed to get homepage due to cannot connect to db");
-		logger.log('error',JSON.stringify(e));
+		logger.error("failed to get homepage due to cannot connect to db");
+		logger.error(JSON.stringify(e));
 		res.status(200).send(JSON.stringify(e)).end();
 		return
 	}
 	if(!pool) {
 		console.error("no pool")
-		logger.log('error',"failed to get homepage due to cannot connect to db2");
+		logger.error("failed to get homepage due to cannot connect to db2");
 		res.status(200).send("nodb").end();
 		return
 	}
@@ -352,7 +371,7 @@ app.get('/', async (req, res) => {
 
 	} catch (err) {
 		console.log(err)
-		logger.log('error',err);
+		logger.error(err);
 		res
 			.status(500)
 			.send('Unable to load page; see logs for more details.')
@@ -383,7 +402,7 @@ app.get('/tabs', async (req, res) => {
 	try {
 		await insertSomething(pool, vote);
 	} catch (err) {
-		logger.log('error',`Error while attempting to submit vote:${err}`);
+		logger.error(`Error while attempting to submit vote:${err}`);
 	res
 		.status(500)
 		.send('Unable to cast vote; see logs for more details.')
