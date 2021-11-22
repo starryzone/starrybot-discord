@@ -8,10 +8,10 @@ const myconfig = require("./auth.json");
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 let logger = {
-	info: (...args) => { console.info(...args) },
-	log: (...args) => { console.log(...args) },
-	err: (...args) => { console.error(...args) },
-	error: (...args) => { console.error(...args) },
+	info: (...args) => console.info(...args),
+	log: (...args) => console.log(...args),
+	err: (...args) => console.error(...args),
+	error: (...args) => console.error(...args),
 }
 
 if(myconfig.WINSTON) {
@@ -22,10 +22,10 @@ if(myconfig.WINSTON) {
 		level: 'info',
 		transports: [new winston.transports.Console(), loggingWinston],
 	});
-	logger.info = (...args) => { wlog.log(...args) }
-	logger.log = (...args) => { wlog.log(...args) }
-	logger.err = (...args) => { wlog.info('error',...args) }
-	logger.error = (...args) => { wlog.info('error',...args) }
+	logger.info = (...args) => wlog.log(...args)
+	logger.log = (...args) => wlog.log(...args)
+	logger.err = (...args) => wlog.info('error',...args)
+	logger.error = (...args) => wlog.info('error',...args)
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
