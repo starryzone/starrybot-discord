@@ -159,20 +159,24 @@ module.exports = server
 ////////////////////////////////
 
 let fakedb = {
-	default:{
+	"765639120021749760":{
 		validatorURL: "https://cosmos-webapp.pages.dev/?traveller=",
-		channelName:  "secretspecialchannel",
 		channelId: "846500999007043615",
 		//role:"futurian"
+	},
+	"default":{
+		validatorURL: "https://cosmos-webapp.pages.dev/?traveller=",
+		channelId: "12341234",
+		//role:"futurian"		
 	}
 }
 
-db.settingsAdd = (id,params) => {
+db.guildSet = (id,params) => {
 	fakedb[id]=params
 }
 
-db.settingsGet = (id="default") => {
-	return fakedb[id]
+db.guildGet = (id="default") => {
+	return fakedb[id] || fakedb.default
 }
 
 ////////////////////////////////
@@ -195,15 +199,20 @@ client.on("messageCreate", async message => {
 	if (message.author.bot) return
 	if (message.content.indexOf(db.myConfig.PREFIX) !== 0) return
 
-	// since this bot serves many masters, go ahead and find which server is involved here
-	let disco = db.settingsGet()
-
 	// peel a few details out of the message
 	const {guildId, author } = message;
 	const args = message.content.slice(db.myConfig.PREFIX.length).trim().split(/ +/g)
 	const command = args.shift().toLowerCase()
 
+	// since this bot serves many masters, go ahead and find which server is involved here
+	let disco = db.guildGet(guildId)
+
 	switch(command) {
+
+		case "starry-quote":
+			message.channel.send(Sagan.sagan())
+			break
+
 		case "starry":
 			let uuid = author.id
 			const memberExists = await db.memberExists(uuid, guildId);
@@ -249,6 +258,32 @@ client.on("messageCreate", async message => {
 			await db.memberDelete(author.id, guildId)
 			break
 
+		case "starry-admin":
+			message.channel.send(`Validator url is ${disco.validatorURL} and room number is ${disco.channelId} and role is ${disco.role}`);
+			break
+
+		case "starry-admin-validator":
+			// TODO RESTRICT
+			disco.validatorURL = args[0]
+			db.guildSet(disco)
+			message.channel.send(`Validator url is ${disco.validatorURL} and room number is ${disco.channelId} and role is ${disco.role}`);
+			break
+
+		case "starry-admin-channel":
+			// TODO RESTRICT
+			disco.channelId = args[0]
+			db.guildSet(disco)
+			message.channel.send(`Validator url is ${disco.validatorURL} and room number is ${disco.channelId} and role is ${disco.role}`);
+			break
+
+		case "starry-admin-role":
+			// TODO RESTRICT
+			disco.role = args[0]
+			db.guildSet(disco)
+			message.channel.send(`Validator url is ${disco.validatorURL} and room number is ${disco.channelId} and role is ${disco.role}`);
+			break
+
+
 		case "starry-magic":
 
 			// As a test, immediately add the person who sent the message to the secret channel
@@ -271,6 +306,12 @@ client.on("messageCreate", async message => {
 			logger.log("invite sent")
 
 			// There is an idea of adding a "ROLE" to a user.
+
+//https://discordjs.guide/popular-topics/faq.html#how-do-i-unban-a-user
+//const role = interaction.options.getRole('role');
+//const member = interaction.options.getMember('target');
+//member.roles.add(role);
+
 			if(disco.role) {
 				let role = message.guild.roles.cache.find(r => r.name === disco.role)
 				if(!role) {
