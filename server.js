@@ -22,10 +22,10 @@ if(myconfig.WINSTON) {
 		level: 'info',
 		transports: [new winston.transports.Console(), loggingWinston],
 	});
-	logger.info = (...args) => wlog.log(...args)
-	logger.log = (...args) => wlog.log(...args)
-	logger.err = (...args) => wlog.info('error',...args)
-	logger.error = (...args) => wlog.info('error',...args)
+	logger.info = (...args) => wlog.info(...args)
+	logger.log = (...args) => wlog.info(...args)
+	logger.err = (...args) => wlog.log('error',...args)
+	logger.error = (...args) => wlog.log('error',...args)
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -88,18 +88,6 @@ const insertSomething = async (pool, record) => {
 	}
 };
 
-const getVotes = async pool => {
-	return await pool
-		.select('candidate', 'time_cast')
-		.from(myconfig.DB_TABLENAME)
-		.orderBy('time_cast', 'desc')
-		.limit(5);
-};
-
-const getVoteCount = async (pool, candidate) => {
-	return await pool(myconfig.DB_TABLENAME).count('vote_id').where('candidate', candidate);
-};
-
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 // SessionID
 // Math.random should be unique because of its seeding algorithm.
@@ -155,6 +143,7 @@ function signing_dowork(args) {
 const express = require('express')
 const cors = require('cors')
 const app = express()
+app.use(express.static('public'))
 
 // There's probably some settings we can customize for cors here
 app.use(cors())
@@ -285,118 +274,3 @@ client.on("message", async message => {
 client.login(myconfig.DISCORD_TOKEN)
 
 
-
-
-
-
-
-
-
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// a silly test unused
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-app.get('/test',async(req,res) => {
-	res.status(200).send("key is " + myconfig.DB_KEY);
-})
-
-app.get('/', async (req, res) => {
-	logger.info("homepage requested");
-	try {
-		pool = pool || (await createPoolAndEnsureSchema());
-	} catch(e) {
-		logger.error("failed to get homepage due to cannot connect to db");
-		logger.error(JSON.stringify(e));
-		res.status(200).send(JSON.stringify(e)).end();
-		return
-	}
-	if(!pool) {
-		console.error("no pool")
-		logger.error("failed to get homepage due to cannot connect to db2");
-		res.status(200).send("nodb").end();
-		return
-	}
-	try {
-		// Query the total count of "TABS" from the database.
-		const tabsResult = await getVoteCount(pool, 'TABS');
-		const tabsTotalVotes = parseInt(tabsResult[0].count);
-		// Query the total count of "SPACES" from the database.
-		const spacesResult = await getVoteCount(pool, 'SPACES');
-		const spacesTotalVotes = parseInt(spacesResult[0].count);
-		// Query the last 5 votes from the database.
-		const votes = await getVotes(pool);
-		// Calculate and set leader values.
-		let leadTeam = '';
-		let voteDiff = 0;
-		let leaderMessage = '';
-		if (tabsTotalVotes !== spacesTotalVotes) {
-		if (tabsTotalVotes > spacesTotalVotes) {
-			leadTeam = 'TABS';
-			voteDiff = tabsTotalVotes - spacesTotalVotes;
-		} else {
-			leadTeam = 'SPACES';
-			voteDiff = spacesTotalVotes - tabsTotalVotes;
-		}
-		leaderMessage =
-			`${leadTeam} are winning by ${voteDiff} vote` + voteDiff > 1 ? 's' : '';
-		} else {
-			leaderMessage = 'TABS and SPACES are evenly matched!';
-		}
-
-		let data = {
-			votes: votes,
-			tabsCount: tabsTotalVotes,
-			spacesCount: spacesTotalVotes,
-			leadTeam: leadTeam,
-			voteDiff: voteDiff,
-			leaderMessage: leaderMessage,
-		}
-		console.log("got results")
-		console.log(data)
-
-		res.status(200).send(JSON.stringify(data)).end();
-
-	} catch (err) {
-		console.log(err)
-		logger.error(err);
-		res
-			.status(500)
-			.send('Unable to load page; see logs for more details.')
-			.end();
-	}
-});
-
-app.get('/tabs', async (req, res) => {
-	pool = pool || (await createPoolAndEnsureSchema());
-
-	// Get the team from the request and record the time of the vote.
-	let team = "TABS"
-
-	const timestamp = new Date();
-
-	if (!team || (team !== 'TABS' && team !== 'SPACES')) {
-		res.status(400).send('Invalid team specified.').end();
-		return;
-	}
-
-	// Create a vote record to be stored in the database.
-	const vote = {
-		candidate: team,
-		time_cast: timestamp,
-	};
-
-	// Save the data to the database.
-	try {
-		await insertSomething(pool, vote);
-	} catch (err) {
-		logger.error(`Error while attempting to submit vote:${err}`);
-	res
-		.status(500)
-		.send('Unable to cast vote; see logs for more details.')
-		.end();
-		return;
-	}
-	res.status(200).send(`Successfully voted for ${team} at ${timestamp}`).end();
-});
-*/
