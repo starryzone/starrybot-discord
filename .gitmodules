@@ -1,0 +1,3 @@
+[submodule "saganipsum"]
+	path = saganipsum
+	url = https://github.com/omniverse/saganipsum.git
