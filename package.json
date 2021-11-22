@@ -3,7 +3,7 @@
 	"version": "1.0.1",
 	"private": true,
 	"description": "Starrybot helps users join membership-enabled Discord rooms",
-	"main": "index.js",
+	"main": "server.js",
 	"author": "@anselm",
 	"repository": {
 		"type": "git",
