@@ -43,7 +43,7 @@ const createPool = async () => {
 			password: myconfig.DB_PASS,
 			database: myconfig.DB_NAME,
 			host: myconfig.DB_HOSTIP,
-			port: myconfig.DB_PORT,
+			port: myconfig.DB_HOSTPORT,
 		},
 		pool: {
 			max: 5,
