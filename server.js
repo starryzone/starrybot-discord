@@ -64,9 +64,12 @@ const createPoolAndEnsureSchema = async () => {
 		const hasTable = await pool.schema.hasTable(myconfig.DB_TABLENAME)
 		if (!hasTable) {
 			return pool.schema.createTable(myconfig.DB_TABLENAME, table => {
-				table.increments('vote_id').primary()
-				table.timestamp('time_cast', 30).notNullable()
-				table.specificType('candidate', 'CHAR(6)').notNullable()
+				table.increments('id').primary()
+				table.text('discord_account_id').notNullable()
+				table.timestamp('created_at').defaultTo(pool.fn.now())
+				table.uuid('session_token').notNullable()
+				table.text('saganism', 'mediumtext').notNullable()
+				table.boolean('is_member')
 			})
 		}
 		return pool
