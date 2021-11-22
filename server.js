@@ -264,15 +264,6 @@ client.on("message", async message => {
 				.setAuthor('Starrybot', 'https://i.imgur.com/AfFp7pu.png', 'https://discord.js.org')
 				.setDescription(sagan)
 				.setThumbnail('https://i.imgur.com/AfFp7pu.png')
-				//.addFields(
-				//	{ name: 'Regular field title', value: 'Starry Invite' },
-				//	{ name: '\u200B', value: '\u200B' },
-				//	{ name: 'Inline field title', value: 'Acceleration on', inline: true },
-				//	{ name: 'Inline field title', value: 'Can you hear us Major Tom', inline: true },
-				//	{ name: 'Inline field title', value: sagan, inline: true },
-				//)
-				//.addField('Inline field title', 'Planet Earth is Blue', true)
-				//.setImage('https://i.imgur.com/AfFp7pu.png')
 				.setTimestamp()
 				.setFooter('Put your helmet on', 'https://i.imgur.com/AfFp7pu.png');
 
