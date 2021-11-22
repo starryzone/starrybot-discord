@@ -1,11 +1,10 @@
-
 'use strict';
 
-const myconfig = require("./auth.json");
+const db = require("./db");
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////
 // Create a Winston logger that streams to Stackdriver Logging
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////
 
 let logger = {
 	info: (...args) => console.info(...args),
@@ -14,7 +13,7 @@ let logger = {
 	error: (...args) => console.error(...args),
 }
 
-if(myconfig.WINSTON) {
+if (db.myConfig.WINSTON) {
 	const winston = require('winston');
 	const {LoggingWinston} = require('@google-cloud/logging-winston');
 	const loggingWinston = new LoggingWinston();
@@ -28,117 +27,22 @@ if(myconfig.WINSTON) {
 	logger.error = (...args) => wlog.log('error',...args)
 }
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// database
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-const Knex = require('knex')
-
-const createPool = async () => {
-
-	let knexargs = {
-		client: 'pg',
-		connection: {
-			user: myconfig.DB_USER,
-			password: myconfig.DB_PASS,
-			database: myconfig.DB_NAME,
-			host: myconfig.DB_HOSTIP,
-			port: myconfig.DB_HOSTPORT,
-		},
-		pool: {
-			max: 5,
-			min: 5,
-			acquireTimeoutMillis: 60000,
-			createTimeoutMillis: 30000,
-			idleTimeoutMillis: 600000,
-			createRetryIntervalMillis: 200,
-		}
-	}
-
-	return Knex(knexargs)
-}
-
-const createPoolAndEnsureSchema = async () => {
-	try {
-		let pool = await createPool()
-		const hasTable = await pool.schema.hasTable(myconfig.DB_TABLENAME)
-		if (!hasTable) {
-			return pool.schema.createTable(myconfig.DB_TABLENAME, table => {
-				table.increments('id').primary()
-				table.text('discord_account_id').notNullable()
-				table.timestamp('created_at').defaultTo(pool.fn.now())
-				table.uuid('session_token').notNullable()
-				table.text('saganism', 'mediumtext').notNullable()
-				table.boolean('is_member')
-			})
-		}
-		return pool
-	} catch(err) {
-		logger.error(err);
-		throw err;
-	}
-	return 0
-}
-
-const insertSomething = async (pool, record) => {
-	try {
-		return await pool(myconfig.DB_TABLENAME).insert(record);
-	} catch (err) {
-		throw Error(err);
-	}
-};
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////
-// SessionID
-// Math.random should be unique because of its seeding algorithm.
-// Convert it to base 36 (numbers + letters), and grab the first 9 characters
-// after the decimal.
-/////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-var SessionID = function () {
-	return '_' + Math.random().toString(36).substr(2, 9);
-};
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// database wrapper - model
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-let hack = {}
-
-let database = {
-	member_exists: (uuid) => {
-		return hack[uuid] ? true : false
-	},
-	member_add: (uuid,quote,date) => {
-		let sessionid = SessionID()
-		hack[uuid] = {
-			sessionid: sessionid,
-			quote: quote,
-			date: date
-		}
-		return sessionid
-	},
-	member_delete: (uuid) => {
-		delete hack[uuid]
-		return 0
-	}
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////
 // signing stuff
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////
 
 const { serializeSignDoc } = require('@cosmjs/amino')
 const { Secp256k1, Secp256k1Signature, sha256 } = require('@cosmjs/crypto')
 const { fromBase64 } = require('@cosmjs/encoding')
 
 function signing_dowork(args) {
+	// TODO: the next task to do :)
 	return 'I could have access to your database rows because I am a message from the backend. Sincerely, the backend'
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////
 // express app
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////
 
 const express = require('express')
 const cors = require('cors')
@@ -163,7 +67,7 @@ app.use(async (req, res, next) => {
 		return next();
 	}
 	try {
-		pool = await createPoolAndEnsureSchema()
+		pool = await db.createPoolAndEnsureSchema()
 		next()
 	} catch (err) {
 		logger.error(err)
@@ -171,11 +75,11 @@ app.use(async (req, res, next) => {
 	}
 })
 
-app.get('/starry-backend', (req, res) => {
+app.post('/starry-backend', async (req, res) => {
 
 	// TODO
 	//
-	// https://cosmos-webapp.pages.dev/?session=session
+	// https://cosmos-webapp.pages.dev/?traveller=session
 	//
 	// is this a valid uuid?
 	// ask db for carl sagan phrase
@@ -193,9 +97,32 @@ app.get('/starry-backend', (req, res) => {
 	//    send to https://queenbot.uc.r.appspot.com/starry-backend
 	//
 
-	let results = signing_dowork();
+	console.log('req.body', req.body);
 
-	res.send({ express: results });
+	try {
+		// If they didn't send the proper parameter
+		if (!req.body.traveller) {
+			res.sendStatus(400)
+		} else {
+			let rowInfo = await db.getRowBySessionToken(req.body.traveller)
+			console.log('rowInfo', rowInfo)
+			if (rowInfo.length === 0) {
+				res.sendStatus(400)
+			}
+
+			const createdAt = rowInfo[0].created_at;
+			console.log('createdAt', createdAt)
+			// TODO: see if they've surpassed their allotted time to respond
+			const saganism = rowInfo[0].saganism;
+			console.log('saganism', saganism)
+
+			res.send({saganism, createdAt});
+			// let results = signing_dowork();
+		}
+	} catch (e) {
+		console.warn('Error hitting starry-backend', e)
+	}
+
 })
 
 app.post('/keplr-signed', (req, res) => {
@@ -208,50 +135,57 @@ app.post('/keplr-signed', (req, res) => {
 	}
 })
 
-const PORT = myconfig.PORT || 8080;
+const PORT = db.myConfig.PORT || 8080;
 const server = app.listen(PORT, () => {
 	logger.info(`App listening on port ${PORT}`)
 })
 
 module.exports = server
 
-/////////////////////////////////////////////////////////////////////////////////////////////////////////
-// The bot
-/////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////
+// The Discord bot
+////////////////////////////////
 
 const Sagan = require("./sagan.js")
 
 const { Client, Intents, MessageEmbed } = require('discord.js')
+const {myConfig} = require("./db");
 
 const intents = new Intents([ Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES ]);
-const client = new Client({intents: intents }) 
+const client = new Client({intents: intents })
 
 client.on("ready", () => {
-	logger.info(`Bot has started, with ${client.users.size} users, in ${client.channels.size} channels of ${client.guilds.size} guilds.`)
+	logger.info(`StarryBot has star(ry)ted.`)
 });
 
-client.on("message", async message => {
-	if(message.author.bot) return
-	if(message.content.indexOf(myconfig.PREFIX) !== 0) return
-	const args = message.content.slice(myconfig.PREFIX.length).trim().split(/ +/g)
+client.on("messageCreate", async message => {
+	if (message.author.bot) return
+	if (message.content.indexOf(db.myConfig.PREFIX) !== 0) return
+
+	const {guildId, author } = message;
+	const args = message.content.slice(db.myConfig.PREFIX.length).trim().split(/ +/g)
 	const command = args.shift().toLowerCase()
 
 	switch(command) {
-		case "starry":
+		case "sm":
+			let uuid = author.id
+			const memberExists = await db.memberExists(uuid, guildId);
 
-			let uuid = message.author.uuid
-			if(database.member_exists(uuid)) {
-				message.channel.send("You're already validated!")
+			if (memberExists.length !== 0) {
+				message.channel.send("You're already validated on this server :)")
 				break
 			}
-
 			let sagan = Sagan.sagan()
-			let sessionid = database.member_add(uuid,sagan,Date.now())
-			let url = `https://cosmos-webapp.pages.dev/?sessionid=${sessionid}`
+			let sessionId = await db.memberAdd({
+				discord_account_id: uuid,
+				discord_guild_id: guildId,
+				saganism: sagan
+			})
+			let url = `https://cosmos-webapp.pages.dev/?traveller=${sessionId}`
 
 			const exampleEmbed = new MessageEmbed()
 				.setColor('#0099ff')
-				.setTitle('Please visit: https://cosmos-webapp.pages.dev')
+				.setTitle(`Please visit: ${url}`)
 				.setURL(url)
 				.setAuthor('Starrybot', 'https://i.imgur.com/AfFp7pu.png', 'https://discord.js.org')
 				.setDescription(sagan)
@@ -259,18 +193,31 @@ client.on("message", async message => {
 				.setTimestamp()
 				.setFooter('Put your helmet on', 'https://i.imgur.com/AfFp7pu.png');
 
-			message.channel.send("Check your dm's");
-			message.author.send({ embeds: [exampleEmbed] });
+			await message.channel.send("Check your DM's");
+			await message.author.send({ embeds: [exampleEmbed] });
 			break
-		case "deleteme":
-			database.member_delete(message.author.uuid)
-			message.channel.send("You've been brought back to earth")
-			//message.author.send("You've been brought back to earth")
+		case "delme":
+			await db.memberDelete(author.id, guildId)
+			await message.channel.send("You've been brought back to earth. (And removed as requested.)")
 			break
 	}
 
 });
 
-client.login(myconfig.DISCORD_TOKEN)
+const login = async () => {
+	const loggedInToken = await client.login(db.myConfig.DISCORD_TOKEN)
+	if (loggedInToken !== myConfig.DISCORD_TOKEN) {
+		console.warn('There might be an issue with the Discord login')
+		return false
+	} else {
+		return true
+	}
+}
 
-
+login().then((res) => {
+	if (res) {
+		console.log('Connected to Discord')
+	} else {
+		console.log('Issue connecting to Discord')
+	}
+})
