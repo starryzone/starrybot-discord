@@ -2,7 +2,7 @@
 	"name": "starrybot-discord",
 	"version": "1.0.1",
 	"private": true,
-	"description": "QUEENBOT Help users join membership enabled discord rooms",
+	"description": "Starrybot helps users join membership-enabled Discord rooms",
 	"main": "index.js",
 	"author": "@anselm",
 	"repository": {
@@ -19,14 +19,11 @@
 	    "knex": "^0.95.14",
 	    "pg": "^8.7.1",
 	    "winston": "^3.1.0",
-
-
 	    "@cosmjs/amino": "^0.26.4",
 	    "@cosmjs/crypto": "^0.26.4",
 	    "@cosmjs/encoding": "^0.26.4",
 	    "cors": "^2.8.5",
 	    "web-vitals": "^1.0.1"
-
 	},
 	"scripts": {
 		"start": "node server.js"
