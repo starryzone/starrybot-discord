@@ -56,8 +56,46 @@ const SessionID = function () {
 	return Math.random().toString(36).substr(2, 9);
 };
 
+
+
 ////////////////////////////////
-// database wrapper - model
+// database wrapper for guild
+//
+// TODO/TBD
+//
+// - the theory is that people will throw this bot in their server
+// - and they want to configure the bot for their server
+// - so i think this bot thing needs to deal with many servers and all kinds of data
+// - presumably there is some way to understand the current context
+// - and presumably we can store that in a db
+// - and allow config either by a website or maybe in the bot itself
+// - anyway, this code pretends to do that
+//
+////////////////////////////////
+
+let fakedb = {
+	"765639120021749760":{
+		validatorURL: "https://cosmos-webapp.pages.dev/?traveller=",
+		channelId: "846500999007043615",
+		//role:"futurian"
+	},
+	"default":{
+		validatorURL: "https://cosmos-webapp.pages.dev/?traveller=",
+		channelId: "12341234",
+		//role:"futurian"		
+	}
+}
+
+const guildSet = async (id,params) => {
+	fakedb[id]=params
+}
+
+const guildGet = async (id="default") => {
+	return fakedb[id] || fakedb.default
+}
+
+////////////////////////////////
+// database wrapper - for members
 ////////////////////////////////
 
 const memberExists = async (uuid, guildId) => {
@@ -93,4 +131,4 @@ const getRowBySessionToken = async (session_token) => {
 		.select('created_at', 'saganism')
 }
 
-module.exports = { memberExists, memberAdd, memberDelete, getRowBySessionToken, ensureDatabaseInitialized, myConfig }
+module.exports = { memberExists, memberAdd, memberDelete, getRowBySessionToken, ensureDatabaseInitialized, myConfig, guildSet, guildGet }

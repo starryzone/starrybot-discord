@@ -117,43 +117,6 @@ const server = app.listen(PORT, () => {
 
 module.exports = server
 
-
-////////////////////////////////
-// Instance settings...
-//
-// TODO/TBD
-//
-// - the theory is that people will throw this bot in their server
-// - and they want to configure the bot for their server
-// - so i think this bot thing needs to deal with many servers and all kinds of data
-// - presumably there is some way to understand the current context
-// - and presumably we can store that in a db
-// - and allow config either by a website or maybe in the bot itself
-// - anyway, this code pretends to do that
-//
-////////////////////////////////
-
-let fakedb = {
-	"765639120021749760":{
-		validatorURL: "https://cosmos-webapp.pages.dev/?traveller=",
-		channelId: "846500999007043615",
-		//role:"futurian"
-	},
-	"default":{
-		validatorURL: "https://cosmos-webapp.pages.dev/?traveller=",
-		channelId: "12341234",
-		//role:"futurian"		
-	}
-}
-
-db.guildSet = (id,params) => {
-	fakedb[id]=params
-}
-
-db.guildGet = (id="default") => {
-	return fakedb[id] || fakedb.default
-}
-
 ////////////////////////////////
 // The Discord bot
 ////////////////////////////////
