@@ -21,7 +21,11 @@ const knex = require('knex')({
 	}
 });
 
-const createPoolAndEnsureSchema = async () => {
+let knex_initialized = false
+
+const ensureDatabaseInitialized = async () => {
+	if(knex_initialized) return
+	knex_initialized = true
 	try {
 		const hasTable = await knex.schema.hasTable(myConfig.DB_TABLENAME)
 		if (!hasTable) {
@@ -89,4 +93,4 @@ const getRowBySessionToken = async (session_token) => {
 		.select('created_at', 'saganism')
 }
 
-module.exports = { memberExists, memberAdd, memberDelete, getRowBySessionToken, createPoolAndEnsureSchema, myConfig }
+module.exports = { memberExists, memberAdd, memberDelete, getRowBySessionToken, ensureDatabaseInitialized, myConfig }

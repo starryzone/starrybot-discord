@@ -2,30 +2,7 @@
 
 const db = require("./db");
 
-////////////////////////////////
-// Create a Winston logger that streams to Stackdriver Logging
-////////////////////////////////
-
-let logger = {
-	info: (...args) => console.info(...args),
-	log: (...args) => console.log(...args),
-	err: (...args) => console.error(...args),
-	error: (...args) => console.error(...args),
-}
-
-if (db.myConfig.WINSTON) {
-	const winston = require('winston');
-	const {LoggingWinston} = require('@google-cloud/logging-winston');
-	const loggingWinston = new LoggingWinston();
-	const wlog = winston.createLogger({
-		level: 'info',
-		transports: [new winston.transports.Console(), loggingWinston],
-	});
-	logger.info = (...args) => wlog.info(...args)
-	logger.log = (...args) => wlog.info(...args)
-	logger.err = (...args) => wlog.log('error',...args)
-	logger.error = (...args) => wlog.log('error',...args)
-}
+const logger = require("./logger")
 
 ////////////////////////////////
 // signing stuff
@@ -39,6 +16,11 @@ function signing_dowork(args) {
 	// TODO: the next task to do :)
 	return 'I could have access to your database rows because I am a message from the backend. Sincerely, the backend'
 }
+
+////////////////////////////////
+// business logic
+////////////////////////////////
+
 
 ////////////////////////////////
 // express app
@@ -60,19 +42,9 @@ app.use((req, res, next) => {
 	next()
 })
 
-let pool = 0;
-
 app.use(async (req, res, next) => {
-	if (pool) {
-		return next();
-	}
-	try {
-		pool = await db.createPoolAndEnsureSchema()
-		next()
-	} catch (err) {
-		logger.error(err)
-		return next(err)
-	}
+	db.ensureDatabaseInitialized()
+	next()
 })
 
 app.post('/starry-backend', async (req, res) => {
@@ -128,6 +100,9 @@ app.post('/starry-backend', async (req, res) => {
 app.post('/keplr-signed', (req, res) => {
 	let allIsGood = true
 	if (allIsGood) {
+
+		// TODO if all is good then take the person and hoist them into a role
+
 		res.sendStatus(200)
 	} else {
 		// Bad Request, you're grounded
@@ -221,34 +196,38 @@ client.on("messageCreate", async message => {
 				// TODO it may be possible to ask discord rather than asking our own database - more stable
 				message.channel.send("You're already validated on this server :)")
 				break
+
+			} else {
+
+				// get a funny quote
+				let sagan = Sagan.sagan()
+
+				// create a session in db
+				let sessionId = await db.memberAdd({
+					discord_account_id: uuid,
+					discord_guild_id: guildId,
+					saganism: sagan
+				})
+
+				// tell user to go to validator site
+				const exampleEmbed = new MessageEmbed()
+					.setColor('#0099ff')
+					.setTitle(`Please visit: ${disco.validatorURL+sessionId}`)
+					.setURL(url)
+					.setAuthor('Starrybot', 'https://i.imgur.com/AfFp7pu.png', 'https://discord.js.org')
+					.setDescription(sagan)
+					.setThumbnail('https://i.imgur.com/AfFp7pu.png')
+					.setTimestamp()
+					.setFooter('Put your helmet on', 'https://i.imgur.com/AfFp7pu.png');
+
+				// send it privately
+				await message.author.send({ embeds: [exampleEmbed] });
+
+				// but also tell them to check their dms publically
+				await message.channel.send("Check your DM's");
+
 			}
 
-			// get a funny quote
-			let sagan = Sagan.sagan()
-
-			// create a session in db
-			let sessionId = await db.memberAdd({
-				discord_account_id: uuid,
-				discord_guild_id: guildId,
-				saganism: sagan
-			})
-
-			// tell user to go to validator site
-			const exampleEmbed = new MessageEmbed()
-				.setColor('#0099ff')
-				.setTitle(`Please visit: ${disco.validatorURL+sessionId}`)
-				.setURL(url)
-				.setAuthor('Starrybot', 'https://i.imgur.com/AfFp7pu.png', 'https://discord.js.org')
-				.setDescription(sagan)
-				.setThumbnail('https://i.imgur.com/AfFp7pu.png')
-				.setTimestamp()
-				.setFooter('Put your helmet on', 'https://i.imgur.com/AfFp7pu.png');
-
-			// send it privately
-			await message.author.send({ embeds: [exampleEmbed] });
-
-			// but also tell them to check their dms publically
-			await message.channel.send("Check your DM's");
 			break
 
 		case "starry-delete":
@@ -283,8 +262,17 @@ client.on("messageCreate", async message => {
 			message.channel.send(`Validator url is ${disco.validatorURL} and room number is ${disco.channelId} and role is ${disco.role}`);
 			break
 
-
 		case "starry-magic":
+
+///
+/// request to our backend, localhost:5000 with info
+   //   //   we'll copy the code stuffs below
+///      const valid = await Secp256k1.verifySignature(
+    //    Secp256k1Signature.fromFixedLength(fromBase64(signature.signature)),
+    //    sha256(serializeSignDoc(signed)),
+     //   this.accounts[0].pubkey,
+     // );
+///
 
 			// As a test, immediately add the person who sent the message to the secret channel
 			const guild = await client.guilds.fetch(guildId)
