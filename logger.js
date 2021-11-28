@@ -3,6 +3,7 @@
 const db = require("./db");
 
 let logger = {
+	warn: (...args) => console.warn(...args),
 	info: (...args) => console.info(...args),
 	log: (...args) => console.log(...args),
 	err: (...args) => console.error(...args),
@@ -17,6 +18,7 @@ if (db.myConfig.WINSTON) {
 		level: 'info',
 		transports: [new winston.transports.Console(), loggingWinston],
 	});
+	logger.warn = (...args) => wlog.info(...args)
 	logger.info = (...args) => wlog.info(...args)
 	logger.log = (...args) => wlog.info(...args)
 	logger.err = (...args) => wlog.log('error',...args)

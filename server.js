@@ -1,39 +1,15 @@
 'use strict';
 
 const db = require("./db")
-
 const logger = require("./logger")
-
-const discord = require("./discord")
-
-////////////////////////////////
-// signing stuff
-////////////////////////////////
-
-const { serializeSignDoc } = require('@cosmjs/amino')
-const { Secp256k1, Secp256k1Signature, sha256 } = require('@cosmjs/crypto')
-const { fromBase64 } = require('@cosmjs/encoding')
-
-function signing_dowork(args) {
-	// TODO: the next task to do :)
-	return 'I could have access to your database rows because I am a message from the backend. Sincerely, the backend'
-}
-
-////////////////////////////////
-// business logic
-////////////////////////////////
-
-
-////////////////////////////////
-// express app
-////////////////////////////////
+const discord = require("./discord") // this should be the only place this is brought in
+const logic = require("./logic")
 
 const express = require('express')
 const cors = require('cors')
 const app = express()
 app.use(express.static('public'))
 
-// There's probably some settings we can customize for cors here
 app.use(cors())
 
 app.enable('trust proxy')
@@ -45,73 +21,34 @@ app.use((req, res, next) => {
 })
 
 app.use(async (req, res, next) => {
+	// TODO arguably this could be performed in db in every request and not here to reduce need to include db
 	db.ensureDatabaseInitialized()
 	next()
 })
 
 app.post('/starry-backend', async (req, res) => {
-
-	// TODO
-	//
-	// https://cosmos-webapp.pages.dev/?traveller=session
-	//
-	// is this a valid uuid?
-	// ask db for carl sagan phrase
-	// check time stamp
-	// if error then say error
-	//
-	// if ok then
-	//		turn on sign button
-	//    signature = please sign this msg
-	//    blob = {
-	//		  session
-	//		  signed message
-	//	   	signature
-	//    }
-	//    send to https://queenbot.uc.r.appspot.com/starry-backend
-	//
-
-	console.log('req.body', req.body);
-
+	logger.log("express::starry-backend hit")
+	logger.log('req.body', req.body)
 	try {
-		// If they didn't send the proper parameter
-		if (!req.body.traveller) {
-			res.sendStatus(400)
-		} else {
-			let rowInfo = await db.getRowBySessionToken(req.body.traveller)
-			console.log('rowInfo', rowInfo)
-			if (rowInfo.length === 0) {
-				res.sendStatus(400)
-			}
-
-			const createdAt = rowInfo[0].created_at;
-			console.log('createdAt', createdAt)
-			// TODO: see if they've surpassed their allotted time to respond
-			const saganism = rowInfo[0].saganism;
-			console.log('saganism', saganism)
-
-			res.send({saganism, createdAt});
-			// let results = signing_dowork();
-		}
-	} catch (e) {
-		console.warn('Error hitting starry-backend', e)
-	}
-
-})
-
-app.post('/keplr-signed', (req, res) => {
-	let allIsGood = true
-	if (allIsGood) {
-
-		// TODO if all is good then take the person and hoist them into a role
-
-		res.sendStatus(200)
-	} else {
-		// Bad Request, you're grounded
-		res.sendStatus(400)
+		let results = logic.hoistSession(req.body)
+		res.status(200).send(results)
+	} catch (err) {
+		logging.warn('Error hitting starry-backend', err)
+		res.status(400).send({error:"Error hitting back end"})
 	}
 })
 
+app.post('/keplr-signed', async (req, res) => {
+	try {
+		let results = await logic.hoistFinalize(req.body,discord.client)
+		res.status(results.error?400:200).send(results)
+	} catch (err) {
+		logging.warn('Error hitting kelpr-signed', err)
+		res.status(400).send({error:"error"})
+	}
+})
+
+// TODO arguably config could be separate from db so that db would not need to be included here
 const PORT = db.myConfig.PORT || 8080;
 const server = app.listen(PORT, () => {
 	logger.info(`App listening on port ${PORT}`)

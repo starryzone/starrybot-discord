@@ -73,25 +73,14 @@ const SessionID = function () {
 //
 ////////////////////////////////
 
-let fakedb = {
-	"765639120021749760":{
-		validatorURL: "https://cosmos-webapp.pages.dev/?traveller=",
-		channelId: "846500999007043615",
-		//role:"futurian"
-	},
-	"default":{
-		validatorURL: "https://cosmos-webapp.pages.dev/?traveller=",
-		channelId: "12341234",
-		//role:"futurian"		
-	}
-}
+let fakedb = {}
 
 const guildSet = async (id,params) => {
 	fakedb[id]=params
 }
 
-const guildGet = async (id="default") => {
-	return fakedb[id] || fakedb.default
+const guildGet = async (id) => {
+	return fakedb[id] || {}
 }
 
 ////////////////////////////////
