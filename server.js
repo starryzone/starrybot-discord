@@ -74,12 +74,13 @@ app.post('/starry-backend', async (req, res) => {
 	try {
 		// If they didn't send the proper parameter
 		if (!req.body.traveller) {
-			res.sendStatus(400)
+			res.sendStatus(400);
 		} else {
 			let rowInfo = await db.getRowBySessionToken(req.body.traveller)
 			console.log('rowInfo', rowInfo)
 			if (rowInfo.length === 0) {
-				res.sendStatus(400)
+				res.sendStatus(400);
+				return;
 			}
 
 			const createdAt = rowInfo[0].created_at;
@@ -89,7 +90,6 @@ app.post('/starry-backend', async (req, res) => {
 			console.log('saganism', saganism)
 
 			res.send({saganism, createdAt});
-			// let results = signing_dowork();
 		}
 	} catch (e) {
 		console.warn('Error hitting starry-backend', e)
@@ -97,17 +97,25 @@ app.post('/starry-backend', async (req, res) => {
 
 })
 
-app.post('/keplr-signed', (req, res) => {
-	let allIsGood = true
-	if (allIsGood) {
+app.post('/keplr-signed', async (req, res) => {
+		const {traveller, signed, signature, publicKey} = req.body;
 
-		// TODO if all is good then take the person and hoist them into a role
-
+		const validSignature = await isValidSignature(signed, signature, publicKey);
+		if (!validSignature) {
+			// Bad Request, you're grounded
+			return res.status(400);
+		}
+		console.log('Valid signature, checking if signed correct thing…')
+		// Valid signature, on to the next checks…
+		// Use "traveller" and "signed" to see if they're signing the right thing according to the database.
+		const signedCorrectSaganism = await isCorrectSaganism(traveller, signed);
+		if (!signedCorrectSaganism) {
+			return res.status(400);
+		}
+		console.log('Signed correct thing, checking if user should be elevated…')
+		// Finally, check to see if the user should be elevated in Discord (talk to blockchain)
+		// TODO: look at some database table or settings that defines which token should exist and which role should be assigned
 		res.sendStatus(200)
-	} else {
-		// Bad Request, you're grounded
-		res.sendStatus(400)
-	}
 })
 
 const PORT = db.myConfig.PORT || 8080;
@@ -116,6 +124,48 @@ const server = app.listen(PORT, () => {
 })
 
 module.exports = server
+
+// Returns boolean whether the signature is valid or not
+const isValidSignature = async (signed, signature, publicKey) => {
+	let valid = false;
+	try {
+		// let binaryHashSigned = new Uint8Array(Object.values(hashSigned));
+		let binaryHashSigned = sha256(serializeSignDoc(signed));
+		let binaryPublicKey = new Uint8Array(Object.values(publicKey));
+
+		valid = await Secp256k1.verifySignature(
+			Secp256k1Signature.fromFixedLength(fromBase64(signature)),
+			binaryHashSigned,
+			binaryPublicKey,
+		);
+	} catch (e) {
+		console.error('Issue trying to verify the signature', e);
+	} finally {
+		return valid;
+	}
+}
+
+// Returns boolean whether the user signed the right thing
+const isCorrectSaganism = async (traveller, signed) => {
+	let isCorrect = false;
+	try {
+		// What they signed
+		const signedSaganism = signed.msgs[0].value;
+		let rowInfo = await db.getRowBySessionToken(traveller)
+		if (rowInfo.length === 0) {
+			// Don't even have a row for this session ID
+			return false;
+		}
+		// What they should have signed
+		const assignedSaganism = rowInfo[0].saganism;
+		isCorrect = signedSaganism === assignedSaganism;
+	} catch (e) {
+		console.error('Issue determining if the user signed the right thing', e);
+	} finally {
+		return isCorrect;
+	}
+}
+
 
 ////////////////////////////////
 // The Discord bot
