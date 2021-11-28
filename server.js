@@ -226,7 +226,7 @@ client.on("messageCreate", async message => {
 				const exampleEmbed = new MessageEmbed()
 					.setColor('#0099ff')
 					.setTitle(`Please visit: ${disco.validatorURL+sessionId}`)
-					.setURL(url)
+					.setURL(disco.validatorURL)
 					.setAuthor('Starrybot', 'https://i.imgur.com/AfFp7pu.png', 'https://discord.js.org')
 					.setDescription(sagan)
 					.setThumbnail('https://i.imgur.com/AfFp7pu.png')
