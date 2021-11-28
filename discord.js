@@ -12,12 +12,12 @@ const client = new Client({intents: intents })
 
 let validatorURL = db.myConfig.VALIDATOR
 
-function createEmbed(memberId,saganism) {
-	let url = validatorURL + memberId
+function createEmbed(traveller,saganism) {
+	let url = validatorURL + traveller
 	return new MessageEmbed()
 		.setColor('#0099ff')
-		.setTitle(`Please visit: ${validatorURL}`)
-		.setURL(validatorURL)
+		.setTitle(`Please visit ${url}`)
+		.setURL(url)
 		.setAuthor('Starrybot', 'https://i.imgur.com/AfFp7pu.png', 'https://discord.js.org')
 		.setDescription(saganism)
 		.setThumbnail('https://i.imgur.com/AfFp7pu.png')
@@ -67,10 +67,10 @@ client.on("messageCreate", async message => {
 		case "starry":
 			try {
 				let results = await logic.hoistRequest({guildId:guildId,authorId:author.id})
-				if(results.error || !results.memberId || !results.saganism) {
+				if(results.error || !results.traveller || !results.saganism) {
 					channel.send(results.error||"Internal error")
 				} else {
-					author.send({embeds:[createEmbed(results.memberId,results.saganism)]})
+					author.send({embeds:[createEmbed(results.traveller,results.saganism)]})
 					channel.send("Check your DM's")
 				}
 				logger.info("discord - done starry")
@@ -112,17 +112,29 @@ client.on("messageCreate", async message => {
 			roles.forEach(role=>{
 				channel.send(role.give_role)
 			})
-			break
+			return
 
 		case "starry-admin-role":
-			await db.rolesSet(args[0])
+			await db.rolesSet(guildId,args[0])
 			channel.send(`Added role`)
+			return
+
+		case "starry-admin-delete":
+			await db.rolesDelete(guildId,args[0])
+			channel.send(`Deleted role`)
+			return
+
+		case "starry-admin-members":
+			let members = await db.membersAll(guildId)
+			members.forEach(member=>{
+				channel.send(JSON.stringify(member))
+			})
 			break
 
 		case "starry-magic":
 			// for testing -> could actually also accept a user name and be more useful TODO
 			//await logic.hoistFinalize({discord_guild_id:guildId,discord_author_id:authorId},client)
-			break
+			return
 	}
 
 });

@@ -78,32 +78,37 @@ const rolesGet = async (guildId) => {
 	return roles
 }
 
-const rolesSet = async (args) => {
+const rolesSet = async (guildId,role) => {
+	await ensureDatabaseInitialized()
 
-/*
+	let discord_guild_id = guildId;
+	let token_address = "not set yet"
+	let has_minimum_of = "1"
+	let created_by_discord_id = "0"
+	let give_role = role
 
-	return knex(myConfig.DB_TABLENAME_MEMBERS).where({
-		discord_account_id: params.uuid,
-		discord_guild_id: params.guildId,
-	}).select('id')
+	// TODO verify that this does not already exist
 
-
-		const hasTable = await knex.schema.hasTable(myConfig.DB_TABLENAME_ROLES)
-		if (!hasTable) {
-			return knex.schema.createTable(myConfig.DB_TABLENAME_ROLES, table => {
-				table.increments('id').primary()
-				table.string('discord_guild_id').notNullable()
-				table.string('token_address').notNullable()
-				table.string('has_minimum_of').notNullable()
-				table.timestamp('created_at').defaultTo(knex.fn.now())
-				table.string('created_by_discord_id').notNullable()
-				table.string('give_role').notNullable()
-				table.string('validator_url').notNullable()
-			})
-		}
-*/
-
+	let results = await knex(myConfig.DB_TABLENAME_ROLES).insert({
+		discord_guild_id,
+		token_address,
+		has_minimum_of,
+		created_by_discord_id,
+		give_role
+	})
 }
+
+ const rolesDelete = async (guildId,role) => {
+
+ 	await ensureDatabaseInitialized()
+	try {
+		await knex(myConfig.DB_TABLENAME_ROLES).where( { discord_guild_id: guildId, give_role: role })
+			.del()
+	} catch (e) {
+		console.warn('Error deleting row', e)
+	}
+
+ }
 
 ///
 /// SessionID
@@ -120,6 +125,13 @@ const SessionID = function () {
 ///
 /// database wrapper - for members
 ///
+
+const membersAll = async (guildId) => {
+	await ensureDatabaseInitialized()
+	return knex(myConfig.DB_TABLENAME_MEMBERS).where({
+		discord_guild_id: guildId
+	}).select('id','created_at','discord_account_id','session_token')
+}
 
 const memberExists = async (uuid, guildId) => {
 	await ensureDatabaseInitialized()
@@ -168,4 +180,4 @@ const memberDelete = async ({authorId, guildId}) => {
 	}
 }
 
-module.exports = { memberExists, memberBySessionToken, memberByIdAndGuild, memberAdd, memberDelete, myConfig, rolesGet, rolesSet }
+module.exports = { membersAll, memberExists, memberBySessionToken, memberByIdAndGuild, memberAdd, memberDelete, myConfig, rolesGet, rolesSet, rolesDelete }

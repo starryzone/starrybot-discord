@@ -38,14 +38,14 @@ async function hoistRequest(args) {
 	let saganism = Sagan.sagan()
 
 	// create a member record
-	let memberId = await db.memberAdd({
+	let traveller = await db.memberAdd({
 		discord_account_id: authorId,
 		discord_guild_id: guildId,
 		saganism: saganism
 	})
 
 	// return a nice useful blob to the caller so they can print some stuff out
-	return {memberId , saganism }
+	return {traveller , saganism }
 }
 
 ///
@@ -53,6 +53,8 @@ async function hoistRequest(args) {
 ///
 
 async function hoistInquire(traveller) {
+
+	logger.log("hoistInquire " + traveller)
 
 	// If they didn't send the proper parameter
 	if (!traveller) {
@@ -87,6 +89,7 @@ async function hoistDrop(args) {
 	let guildId = args.guildId
 	await db.memberDelete({authorId,guildId})
 	return {message:"You've been removed"}
+	// TODO actually remove users
 }
 
 const { serializeSignDoc } = require('@cosmjs/amino')
@@ -206,6 +209,13 @@ async function hoistFinalize(blob,client) {
 		return {error:"cannot find guild"}
 	}
 
+	// get user
+	const author = await client.users.fetch(member.discord_account_id)
+	if(!author) {
+		logger.error("discord::hoist - cannot find participant")
+		return {error:"cannot find party"}
+	}
+
 	// get all guild roles
 	const everyoneRole = guild.roles.everyone
 
@@ -219,15 +229,22 @@ async function hoistFinalize(blob,client) {
 	// member.roles.add(role);
 	//
 
-	roles.forEach(role => {
+	roles.forEach(async role => {
 		let rolename = role.give_role
-		let rolediscord = message.guild.roles.cache.find(r => r.name === rolename)
+		let rolediscord = guild.roles.cache.find(r => r.name === rolename)
 		if(!rolediscord) {
 			channel.send("Hmm, starrybot cannot find role " + rolename)
 		} else {
 			logger.log("Adding user to role " + rolename)
 
-			// discord_user.roles.add(role).catch(console.error);
+			try {
+				await author.roles.add(rolediscord)
+			} catch(err) {
+				logging.error(err)
+				return {error:"cannot add role"}
+			}
+
+			// TODO must ALSO set is_member in database
 
 			// It makes sense to ALSO send them an invite code?
 			//try {
