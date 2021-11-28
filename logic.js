@@ -69,13 +69,12 @@ async function hoistInquire(traveller) {
 	}
 
 	const createdAt = member.created_at
-	console.log('createdAt', createdAt)
+
 	// TODO: see if they've surpassed their allotted time to respond
 
 	const saganism = member.saganism
-	console.log('saganism', saganism)
 
-	return {saganism:saganism, createdAt:createdAt}
+	return {saganism, createdAt}
 }
 
 ///
@@ -114,7 +113,7 @@ const isValidSignature = async (signed, signature, publicKey) => {
 			binaryPublicKey,
 		);
 	} catch (e) {
-		console.error('Issue trying to verify the signature', e);
+		logger.error('Issue trying to verify the signature', e);
 	} finally {
 		return valid;
 	}
@@ -138,7 +137,7 @@ const isCorrectSaganism = async (traveller, signed) => {
 		const assignedSaganism = member.saganism;
 		isCorrect = signedSaganism === assignedSaganism;
 	} catch (e) {
-		console.error('Issue determining if the user signed the right thing', e);
+		logger.error('Issue determining if the user signed the right thing', e);
 	} finally {
 		return isCorrect;
 	}
@@ -151,13 +150,13 @@ const isCorrectSaganism = async (traveller, signed) => {
 async function hoistFinalize(blob,client) {
 
 	logger.log("hoistFinalize");
+	logger.log("**********")
 	logger.log(blob)
 
 	const {traveller, signed, signature, publicKey} = blob;
 
 	// get member
 	let member = await db.memberBySessionToken(traveller)
-	console.log('hoistFinalize::memberr', member)
 
 	if (!member) {
 		logger.error("discord::hoist - no member")
@@ -170,11 +169,8 @@ async function hoistFinalize(blob,client) {
 	}
 
 	const createdAt = member.created_at;
-	console.log('createdAt', createdAt)
 	// TODO: see if they've surpassed their allotted time to respond ...
-
 	const saganism = member.saganism;
-	console.log('saganism', saganism)
 
 	// already validated?
 	if(member.is_member) {
@@ -196,8 +192,10 @@ async function hoistFinalize(blob,client) {
 		return {error:"Signing error"}
 	}
 
+	logger.log("*** user has passed all tests *** ")
+
 	// get all possible roles
-	let roles = await db.rolesGet(guildId)
+	let roles = await db.rolesGet(member.discord_guild_id)
 	if(!roles || !roles.length) {
 		return {error:"Admin needs to setup roles to give out"}
 	}
@@ -240,7 +238,8 @@ async function hoistFinalize(blob,client) {
 			try {
 				await author.roles.add(rolediscord)
 			} catch(err) {
-				logging.error(err)
+				logger.error("was unable to add role")
+				logger.error(err)
 				return {error:"cannot add role"}
 			}
 

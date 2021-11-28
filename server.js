@@ -24,10 +24,10 @@ app.post('/starry-backend', async (req, res) => {
 	logger.log("express::starry-backend hit")
 	logger.log('req.body', req.body)
 	try {
-		let results = logic.hoistInquire(req.body.traveller)
+		let results = await logic.hoistInquire(req.body.traveller)
 		res.status(200).send(results)
 	} catch (err) {
-		logging.warn('Error hitting starry-backend', err)
+		logger.warn('Error hitting starry-backend', err)
 		res.status(400).send({error:"Error hitting back end"})
 	}
 })
@@ -39,7 +39,7 @@ app.post('/keplr-signed', async (req, res) => {
 		let results = await logic.hoistFinalize(req.body,discord.client)
 		res.status(results.error?400:200).send(results)
 	} catch (err) {
-		logging.warn('Error hitting kelpr-signed', err)
+		logger.warn('Error hitting kelpr-signed', err)
 		res.status(400).send({error:"error"})
 	}
 })
