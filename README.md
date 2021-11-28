@@ -27,3 +27,6 @@ gcloud app deploy
 - move to cloudflare workers with durable objects?
 - move to discord slash commands?
 
+## Useful links:
+
+- [Adding the Discord bot](https://discord.com/oauth2/authorize?client_id=911363833925349456&scope=bot&permissions=8)

@@ -20,17 +20,11 @@ app.use((req, res, next) => {
 	next()
 })
 
-app.use(async (req, res, next) => {
-	// TODO arguably this could be performed in db in every request and not here to reduce need to include db
-	db.ensureDatabaseInitialized()
-	next()
-})
-
 app.post('/starry-backend', async (req, res) => {
 	logger.log("express::starry-backend hit")
 	logger.log('req.body', req.body)
 	try {
-		let results = logic.hoistSession(req.body)
+		let results = logic.hoistInquire(req.body.traveller)
 		res.status(200).send(results)
 	} catch (err) {
 		logging.warn('Error hitting starry-backend', err)

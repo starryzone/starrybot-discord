@@ -10,13 +10,16 @@ const { Client, Intents, MessageEmbed, Permissions } = require('discord.js')
 const intents = new Intents([ Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES ]);
 const client = new Client({intents: intents })
 
-function createEmbed(args) {
+let validatorURL = db.myConfig.VALIDATOR
+
+function createEmbed(memberId,saganism) {
+	let url = validatorURL + memberId
 	return new MessageEmbed()
 		.setColor('#0099ff')
-		.setTitle(`Please visit: ${args.validatorURL+args.sessionId}`)
-		.setURL(args.validatorURL)
+		.setTitle(`Please visit: ${validatorURL}`)
+		.setURL(validatorURL)
 		.setAuthor('Starrybot', 'https://i.imgur.com/AfFp7pu.png', 'https://discord.js.org')
-		.setDescription(args.saganism)
+		.setDescription(saganism)
 		.setThumbnail('https://i.imgur.com/AfFp7pu.png')
 		.setTimestamp()
 		.setFooter('Put your helmet on', 'https://i.imgur.com/AfFp7pu.png');
@@ -27,9 +30,6 @@ client.on("ready", () => {
 });
 
 client.on("messageCreate", async message => {
-
-	// prime db here just in case
-	await db.ensureDatabaseInitialized()
 
 	// ignore messages from bots including self to avoid a botaparadox
 	if (message.author.bot) return
@@ -57,17 +57,20 @@ client.on("messageCreate", async message => {
 
 	switch(command) {
 
-		case "starry-say":
+		case "starry-drop":
+		case "starry-wisdom":
+		case "starry-lore":
+		case "starry-truthbomb":
 			channel.send(Sagan.sagan())
 			return
 
 		case "starry":
 			try {
 				let results = await logic.hoistRequest({guildId:guildId,authorId:author.id})
-				if(results.error || !results.sessionId) {
+				if(results.error || !results.memberId || !results.saganism) {
 					channel.send(results.error||"Internal error")
 				} else {
-					author.send({embeds:[createEmbed(results)]})
+					author.send({embeds:[createEmbed(results.memberId,results.saganism)]})
 					channel.send("Check your DM's")
 				}
 				logger.info("discord - done starry")
@@ -90,42 +93,35 @@ client.on("messageCreate", async message => {
 			return
 	}
 
-	// handle admin commands
+	// handle admin commands - this will do for now - TODO improve
 
-	if (!message.member.hasPermission("ADMINISTRATOR")) {
+	if (!message.member.permissions.has(Permissions.FLAGS.KICK_MEMBERS)) {
+		if(command.startsWith("starry")) {
+			channel.send("You are not an admin!")
+		}
 		return
 	}
 
 	// find or make a guild associated database record for tracking admin requests around how to deal with users
-	let disco = await db.guildGet(guildId)
+	let roles = await db.rolesGet(guildId)
 
 	switch(command) {
 
-		case "starry-admin":
-			channel.send(`Validator url is ${disco.validatorURL} and room number is ${disco.channelId} and role is ${disco.role}`);
-			break
-
-		case "starry-admin-validator":
-			disco.validatorURL = args[0]
-			await db.guildSet(disco)
-			channel.send(`Validator url is ${disco.validatorURL} and room number is ${disco.channelId} and role is ${disco.role}`);
-			break
-
-		case "starry-admin-channel":
-			disco.channelId = args[0]
-			await db.guildSet(disco)
-			channel.send(`Validator url is ${disco.validatorURL} and room number is ${disco.channelId} and role is ${disco.role}`);
+		case "starry-admin-roles":
+			channel.send("Roles I know of")
+			roles.forEach(role=>{
+				channel.send(role.give_role)
+			})
 			break
 
 		case "starry-admin-role":
-			disco.role = args[0]
-			await db.guildSet(disco)
-			channel.send(`Validator url is ${disco.validatorURL} and room number is ${disco.channelId} and role is ${disco.role}`);
+			await db.rolesSet(args[0])
+			channel.send(`Added role`)
 			break
 
 		case "starry-magic":
 			// for testing -> could actually also accept a user name and be more useful TODO
-			await logic.hoistFinalize({discord_guild_id:guildId,discord_author_id:authorId},client)
+			//await logic.hoistFinalize({discord_guild_id:guildId,discord_author_id:authorId},client)
 			break
 	}
 

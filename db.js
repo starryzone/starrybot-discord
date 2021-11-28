@@ -27,9 +27,9 @@ const ensureDatabaseInitialized = async () => {
 	if(knex_initialized) return
 	knex_initialized = true
 	try {
-		const hasTable = await knex.schema.hasTable(myConfig.DB_TABLENAME)
+		const hasTable = await knex.schema.hasTable(myConfig.DB_TABLENAME_MEMBERS)
 		if (!hasTable) {
-			return knex.schema.createTable(myConfig.DB_TABLENAME, table => {
+			await knex.schema.createTable(myConfig.DB_TABLENAME_MEMBERS, table => {
 				table.increments('id').primary()
 				table.string('discord_account_id').notNullable()
 				table.string('discord_guild_id').notNullable()
@@ -39,64 +39,117 @@ const ensureDatabaseInitialized = async () => {
 				table.boolean('is_member')
 			})
 		}
+		const hasTable2 = await knex.schema.hasTable(myConfig.DB_TABLENAME_ROLES)
+		if (!hasTable2) {
+			await knex.schema.createTable(myConfig.DB_TABLENAME_ROLES, table => {
+				table.increments('id').primary()
+				table.string('discord_guild_id').notNullable()
+				table.string('token_address').notNullable()
+				table.string('has_minimum_of').notNullable()
+				table.timestamp('created_at').defaultTo(knex.fn.now())
+				table.string('created_by_discord_id').notNullable()
+				table.string('give_role').notNullable()
+			})
+		}
 	} catch(err) {
 		logger.error(err);
 		throw err;
 	}
 }
 
-////////////////////////////////
-// SessionID
-// Math.random should be unique because of its seeding algorithm.
-// Convert it to base 36 (numbers + letters), and grab the first 9 characters
-// after the decimal.
-////////////////////////////////
+///
+/// When a discord user visits a discord area or "guild" the starrybot can grant them some special roles on demand.
+///
+/// Typically these magical roles (and any preconditions required to be knighted with these roles) are defined by an admin.
+///
+/// These roles, and the preconditions, are stored here.
+///
+/// Supply a discord_guild_id to find associated roles if any
+///
+
+const rolesGet = async (guildId) => {
+
+	await ensureDatabaseInitialized()
+
+	let roles = await knex(myConfig.DB_TABLENAME_ROLES)
+		.where('discord_guild_id', guildId)
+		.select('discord_guild_id','token_address','has_minimum_of','created_at','created_by_discord_id','give_role')
+
+	return roles
+}
+
+const rolesSet = async (args) => {
+
+/*
+
+	return knex(myConfig.DB_TABLENAME_MEMBERS).where({
+		discord_account_id: params.uuid,
+		discord_guild_id: params.guildId,
+	}).select('id')
+
+
+		const hasTable = await knex.schema.hasTable(myConfig.DB_TABLENAME_ROLES)
+		if (!hasTable) {
+			return knex.schema.createTable(myConfig.DB_TABLENAME_ROLES, table => {
+				table.increments('id').primary()
+				table.string('discord_guild_id').notNullable()
+				table.string('token_address').notNullable()
+				table.string('has_minimum_of').notNullable()
+				table.timestamp('created_at').defaultTo(knex.fn.now())
+				table.string('created_by_discord_id').notNullable()
+				table.string('give_role').notNullable()
+				table.string('validator_url').notNullable()
+			})
+		}
+*/
+
+}
+
+///
+/// SessionID
+/// Math.random should be unique because of its seeding algorithm.
+/// Convert it to base 36 (numbers + letters), and grab the first 9 characters
+/// after the decimal.
+///
 
 const SessionID = function () {
 	return Math.random().toString(36).substr(2, 9);
 };
 
 
-
-////////////////////////////////
-// database wrapper for guild
-//
-// TODO/TBD
-//
-// - the theory is that people will throw this bot in their server
-// - and they want to configure the bot for their server
-// - so i think this bot thing needs to deal with many servers and all kinds of data
-// - presumably there is some way to understand the current context
-// - and presumably we can store that in a db
-// - and allow config either by a website or maybe in the bot itself
-// - anyway, this code pretends to do that
-//
-////////////////////////////////
-
-let fakedb = {}
-
-const guildSet = async (id,params) => {
-	fakedb[id]=params
-}
-
-const guildGet = async (id) => {
-	return fakedb[id] || {}
-}
-
-////////////////////////////////
-// database wrapper - for members
-////////////////////////////////
+///
+/// database wrapper - for members
+///
 
 const memberExists = async (uuid, guildId) => {
-	return knex(myConfig.DB_TABLENAME).where({
+	await ensureDatabaseInitialized()
+	return knex(myConfig.DB_TABLENAME_MEMBERS).where({
 		discord_account_id: uuid,
 		discord_guild_id: guildId
 	}).select('id')
 }
 
+const memberBySessionToken = async (session_token) => {
+	await ensureDatabaseInitialized()
+	let members = await knex(myConfig.DB_TABLENAME_MEMBERS)
+		.where('session_token', session_token)
+		.select('created_at', 'saganism','discord_account_id','discord_guild_id','is_member')
+	return (members && members.length) ? members[0] : 0
+}
+
+const memberByIdAndGuild = async ({authorId, guildId}) => {
+	await ensureDatabaseInitialized()
+	let members = await knex(myConfig.DB_TABLENAME_MEMBERS).where({
+		discord_account_id: authorId,
+		discord_guild_id: guildId
+	}).select('is_member')
+	return (members && members.length) ? members[0] : 0
+}
+
 const memberAdd = async ({discord_account_id, discord_guild_id, saganism}) => {
+	await ensureDatabaseInitialized()
 	let session_token = SessionID()
-	await knex(myConfig.DB_TABLENAME).insert({
+	await knex(myConfig.DB_TABLENAME_MEMBERS).insert({
 		discord_account_id,
 		discord_guild_id,
 		saganism,
@@ -105,19 +158,14 @@ const memberAdd = async ({discord_account_id, discord_guild_id, saganism}) => {
 	return session_token
 }
 
-const memberDelete = async (uuid, discord_guild_id) => {
+const memberDelete = async ({authorId, guildId}) => {
+	await ensureDatabaseInitialized()
 	try {
-		await knex(myConfig.DB_TABLENAME).where('discord_account_id', uuid)
-			.andWhere('discord_guild_id', discord_guild_id).del()
+		await knex(myConfig.DB_TABLENAME_MEMBERS).where('discord_account_id', authorId)
+			.andWhere('discord_guild_id', guildId).del()
 	} catch (e) {
 		console.warn('Error deleting row', e)
 	}
 }
 
-const getRowBySessionToken = async (session_token) => {
-	return knex(myConfig.DB_TABLENAME)
-		.where('session_token', session_token)
-		.select('created_at', 'saganism')
-}
-
-module.exports = { memberExists, memberAdd, memberDelete, getRowBySessionToken, ensureDatabaseInitialized, myConfig, guildSet, guildGet }
+module.exports = { memberExists, memberBySessionToken, memberByIdAndGuild, memberAdd, memberDelete, myConfig, rolesGet, rolesSet }
