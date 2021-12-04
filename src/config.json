@@ -1,0 +1,19 @@
+{
+	"PREFIX": "!",
+	"DB_CONNECTIONNAME":"queenbot:us-central1:starrybot",
+	"DB_HOSTIP": "35.239.247.110",
+	"DB_OUTGOINGIP": "34.70.165.234",
+	"DB_HOSTPORT":5432,
+	"DB_USER": "starrybot",
+	"DB_NAME": "starrydata",
+	"DB_TABLENAME_MEMBERS": "members",
+	"DB_TABLENAME_ROLES": "rules",
+	"DB_SOCKET_PATH": "/cloudsql",
+	"INSTANCE_CONNECTION_NAME": "",
+	"DB_KEY": "",
+	"DB_CERT": "",
+	"DB_ROOT_CERT": "",
+	"WINSTON": false,
+	"VALIDATOR": "https://cosmos-webapp.pages.dev/"
+}
+

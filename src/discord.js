@@ -140,8 +140,9 @@ client.on("messageCreate", async message => {
 });
 
 const login = async () => {
-	const loggedInToken = await client.login(db.myConfig.DISCORD_TOKEN)
-	if (loggedInToken !== db.myConfig.DISCORD_TOKEN) {
+	let token = db.myConfig.DISCORD_TOKEN || process.env.DISCORD_TOKEN;
+	const loggedInToken = await client.login(token)
+	if (loggedInToken !== token) {
 		logger.warn('There might be an issue with the Discord login')
 		return false
 	} else {

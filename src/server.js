@@ -45,7 +45,7 @@ app.post('/keplr-signed', async (req, res) => {
 })
 
 // TODO arguably config could be separate from db so that db would not need to be included here
-const PORT = db.myConfig.PORT || 8080;
+const PORT = db.myConfig.PORT || process.env.PORT || 80;
 const server = app.listen(PORT, () => {
 	logger.info(`App listening on port ${PORT}`)
 })

@@ -1,4 +1,4 @@
-const myConfig = require("./auth.json");
+const myConfig = require("./config.json");
 // const myConfig = require("./auth-local.json");
 // const myConfig = require("./auth-prod.json");
 
@@ -6,7 +6,7 @@ const knex = require('knex')({
 	client: 'pg',
 	connection: {
 		user: myConfig.DB_USER,
-		password: myConfig.DB_PASS,
+		password: myConfig.DB_PASS || process.env.DB_PASS,
 		database: myConfig.DB_NAME,
 		host: myConfig.DB_HOSTIP,
 		port: myConfig.DB_HOSTPORT,
