@@ -1,3 +1,4 @@
+const logger = require("./logger")
 const defaultConfig = require("./config.json");
 // const defaultConfig = require("./auth-local.json");
 // const defaultConfig = require("./auth-prod.json");
@@ -22,7 +23,6 @@ const myConfig = {
 	"PORT": process.env.PORT || defaultConfig.PORT || 8080,
 	"VALIDATOR": process.env.VALIDATOR || defaultConfig.VALIDATOR || 'https://verify.starrybot.xyz/'
 }
-const logger = require("./logger")
 
 const knex = require('knex')({
 	client: 'pg',
