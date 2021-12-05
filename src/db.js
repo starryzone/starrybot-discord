@@ -32,6 +32,7 @@ const knex = require('knex')({
 		database: myConfig.DB_NAME,
 		host: myConfig.DB_HOSTIP,
 		port: myConfig.DB_HOSTPORT,
+		ssl: true
 	},
 	pool: {
 		max: 5,
@@ -46,7 +47,7 @@ const knex = require('knex')({
 let knex_initialized = false
 
 const ensureDatabaseInitialized = async () => {
-	if(knex_initialized) return
+	if (knex_initialized) return
 	knex_initialized = true
 	try {
 		const hasTable = await knex.schema.hasTable(myConfig.DB_TABLENAME_MEMBERS)
