@@ -24,13 +24,13 @@ async function hoistRequest(args) {
 
 	// are there any available roles?
 	let roles = await db.rolesGet(guildId)
-	if(!roles || !roles.length) {
+	if (!roles || !roles.length) {
 		return {error:"Admin needs to setup roles to give out"}
 	}
 
 	// has user already been given a role?
 	const member = await db.memberByIdAndGuild({authorId,guildId})
-	if(member && member.is_member) {
+	if (member && member.is_member) {
 		return {error:"You already have privileges on this server"}
 	}
 
@@ -78,7 +78,7 @@ async function hoistInquire(traveller) {
 }
 
 ///
-/// And drop a user 
+/// And drop a user
 ///
 
 async function hoistDrop(args) {
