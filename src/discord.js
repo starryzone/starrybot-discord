@@ -6,14 +6,17 @@ const logger = require("./logger")
 const logic = require("./logic")
 const Sagan = require("./sagan.js")
 
-const { Client, Intents, MessageEmbed, Permissions } = require('discord.js')
+const { Client, Intents, MessageEmbed, Permissions, MessagePayload, MessageButton, MessageActionRow } = require('discord.js')
+const { SlashCommandBuilder } = require('@discordjs/builders');
+const { REST } = require('@discordjs/rest');
+const { Routes } = require('discord-api-types/v9');
 const intents = new Intents([ Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES ]);
 const client = new Client({intents: intents })
 
 let validatorURL = db.myConfig.VALIDATOR
 
-function createEmbed(traveller,saganism) {
-	let url = validatorURL + traveller
+function createEmbed(traveller, saganism) {
+	let url = `${validatorURL}?traveller=${traveller}`
 	return new MessageEmbed()
 		.setColor('#0099ff')
 		.setTitle(`Please visit ${url}`)
@@ -25,12 +28,134 @@ function createEmbed(traveller,saganism) {
 		.setFooter('Put your helmet on', 'https://i.imgur.com/AfFp7pu.png');
 }
 
-client.on("ready", () => {
+client.on("ready", async () => {
 	logger.info(`StarryBot has star(ry)ted.`)
 });
 
-client.on("messageCreate", async message => {
+client.on("guildIntegrationsUpdate", async guild => {
+	console.log('guildIntegrationsUpdate\n guild', guild)
+});
+client.on("applicationCommandCreate", async command => {
+	console.log('applicationCommandCreate\n command', command)
+});
+client.on("applicationCommandUpdate", async command => {
+	console.log('applicationCommandUpdate\n command', command)
+});
+client.on("guildUpdate", async guild => {
+	console.log('guildUpdate\n guild', guild)
+});
+client.on("webhookUpdate", async guild => {
+	console.log('webhookUpdate\n guild', guild)
+});
 
+// When StarryBot joins a new guild, let's create a default role and say hello
+client.on("guildCreate", async guild => {
+	const systemChannelId = guild.systemChannelId;
+	let desiredRoles = ['osmo-hodler', 'juno-hodler'];
+	const desiredRolesForMessage = desiredRoles.join('\n- ');
+	let systemChannel = await client.channels.fetch(systemChannelId);
+	const embed = new MessageEmbed()
+		.setColor('#0099ff')
+		.setTitle(`Enable secure slash commands`)
+		.setDescription(`StarryBot just joined, and FYI there are two roles:\n- ${desiredRolesForMessage}`)
+		.setImage('https://starrybot.xyz/starrybot-slash-commands.gif')
+
+	const row = new MessageActionRow()
+		.addComponents(
+			new MessageButton()
+				.setCustomId('slash-commands-enabled')
+				.setLabel("I just did it")
+				.setStyle('PRIMARY'),
+		);
+
+	const msgPayload = MessagePayload.create(client.user, {
+		content: 'Hello friends, one more step please.\nSee the GIF below…',
+		embeds: [embed],
+		components: [row]
+	});
+	await systemChannel.send(msgPayload);
+
+	// Add default roles
+	await db.rolesSet(guild.id, desiredRoles[0], 'native', 'osmo')
+	await db.rolesSet(guild.id, desiredRoles[1], 'native', 'juno')
+})
+
+// Just for buttons
+client.on('interactionCreate', async interaction => {
+	if (!interaction.isButton()) return;
+
+	// They say they've allowed the bot to add Slash Commands,
+	//   let's try to add one for this guild and catch it they've lied to us.
+	const starryJoin = new SlashCommandBuilder()
+		.setName('starry-join')
+		.setDescription('Connect your account with Keplr');
+	const rest = new REST().setToken(process.env.DISCORD_TOKEN);
+	try {
+		await rest.put(
+			Routes.applicationGuildCommands(interaction.applicationId, interaction.guildId),
+			{ body: [starryJoin.toJSON()] },
+		);
+	} catch (e) {
+		if (e.code === 50001 || e.message === 'Missing Access') {
+			// We have a prevaricator
+			const row = new MessageActionRow()
+				.addComponents(
+					new MessageButton()
+						.setCustomId('slash-commands-enabled')
+						.setLabel("I really did it this time")
+						.setStyle('PRIMARY'),
+				);
+
+			const msgPayload = MessagePayload.create(client.user, {
+				content: "That's funny because Discord just told me you didn't. :/\nCan we try that again? (Scroll up to see the animated GIF for instructions)",
+				components: [row]
+			});
+			interaction.reply(msgPayload)
+		} else {
+			interaction.reply('Something does not seem right, please try adding StarryBot again.')
+		}
+		return;
+	}
+
+	// Slash command should be added successfully, double-check then tell the channel it's ready
+	let enabledGuildCommands = await rest.get(
+		Routes.applicationGuildCommands(interaction.applicationId, interaction.guildId)
+	);
+	console.log('enabledGuildCommands', enabledGuildCommands)
+
+	// Ensure we have the Slash Command registered, then publicly tell everyone they can use it
+	for (let enabledGuildCommand of enabledGuildCommands) {
+		if (enabledGuildCommand.name === 'starry-join') {
+			await interaction.reply('Feel free to use the /starry-join command, friends.')
+			break;
+		}
+	}
+});
+
+client.on('interactionCreate', async interaction => {
+	console.log('interaction.member', interaction.member);
+	if (interaction.isCommand()) {
+		console.log('Interaction is a command')
+		if (interaction.commandName === 'starry-join') {
+			try {
+				let results = await logic.hoistRequest({guildId: interaction.guildId, authorId: interaction.member.user.id})
+				if (results.error || !results.traveller || !results.saganism) {
+					interaction.channel.send(results.error || "Internal error")
+				} else {
+					// We reply "privately" instead of sending a DM here
+					interaction.reply({embeds:[createEmbed(results.traveller,results.saganism)], ephemeral: true})
+				}
+			} catch(err) {
+				logger.error(err)
+				await interaction.channel.send("Internal error adding you") // don't send error itself since it could leak secrets
+			}
+		}
+	} else {
+		console.log('Interaction is NOT a command')
+	}
+});
+
+client.on("messageCreate", async message => {
 	// ignore messages from bots including self to avoid a botaparadox
 	if (message.author.bot) return
 

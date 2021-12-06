@@ -8,7 +8,7 @@ const myConfig = {
 	"DB_HOSTIP": process.env.DB_HOSTIP || defaultConfig.DB_HOSTIP || "127.0.0.1",
 	"DB_OUTGOINGIP": process.env.DB_OUTGOINGIP || defaultConfig.DB_OUTGOINGIP || "",
 	"DB_HOSTPORT": process.env.DB_HOSTPORT || defaultConfig.DB_HOSTPORT || 5432,
-	"DB_PASS": process.env.DB_PASS || "set DB_PASS env var",
+	"DB_PASS": process.env.DB_PASS || defaultConfig.DB_PASS || "set DB_PASS env var",
 	"DB_USER": process.env.DB_USER || defaultConfig.DB_USER || "mike",
 	"DB_NAME": process.env.DB_NAME || defaultConfig.DB_NAME || "starrydata",
 	"DB_TABLENAME": process.env.DB_TABLENAME || defaultConfig.DB_TABLENAME || "starryfacts",
@@ -68,6 +68,7 @@ const ensureDatabaseInitialized = async () => {
 				table.increments('id').primary()
 				table.string('discord_guild_id').notNullable()
 				table.string('token_address').notNullable()
+				table.string('token_type').notNullable()
 				table.string('has_minimum_of').notNullable()
 				table.timestamp('created_at').defaultTo(knex.fn.now())
 				table.string('created_by_discord_id').notNullable()
@@ -101,11 +102,12 @@ const rolesGet = async (guildId) => {
 	return roles
 }
 
-const rolesSet = async (guildId,role) => {
+const rolesSet = async (guildId, role, tokenType, tokenAddress) => {
 	await ensureDatabaseInitialized()
 
 	let discord_guild_id = guildId;
-	let token_address = "not set yet"
+	let token_address = tokenAddress
+	let token_type = tokenType
 	let has_minimum_of = "1"
 	let created_by_discord_id = "0"
 	let give_role = role
@@ -115,10 +117,12 @@ const rolesSet = async (guildId,role) => {
 	let results = await knex(myConfig.DB_TABLENAME_ROLES).insert({
 		discord_guild_id,
 		token_address,
+		token_type,
 		has_minimum_of,
 		created_by_discord_id,
 		give_role
 	})
+	console.log('results', results)
 }
 
  const rolesDelete = async (guildId,role) => {
