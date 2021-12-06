@@ -50,7 +50,7 @@ const ensureDatabaseInitialized = async () => {
 	if (knex_initialized) return
 	knex_initialized = true
 	try {
-		const hasTable = await knex.schema.hasTable(myConfig.DB_TABLENAME_MEMBERS)
+		let hasTable = await knex.schema.hasTable(myConfig.DB_TABLENAME_MEMBERS)
 		if (!hasTable) {
 			await knex.schema.createTable(myConfig.DB_TABLENAME_MEMBERS, table => {
 				table.increments('id').primary()
@@ -62,11 +62,12 @@ const ensureDatabaseInitialized = async () => {
 				table.boolean('is_member')
 			})
 		}
-		const hasTable2 = await knex.schema.hasTable(myConfig.DB_TABLENAME_ROLES)
-		if (!hasTable2) {
+		hasTable = await knex.schema.hasTable(myConfig.DB_TABLENAME_ROLES)
+		if (!hasTable) {
 			await knex.schema.createTable(myConfig.DB_TABLENAME_ROLES, table => {
 				table.increments('id').primary()
 				table.string('discord_guild_id').notNullable()
+				table.string('discord_role_id').notNullable()
 				table.string('token_address').notNullable()
 				table.string('token_type').notNullable()
 				table.string('has_minimum_of').notNullable()
@@ -95,27 +96,34 @@ const rolesGet = async (guildId) => {
 
 	await ensureDatabaseInitialized()
 
-	let roles = await knex(myConfig.DB_TABLENAME_ROLES)
+	const roles = await knex(myConfig.DB_TABLENAME_ROLES)
 		.where('discord_guild_id', guildId)
-		.select('discord_guild_id','token_address','has_minimum_of','created_at','created_by_discord_id','give_role')
+		.select('discord_guild_id','discord_role_id','token_address','has_minimum_of','created_at','created_by_discord_id','give_role')
 
 	return roles
 }
 
-const rolesSet = async (guildId, role, tokenType, tokenAddress) => {
+const rolesSet = async (guildId, roleId, role, tokenType, tokenAddress) => {
 	await ensureDatabaseInitialized()
 
 	let discord_guild_id = guildId;
+	let discord_role_id = roleId
 	let token_address = tokenAddress
 	let token_type = tokenType
 	let has_minimum_of = "1"
 	let created_by_discord_id = "0"
 	let give_role = role
 
-	// TODO verify that this does not already exist
+	// If this role for this guild already exists, return
+	let existingRows = await knex(myConfig.DB_TABLENAME_ROLES).where({
+		discord_guild_id,
+		discord_role_id
+	}).select('id')
+	if (existingRows.length) return
 
 	let results = await knex(myConfig.DB_TABLENAME_ROLES).insert({
 		discord_guild_id,
+		discord_role_id,
 		token_address,
 		token_type,
 		has_minimum_of,
