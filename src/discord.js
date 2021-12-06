@@ -75,9 +75,28 @@ client.on("guildCreate", async guild => {
 	});
 	await systemChannel.send(msgPayload);
 
+	const existingObjectRoles = await guild.roles.fetch();
+
+	let existingRoles = {}
+	for (let role of existingObjectRoles.values()) {
+		existingRoles[role.name] = role.id
+	}
+
+	// See if there are existing roles and only create ones we don't have
+	let finalRoleMapping = {}
+	for (let role of desiredRoles) {
+		// Create role unless it already existed above
+		if (existingRoles.hasOwnProperty(role)) {
+			finalRoleMapping[role] = existingRoles[role]
+		} else {
+			const newRole = await guild.roles.create({name: role})
+			finalRoleMapping[role] = existingRoles[newRole.id]
+		}
+	}
+
 	// Add default roles
-	await db.rolesSet(guild.id, desiredRoles[0], 'native', 'osmo')
-	await db.rolesSet(guild.id, desiredRoles[1], 'native', 'juno')
+	await db.rolesSet(guild.id, finalRoleMapping[desiredRoles[0]], desiredRoles[0], 'native', 'osmo')
+	await db.rolesSet(guild.id, finalRoleMapping[desiredRoles[1]], desiredRoles[1], 'native', 'juno')
 })
 
 // Just for buttons
