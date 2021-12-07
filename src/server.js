@@ -36,7 +36,7 @@ app.post('/keplr-signed', async (req, res) => {
 	logger.log("express::keplr-signed hit")
 	logger.log('req.body', req.body)
 	try {
-		let results = await logic.hoistFinalize(req.body,discord.client)
+		let results = await logic.hoistFinalize(req.body, discord.client)
 		res.status(results.error?400:200).send(results)
 	} catch (err) {
 		logger.warn('Error hitting kelpr-signed', err)

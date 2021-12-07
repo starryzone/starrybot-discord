@@ -1,4 +1,3 @@
-
 'use strict';
 
 const db = require("./db")
@@ -6,11 +5,12 @@ const logger = require("./logger")
 const logic = require("./logic")
 const Sagan = require("./sagan.js")
 
-const { Client, Intents, MessageEmbed, Permissions, MessagePayload, MessageButton, MessageActionRow } = require('discord.js')
+const { Client, Intents, MessageEmbed, Permissions, MessagePayload, MessageButton, MessageActionRow, RoleManager} = require('discord.js')
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const { REST } = require('@discordjs/rest');
 const { Routes } = require('discord-api-types/v9');
-const intents = new Intents([ Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES ]);
+const {myConfig} = require("./db");
+const intents = new Intents([ Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILD_MEMBERS, Intents.FLAGS.GUILD_INTEGRATIONS ]);
 const client = new Client({intents: intents })
 
 let validatorURL = db.myConfig.VALIDATOR
@@ -30,22 +30,17 @@ function createEmbed(traveller, saganism) {
 
 client.on("ready", async () => {
 	logger.info(`StarryBot has star(ry)ted.`)
-});
-
-client.on("guildIntegrationsUpdate", async guild => {
-	console.log('guildIntegrationsUpdate\n guild', guild)
-});
-client.on("applicationCommandCreate", async command => {
-	console.log('applicationCommandCreate\n command', command)
-});
-client.on("applicationCommandUpdate", async command => {
-	console.log('applicationCommandUpdate\n command', command)
-});
-client.on("guildUpdate", async guild => {
-	console.log('guildUpdate\n guild', guild)
-});
-client.on("webhookUpdate", async guild => {
-	console.log('webhookUpdate\n guild', guild)
+	// We only have to do this once, kept for information only
+	/*
+	const starryJoin = new SlashCommandBuilder()
+		.setName('starry-join')
+		.setDescription('Connect your account with Keplr');
+	const rest = new REST().setToken(process.env.DISCORD_TOKEN);
+	await rest.put(
+		Routes.applicationCommands(client.application.id),
+		{ body: [starryJoin.toJSON()] },
+	);
+	 */
 });
 
 // When StarryBot joins a new guild, let's create a default role and say hello
@@ -58,7 +53,7 @@ client.on("guildCreate", async guild => {
 		.setColor('#0099ff')
 		.setTitle(`Enable secure slash commands`)
 		.setDescription(`StarryBot just joined, and FYI there are two roles:\n- ${desiredRolesForMessage}`)
-		.setImage('https://starrybot.xyz/starrybot-slash-commands.gif')
+		.setImage('https://starrybot.xyz/starrybot-slash-commands2.gif')
 
 	const row = new MessageActionRow()
 		.addComponents(
@@ -79,6 +74,7 @@ client.on("guildCreate", async guild => {
 
 	let existingRoles = {}
 	for (let role of existingObjectRoles.values()) {
+		console.log('aloha role', role)
 		existingRoles[role.name] = role.id
 	}
 
@@ -89,10 +85,14 @@ client.on("guildCreate", async guild => {
 		if (existingRoles.hasOwnProperty(role)) {
 			finalRoleMapping[role] = existingRoles[role]
 		} else {
-			const newRole = await guild.roles.create({name: role})
+			const newRole = await guild.roles.create({name: role, position: 0})
 			finalRoleMapping[role] = existingRoles[newRole.id]
 		}
 	}
+
+	// It seems that this event is called even when deleting from a guild O_O
+	// So make a hacky check here:
+	if (!finalRoleMapping[desiredRoles[0]]) return;
 
 	// Add default roles
 	await db.rolesSet(guild.id, finalRoleMapping[desiredRoles[0]], desiredRoles[0], 'native', 'osmo')
@@ -142,7 +142,8 @@ client.on('interactionCreate', async interaction => {
 	);
 	console.log('enabledGuildCommands', enabledGuildCommands)
 
-	// Ensure we have the Slash Command registered, then publicly tell everyone they can use it
+	// Ensure (double-check) we have the Slash Command registered,
+	//   then publicly tell everyone they can use it
 	for (let enabledGuildCommand of enabledGuildCommands) {
 		if (enabledGuildCommand.name === 'starry-join') {
 			await interaction.reply('Feel free to use the /starry-join command, friends.')
@@ -152,7 +153,6 @@ client.on('interactionCreate', async interaction => {
 });
 
 client.on('interactionCreate', async interaction => {
-	console.log('interaction.member', interaction.member);
 	if (interaction.isCommand()) {
 		console.log('Interaction is a command')
 		if (interaction.commandName === 'starry-join') {
@@ -172,115 +172,6 @@ client.on('interactionCreate', async interaction => {
 	} else {
 		console.log('Interaction is NOT a command')
 	}
-});
-
-client.on("messageCreate", async message => {
-	// ignore messages from bots including self to avoid a botaparadox
-	if (message.author.bot) return
-
-	// ignore messages without prefix
-	if (message.content.indexOf(db.myConfig.PREFIX) !== 0) return
-
-	// get guild and author
-	const {guildId, author } = message;
-	if(!guildId || !author) {
-		console.error("discord - error something very wrong")
-		return
-	}
-
-	// handle userland commands
-
-	const args = message.content.slice(db.myConfig.PREFIX.length).trim().split(/ +/g)
-	const command = args.shift().toLowerCase()
-	const channel = message.channel
-
-	if(!command || !command.length || !channel) {
-		logging.error("discord - internal error")
-		return
-	}
-
-	switch(command) {
-
-		case "starry-drop":
-		case "starry-wisdom":
-		case "starry-lore":
-		case "starry-truthbomb":
-			channel.send(Sagan.sagan())
-			return
-
-		case "starry":
-			try {
-				let results = await logic.hoistRequest({guildId:guildId,authorId:author.id})
-				if(results.error || !results.traveller || !results.saganism) {
-					channel.send(results.error||"Internal error")
-				} else {
-					author.send({embeds:[createEmbed(results.traveller,results.saganism)]})
-					channel.send("Check your DM's")
-				}
-				logger.info("discord - done starry")
-			} catch(err) {
-				logger.error(err)
-				await channel.send("Internal error adding you") // don't send error itself since it could leak secrets
-			}
-			return
-
-		case "starry-remove":
-		case "starry-delete":
-			try {
-				await logic.hoistDrop({guildId:guildId,authorId:author.id})
-				await channel.send("You've been brought back to earth. (And removed as requested.)")
-				logger.info("discord - done starry remove / delete")
-			} catch(err) {
-				logger.error(err)
-				channel.send("Internal error removing you.") // don't send the error since it could leak secrets
-			}
-			return
-	}
-
-	// handle admin commands - this will do for now - TODO improve
-
-	if (!message.member.permissions.has(Permissions.FLAGS.KICK_MEMBERS)) {
-		if(command.startsWith("starry")) {
-			channel.send("You are not an admin!")
-		}
-		return
-	}
-
-	// find or make a guild associated database record for tracking admin requests around how to deal with users
-	let roles = await db.rolesGet(guildId)
-
-	switch(command) {
-
-		case "starry-admin-roles":
-			channel.send("Roles I know of")
-			roles.forEach(role=>{
-				channel.send(role.give_role)
-			})
-			return
-
-		case "starry-admin-role":
-			await db.rolesSet(guildId,args[0])
-			channel.send(`Added role`)
-			return
-
-		case "starry-admin-delete":
-			await db.rolesDelete(guildId,args[0])
-			channel.send(`Deleted role`)
-			return
-
-		case "starry-admin-members":
-			let members = await db.membersAll(guildId)
-			members.forEach(member=>{
-				channel.send(JSON.stringify(member))
-			})
-			break
-
-		case "starry-magic":
-			// for testing -> could actually also accept a user name and be more useful TODO
-			//await logic.hoistFinalize({discord_guild_id:guildId,discord_author_id:authorId},client)
-			return
-	}
-
 });
 
 const login = async () => {

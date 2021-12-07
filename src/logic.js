@@ -5,8 +5,15 @@ const db = require("./db")
 const logger = require("./logger")
 const Sagan = require("./sagan.js")
 
-const { Client, Intents, MessageEmbed, Permissions } = require('discord.js')
+const { Client, Intents, MessageEmbed, Permissions, MessageActionRow, MessageButton, MessagePayload} = require('discord.js')
 const intents = new Intents([ Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES ]);
+
+const { serializeSignDoc } = require('@cosmjs/amino')
+const { Secp256k1, Secp256k1Signature, sha256 } = require('@cosmjs/crypto')
+const { fromBase64, Bech32 } = require('@cosmjs/encoding')
+const { REST } = require("@discordjs/rest");
+const { Routes } = require("discord-api-types/v9");
+const { StargateClient } = require("@cosmjs/stargate");
 
 ///
 /// Returns a block with { memberId, saganism }
@@ -91,10 +98,6 @@ async function hoistDrop(args) {
 	// TODO actually remove users
 }
 
-const { serializeSignDoc } = require('@cosmjs/amino')
-const { Secp256k1, Secp256k1Signature, sha256 } = require('@cosmjs/crypto')
-const { fromBase64 } = require('@cosmjs/encoding')
-
 ///
 /// Signing
 /// Returns boolean whether the signature is valid or not
@@ -147,13 +150,14 @@ const isCorrectSaganism = async (traveller, signed) => {
 /// Finalize hoist
 ///
 
-async function hoistFinalize(blob,client) {
-
+async function hoistFinalize(blob, client) {
 	logger.log("hoistFinalize");
 	logger.log("**********")
-	logger.log(blob)
+	logger.log('blob', blob)
+	logger.log('blob.signed.msgs', blob.signed.msgs)
 
-	const {traveller, signed, signature, publicKey} = blob;
+	const {traveller, signed, signature, account} = blob;
+	const publicKey = account.pubkey
 
 	// get member
 	let member = await db.memberBySessionToken(traveller)
@@ -163,7 +167,7 @@ async function hoistFinalize(blob,client) {
 		return {error:"Member not found"}
 	}
 
-	if(!member.discord_guild_id || !member.discord_account_id) {
+	if (!member.discord_guild_id || !member.discord_account_id) {
 		logger.error("discord::hoist - incomplete params")
 		return {error:"incomplete params"}
 	}
@@ -196,26 +200,24 @@ async function hoistFinalize(blob,client) {
 
 	// get all possible roles
 	let roles = await db.rolesGet(member.discord_guild_id)
-	if(!roles || !roles.length) {
+	if (!roles || !roles.length) {
 		return {error:"Admin needs to setup roles to give out"}
 	}
 
 	// get guild
 	const guild = await client.guilds.fetch(member.discord_guild_id)
-	if(!guild) {
+	if (!guild) {
 		logger.error("discord::hoist - cannot find guild");
 		return {error:"cannot find guild"}
 	}
 
 	// get user
 	const author = await client.users.fetch(member.discord_account_id)
-	if(!author) {
+	if (!author) {
 		logger.error("discord::hoist - cannot find participant")
 		return {error:"cannot find party"}
 	}
-
-	// get all guild roles
-	const everyoneRole = guild.roles.everyone
+	console.log('author', author)
 
 	//
 	// Add a role to user
@@ -227,20 +229,47 @@ async function hoistFinalize(blob,client) {
 	// member.roles.add(role);
 	//
 
-	roles.forEach(async role => {
+	for (let role of roles) {
+		// For now, we know the roles are for Juno and Osmosis, set up RPC and calls
+		const keplrAccount = account.address;
+
 		let rolename = role.give_role
 		let rolediscord = guild.roles.cache.find(r => r.name === rolename)
-		if(!rolediscord) {
-			channel.send("Hmm, starrybot cannot find role " + rolename)
+		const tokenAddress = role.token_address
+
+		let rpcClient;
+		if (tokenAddress === 'osmo') {
+			rpcClient = await StargateClient.connect('https://rpc-osmosis.keplr.app/');
+		} else if (tokenAddress === 'juno') {
+			rpcClient = await StargateClient.connect('https://rpc-juno.nodes.guru/');
+		} else {
+			console.warn('Unfamiliar with this token, ser.')
+			return;
+		}
+
+		let decodedAccount = Bech32.decode(keplrAccount).data;
+		let encodedAccount = Bech32.encode(tokenAddress, decodedAccount);
+		let balances = await rpcClient.getAllBalances(encodedAccount);
+		console.log(`balances ${tokenAddress}`, balances)
+		let matches = balances.filter(balances => balances.denom === `u${tokenAddress}`)
+		// If they have no balance or zero balance, continue the loop through roles
+		if (matches.length !== 1 || matches[0].amount === '0') continue
+
+		// At this point, we can be sure the user should be given the role
+		const systemChannelId = guild.systemChannelId;
+		let systemChannel = await client.channels.fetch(systemChannelId);
+		if (!rolediscord) {
+			systemChannel.send("Hmm, StarryBot cannot find role " + rolename)
 		} else {
 			logger.log("Adding user to role " + rolename)
-
+			const rest = new REST().setToken(process.env.DISCORD_TOKEN);
 			try {
-				await author.roles.add(rolediscord)
-			} catch(err) {
-				logger.error("was unable to add role")
-				logger.error(err)
-				return {error:"cannot add role"}
+				await rest.put(
+					Routes.guildMemberRole(guild.id, author.id, rolediscord.id)
+				);
+			} catch (e) {
+				console.error('Error trying to add role', e)
+				return;
 			}
 
 			// TODO must ALSO set is_member in database
@@ -255,9 +284,9 @@ async function hoistFinalize(blob,client) {
 			//}
 			//logger.log("invite sent")
 		}
-	})
+	}
 
-	return {success:"done"}
+	return { success:"done" }
 }
 
 module.exports = { hoistRequest, hoistInquire, hoistDrop, hoistFinalize }
