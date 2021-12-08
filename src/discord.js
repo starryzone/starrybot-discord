@@ -86,13 +86,10 @@ client.on("guildCreate", async guild => {
 			finalRoleMapping[role] = existingRoles[role]
 		} else {
 			const newRole = await guild.roles.create({name: role, position: 0})
-			finalRoleMapping[role] = existingRoles[newRole.id]
+			console.log('newRole', newRole)
+			finalRoleMapping[role] = newRole.id
 		}
 	}
-
-	// It seems that this event is called even when deleting from a guild O_O
-	// So make a hacky check here:
-	if (!finalRoleMapping[desiredRoles[0]]) return;
 
 	// Add default roles
 	await db.rolesSet(guild.id, finalRoleMapping[desiredRoles[0]], desiredRoles[0], 'native', 'osmo')
