@@ -1,7 +1,8 @@
 {
 	"name": "starrybot-discord",
 	"version": "1.0.1",
-	"private": true,
+	"private": false,
+	"license": "mit",
 	"description": "Starrybot helps users join membership-enabled Discord rooms",
 	"main": "server.js",
 	"author": "@anselm",
