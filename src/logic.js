@@ -29,13 +29,7 @@ async function hoistRequest(args) {
 	let authorId = args.authorId
 	let guildId = args.guildId
 
-	// are there any available roles?
-	let roles = await db.rolesGet(guildId)
-	if (!roles || !roles.length) {
-		return {error:"Admin needs to setup roles to give out"}
-	}
-
-	// has user already been given a role?
+	// has user already been given a role? TODO refine
 	const member = await db.memberByIdAndGuild({authorId,guildId})
 	if (member && member.is_member) {
 		return {error:"You already have privileges on this server"}
