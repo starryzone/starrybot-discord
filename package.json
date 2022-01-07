@@ -2,16 +2,17 @@
 	"name": "starrybot-discord",
 	"version": "1.0.1",
 	"private": false,
-	"license": "mit",
+	"license": "MIT",
 	"description": "Starrybot helps users join membership-enabled Discord rooms",
 	"main": "server.js",
 	"author": "@anselm",
 	"repository": "https://github.com/starryzone/starrybot-discord.git",
 	"engines": {
-		"node": ">=16.0.0"
+		"node": ">=14.0.0"
 	},
 	"dependencies": {
 		"@cosmjs/amino": "^0.26.4",
+		"@cosmjs/cosmwasm-stargate": "^0.26.5",
 		"@cosmjs/crypto": "^0.26.4",
 		"@cosmjs/encoding": "^0.26.4",
 		"@cosmjs/stargate": "^0.26.5",
@@ -29,6 +30,5 @@
 	},
 	"scripts": {
 		"start": "node src/server.js"
-	},
-	"license": "MIT"
+	}
 }

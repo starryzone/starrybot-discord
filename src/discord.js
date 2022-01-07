@@ -15,6 +15,9 @@ const client = new Client({intents: intents })
 
 let validatorURL = db.myConfig.VALIDATOR
 
+const { CosmWasmClient } = require('@cosmjs/cosmwasm-stargate')
+const RPC_ENDPOINT = process.env.NEXT_PUBLIC_CHAIN_RPC_ENDPOINT || 'https://rpc.uni.juno.deuslabs.fi/'
+
 function createEmbed(traveller, saganism) {
 	let url = `${validatorURL}?traveller=${traveller}`
 	return new MessageEmbed()
@@ -96,21 +99,27 @@ client.on("guildCreate", async guild => {
 	await db.rolesSet(guild.id, finalRoleMapping[desiredRoles[1]], desiredRoles[1], 'native', 'juno')
 })
 
-// Just for buttons
-client.on('interactionCreate', async interaction => {
-	if (!interaction.isButton()) return;
+let commands = [
+	{ name:"starry-join",description:"Connect your account with Keplr" },
+	{ name:"starry-poke",description:"Teehee", args1:"contract", args2:"user" }
+]
 
+async function handleAddButton(interaction) {
 	// They say they've allowed the bot to add Slash Commands,
-	//   let's try to add one for this guild and catch it they've lied to us.
-	const starryJoin = new SlashCommandBuilder()
-		.setName('starry-join')
-		.setDescription('Connect your account with Keplr');
-	const rest = new REST().setToken(process.env.DISCORD_TOKEN);
+	//   let's try to add ours for this guild and catch it they've lied to us.
+	const rest = new REST().setToken(myConfig.DISCORD_TOKEN);
 	try {
-		await rest.put(
-			Routes.applicationGuildCommands(interaction.applicationId, interaction.guildId),
-			{ body: [starryJoin.toJSON()] },
-		);
+		commands.forEach(async args=>{
+			console.log("adding " + args.name + " " + args.description)
+			let command = new SlashCommandBuilder().setName(args.name).setDescription(args.description)
+			if(args.args1) command = command.addStringOption(option => option.setName(args.args1).setDescription('subarg').setRequired(true));
+			if(args.args2) command = command.addStringOption(option => option.setName(args.args2).setDescription('subarg').setRequired(true));
+			console.log(command)
+			await rest.put(
+				Routes.applicationGuildCommands(interaction.applicationId, interaction.guildId),
+				{ body: [command.toJSON()] },
+			);
+		})
 	} catch (e) {
 		if (e.code === 50001 || e.message === 'Missing Access') {
 			// We have a prevaricator
@@ -147,27 +156,76 @@ client.on('interactionCreate', async interaction => {
 			break;
 		}
 	}
-});
+}
+
+async function handleCommands(interaction) {
+
+	console.log('Interaction is a command')
+
+	if (interaction.commandName === 'starry-join') {
+		try {
+			let results = await logic.hoistRequest({guildId: interaction.guildId, authorId: interaction.member.user.id})
+			if (results.error || !results.traveller || !results.saganism) {
+				interaction.channel.send(results.error || "Internal error")
+			} else {
+				// We reply "privately" instead of sending a DM here
+				interaction.reply({embeds:[createEmbed(results.traveller,results.saganism)], ephemeral: true})
+			}
+		} catch(err) {
+			logger.error(err)
+			await interaction.channel.send("Internal error adding you") // don't send error itself since it could leak secrets
+		}
+	}
+
+	else if (interaction.commandName === 'starry-poke') {
+		console.log("***************** starry poke")
+        try {
+
+            const client = await CosmWasmClient.connect(RPC_ENDPOINT)
+
+            let contract = interaction.options.getString('contract')
+            let user = interaction.options.getString('user')
+
+            interaction.channel.send(`Peeking at ledgers contract=${contract} user=${user}`)
+console.log("peek")
+            try {
+                let balance = await client.queryContractSmart(contract, { balance: { address: user } })
+                console.log(balance)
+                interaction.channel.send("Balance is " + balance.balance)
+console.log("succeeded at cw20")
+            } catch(err) {
+                logger.error(err)
+                //interaction.channel.send("Error getting balance from cw20")
+            }
+
+            try {
+                let balance = await client.queryContractSmart(contract, { tokens: { owner: user } })
+                console.log(balance)
+                interaction.channel.send("Balance of tokens is " + balance);
+                //let ownerInfo = await client.queryContractSmart(CW721_CONTRACT_ADDRESS, {
+                //    owner_of: { token_id: '0' },
+                //})
+            } catch(err) {
+            	console.error("failed at cw721")
+                logger.error(err)
+                //interaction.channel.send("Error getting balance from cw721")
+            }
+
+        } catch(err) {
+            logger.error(err)
+            await interaction.channel.send("Internal error for you")
+        }
+    }
+}
 
 client.on('interactionCreate', async interaction => {
-	if (interaction.isCommand()) {
-		console.log('Interaction is a command')
-		if (interaction.commandName === 'starry-join') {
-			try {
-				let results = await logic.hoistRequest({guildId: interaction.guildId, authorId: interaction.member.user.id})
-				if (results.error || !results.traveller || !results.saganism) {
-					interaction.channel.send(results.error || "Internal error")
-				} else {
-					// We reply "privately" instead of sending a DM here
-					interaction.reply({embeds:[createEmbed(results.traveller,results.saganism)], ephemeral: true})
-				}
-			} catch(err) {
-				logger.error(err)
-				await interaction.channel.send("Internal error adding you") // don't send error itself since it could leak secrets
-			}
-		}
+	if (interaction.isButton()) {
+		return handleAddButton(interaction)
+	} else if (interaction.isCommand()) {
+		return handleCommands(interaction)
 	} else {
-		console.log('Interaction is NOT a command')
+		console.error('Interaction is NOT understood!')
+		console.error(interaction)
 	}
 });
 
