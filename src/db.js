@@ -3,7 +3,7 @@ const defaultConfig = require("./config.json");
 // const defaultConfig = require("./auth-local.json");
 // const defaultConfig = require("./auth-prod.json");
 const myConfig = {
-	"DISCORD_TOKEN": process.env.DISCORD_TOKEN | "set-discord-token",
+	"DISCORD_TOKEN": process.env.DISCORD_TOKEN || "set-discord-token",
 	"PREFIX": process.env.PREFIX || defaultConfig.PREFIX || "!",
 	"DB_HOSTIP": process.env.DB_HOSTIP || defaultConfig.DB_HOSTIP || "127.0.0.1",
 	"DB_OUTGOINGIP": process.env.DB_OUTGOINGIP || defaultConfig.DB_OUTGOINGIP || "",
@@ -24,6 +24,8 @@ const myConfig = {
 	"VALIDATOR": process.env.VALIDATOR || defaultConfig.VALIDATOR || 'https://verify.starrybot.xyz/'
 }
 
+const enableSSL = myConfig.DB_HOSTIP !== 'localhost';
+
 const knex = require('knex')({
 	client: 'pg',
 	connection: {
@@ -32,7 +34,7 @@ const knex = require('knex')({
 		database: myConfig.DB_NAME,
 		host: myConfig.DB_HOSTIP,
 		port: myConfig.DB_HOSTPORT,
-		ssl: true
+		ssl: enableSSL
 	},
 	pool: {
 		max: 5,
@@ -50,6 +52,7 @@ const ensureDatabaseInitialized = async () => {
 	if (knex_initialized) return
 	knex_initialized = true
 	try {
+		// Reminder: we have database migrations in the "migrations" directory at the project root
 		let hasTable = await knex.schema.hasTable(myConfig.DB_TABLENAME_MEMBERS)
 		if (!hasTable) {
 			await knex.schema.createTable(myConfig.DB_TABLENAME_MEMBERS, table => {
@@ -103,7 +106,7 @@ const rolesGet = async (guildId) => {
 	return roles
 }
 
-const rolesSet = async (guildId, roleId, role, tokenType, tokenAddress) => {
+const rolesSet = async (guildId, roleId, role, tokenType, tokenAddress, network, removeInCleanup) => {
 	await ensureDatabaseInitialized()
 
 	let discord_guild_id = guildId;
@@ -128,7 +131,9 @@ const rolesSet = async (guildId, roleId, role, tokenType, tokenAddress) => {
 		token_type,
 		has_minimum_of,
 		created_by_discord_id,
-		give_role
+		give_role,
+		network,
+		remove_in_cleanup: removeInCleanup
 	})
 	console.log('results', results)
 }
