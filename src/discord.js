@@ -220,7 +220,7 @@ console.log("succeeded at cw20")
 
 client.on('interactionCreate', async interaction => {
 	if (interaction.isButton()) {
-		return handleAddButton(interaction)
+		if (interaction.customId === 'slash-commands-enabled') return handleAddButton(interaction)
 	} else if (interaction.isCommand()) {
 		return handleCommands(interaction)
 	} else {
