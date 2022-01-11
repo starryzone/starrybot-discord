@@ -9,7 +9,7 @@ const { Client, Intents, MessageEmbed, Permissions, MessagePayload, MessageButto
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const { REST } = require('@discordjs/rest');
 const { Routes } = require('discord-api-types/v9');
-const {myConfig} = require("./db");
+const { myConfig } = require("./db");
 const intents = new Intents([ Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILD_MEMBERS, Intents.FLAGS.GUILD_INTEGRATIONS ]);
 const client = new Client({intents: intents })
 
@@ -77,7 +77,6 @@ client.on("guildCreate", async guild => {
 
 	let existingRoles = {}
 	for (let role of existingObjectRoles.values()) {
-		console.log('aloha role', role)
 		existingRoles[role.name] = role.id
 	}
 
@@ -95,8 +94,8 @@ client.on("guildCreate", async guild => {
 	}
 
 	// Add default roles
-	await db.rolesSet(guild.id, finalRoleMapping[desiredRoles[0]], desiredRoles[0], 'native', 'osmo')
-	await db.rolesSet(guild.id, finalRoleMapping[desiredRoles[1]], desiredRoles[1], 'native', 'juno')
+	await db.rolesSet(guild.id, finalRoleMapping[desiredRoles[0]], desiredRoles[0], 'native', 'osmo', 'mainnet', true)
+	await db.rolesSet(guild.id, finalRoleMapping[desiredRoles[1]], desiredRoles[1], 'native', 'juno', 'mainnet', true)
 })
 
 let commands = [
