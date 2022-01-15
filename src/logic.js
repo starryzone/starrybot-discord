@@ -6,7 +6,7 @@ const logger = require("./logger")
 const Sagan = require("./sagan.js")
 
 const { Client, Intents, MessageEmbed, Permissions, MessageActionRow, MessageButton, MessagePayload} = require('discord.js')
-const intents = new Intents([ Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES ]);
+const intents = new Intents([ Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILD_MESSAGE_REACTIONS ]);
 
 const { serializeSignDoc } = require('@cosmjs/amino')
 const { Secp256k1, Secp256k1Signature, sha256 } = require('@cosmjs/crypto')

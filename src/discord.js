@@ -4,13 +4,14 @@ const db = require("./db")
 const logger = require("./logger")
 const logic = require("./logic")
 const Sagan = require("./sagan.js")
+const { Wizard, WizardStep } = require("./wizard/wizard.js")
 
 const { Client, Intents, MessageEmbed, Permissions, MessagePayload, MessageButton, MessageActionRow, RoleManager} = require('discord.js')
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const { REST } = require('@discordjs/rest');
 const { Routes } = require('discord-api-types/v9');
 const { myConfig } = require("./db");
-const intents = new Intents([ Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILD_MEMBERS, Intents.FLAGS.GUILD_INTEGRATIONS ]);
+const intents = new Intents([ Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILD_MEMBERS, Intents.FLAGS.GUILD_INTEGRATIONS, Intents.FLAGS.GUILD_MESSAGE_REACTIONS ]);
 const client = new Client({intents: intents })
 
 let validatorURL = db.myConfig.VALIDATOR
@@ -33,17 +34,6 @@ function createEmbed(traveller, saganism) {
 
 client.on("ready", async () => {
 	logger.info(`StarryBot has star(ry)ted.`)
-	// We only have to do this once, kept for information only
-	/*
-	const starryJoin = new SlashCommandBuilder()
-		.setName('starry-join')
-		.setDescription('Connect your account with Keplr');
-	const rest = new REST().setToken(process.env.DISCORD_TOKEN);
-	await rest.put(
-		Routes.applicationCommands(client.application.id),
-		{ body: [starryJoin.toJSON()] },
-	);
-	 */
 });
 
 // When StarryBot joins a new guild, let's create a default role and say hello
@@ -98,27 +88,50 @@ client.on("guildCreate", async guild => {
 	await db.rolesSet(guild.id, finalRoleMapping[desiredRoles[1]], desiredRoles[1], 'native', 'juno', 'mainnet', true)
 })
 
-let commands = [
-	{ name:"starry-join",description:"Connect your account with Keplr" },
-	{ name:"starry-poke",description:"Teehee", args1:"contract", args2:"user" }
-]
-
 async function handleAddButton(interaction) {
 	// They say they've allowed the bot to add Slash Commands,
 	//   let's try to add ours for this guild and catch it they've lied to us.
+
 	const rest = new REST().setToken(myConfig.DISCORD_TOKEN);
 	try {
-		commands.forEach(async args=>{
-			console.log("adding " + args.name + " " + args.description)
-			let command = new SlashCommandBuilder().setName(args.name).setDescription(args.description)
-			if(args.args1) command = command.addStringOption(option => option.setName(args.args1).setDescription('subarg').setRequired(true));
-			if(args.args2) command = command.addStringOption(option => option.setName(args.args2).setDescription('subarg').setRequired(true));
-			console.log(command)
-			await rest.put(
-				Routes.applicationGuildCommands(interaction.applicationId, interaction.guildId),
-				{ body: [command.toJSON()] },
-			);
-		})
+		// Note: discordjs doesn't have abstractions for subcommand groups and subcommands like I expected. Used logic from:
+		// https://discord.com/developers/docs/interactions/application-commands#example-walkthrough
+		await rest.post(
+			Routes.applicationGuildCommands(interaction.applicationId, interaction.guildId),
+			{ body: {
+					"name": "starry",
+					"description": "Use StarryBot (starrybot.xyz)",
+					"options": [
+						{
+							"name": "token-rule",
+							"description": "cw20 or cw721 token and Discord role",
+							"type": 2, // SUB_COMMAND_GROUP
+							"options": [
+								{
+									"name": "add",
+									"description": "Add a new token rule",
+									"type": 1 // SUB_COMMAND
+								},
+								{
+									"name": "edit",
+									"description": "Edit token rule",
+									"type": 1
+								},
+								{
+									"name": "remove",
+									"description": "Remove token rule",
+									"type": 1
+								}
+							]
+						},
+						{
+							"name": "join",
+							"description": "Get link to verify your account with Keplr",
+							"type": 1,
+						}
+					]
+				} },
+		);
 	} catch (e) {
 		if (e.code === 50001 || e.message === 'Missing Access') {
 			// We have a prevaricator
@@ -141,7 +154,7 @@ async function handleAddButton(interaction) {
 		return;
 	}
 
-	// Slash command should be added successfully, double-check then tell the channel it's ready
+	// Slash command are added successfully, double-check then tell the channel it's ready
 	let enabledGuildCommands = await rest.get(
 		Routes.applicationGuildCommands(interaction.applicationId, interaction.guildId)
 	);
@@ -150,71 +163,90 @@ async function handleAddButton(interaction) {
 	// Ensure (double-check) we have the Slash Command registered,
 	//   then publicly tell everyone they can use it
 	for (let enabledGuildCommand of enabledGuildCommands) {
-		if (enabledGuildCommand.name === 'starry-join') {
-			await interaction.reply('Feel free to use the /starry-join command, friends.')
+		if (enabledGuildCommand.name === 'starry') {
+			return await interaction.reply('Feel free to use the /starry join command, friends.')
 			break;
 		}
 	}
 }
 
-async function handleCommands(interaction) {
-
-	console.log('Interaction is a command')
-
-	if (interaction.commandName === 'starry-join') {
+client.on('messageReactionAdd', async (reaction, user) => {
+	if (user.bot) return; // don't care about bot's emoji reactions
+	// When a reaction is received, check if the structure is partial
+	if (reaction.partial) {
+		// If the message this reaction belongs to was removed, the fetching might result in an API error which should be handled
 		try {
-			let results = await logic.hoistRequest({guildId: interaction.guildId, authorId: interaction.member.user.id})
-			if (results.error || !results.traveller || !results.saganism) {
-				interaction.channel.send(results.error || "Internal error")
-			} else {
-				// We reply "privately" instead of sending a DM here
-				interaction.reply({embeds:[createEmbed(results.traveller,results.saganism)], ephemeral: true})
-			}
-		} catch(err) {
-			logger.error(err)
-			await interaction.channel.send("Internal error adding you") // don't send error itself since it could leak secrets
+			await reaction.fetch();
+		} catch (error) {
+			console.error('Something went wrong when fetching the message:', error);
+			// Return as `reaction.message.author` may be undefined/null
+			return;
 		}
 	}
 
-	else if (interaction.commandName === 'starry-poke') {
-		console.log("***************** starry poke")
-        try {
+	// Now the message has been cached and is fully available
+	console.log(`${reaction.message.author}'s message "${reaction.message.content}" gained a reaction!`);
+	// The reaction is now also fully available and the properties will be reflected accurately:
+	console.log(`${reaction.count} user(s) have given the same reaction to this message!`);
+});
 
-            const client = await CosmWasmClient.connect(RPC_ENDPOINT)
+// This is where we'll keep user's progress through the wizard "in memory"
+let globalUserWizards = []
 
-            let contract = interaction.options.getString('contract')
-            let user = interaction.options.getString('user')
+async function handleCommands(interaction) {
+	console.log('Interaction is a command')
 
-            interaction.channel.send(`Peeking at ledgers contract=${contract} user=${user}`)
-console.log("peek")
-            try {
-                let balance = await client.queryContractSmart(contract, { balance: { address: user } })
-                console.log(balance)
-                interaction.channel.send("Balance is " + balance.balance)
-console.log("succeeded at cw20")
-            } catch(err) {
-                logger.error(err)
-                //interaction.channel.send("Error getting balance from cw20")
-            }
-
-            try {
-                let balance = await client.queryContractSmart(contract, { tokens: { owner: user } })
-                console.log(balance)
-                interaction.channel.send("Balance of tokens is " + balance);
-                //let ownerInfo = await client.queryContractSmart(CW721_CONTRACT_ADDRESS, {
-                //    owner_of: { token_id: '0' },
-                //})
-            } catch(err) {
-            	console.error("failed at cw721")
-                logger.error(err)
-                //interaction.channel.send("Error getting balance from cw721")
-            }
-
-        } catch(err) {
-            logger.error(err)
-            await interaction.channel.send("Internal error for you")
-        }
-    }
+	// for all "/starry *" commands
+	if (interaction.commandName === 'starry') {
+		if (interaction.options['_group'] === null) {
+			// Immediate subcommands, so "/starry foo"
+			if (interaction.options['_subcommand'] === 'join') {
+				try {
+					let results = await logic.hoistRequest({guildId: interaction.guildId, authorId: interaction.member.user.id})
+					if (results.error || !results.traveller || !results.saganism) {
+						interaction.channel.send(results.error || "Internal error")
+					} else {
+						// We reply "privately" instead of sending a DM here
+						return await interaction.reply({embeds:[createEmbed(results.traveller,results.saganism)], ephemeral: true})
+					}
+				} catch(err) {
+					logger.error(err)
+					await interaction.channel.send("Internal error adding you")
+				}
+			}
+		} else {
+			// This has a subcommand group, so "/starry my-group foo"
+			if (interaction.options['_group'] === 'token-rule') {
+				// User wants to modify a token and rule to add which Discord role
+				switch (interaction.options['_subcommand']) {
+					case 'add':
+						const msg = await interaction.reply(
+							{ embeds: [
+									new MessageEmbed()
+										.setColor('#FDC2A0')
+										.setTitle('Tell us about your token')
+										.setDescription('🌠 Choose a token\n✨ I need to make a token')
+								],
+								fetchReply: true
+							}
+						)
+						try {
+							await msg.react('🌠');
+							await msg.react('✨');
+						} catch (error) {
+							console.error('One of the emojis failed to react:', error);
+						}
+						// TODO: this is where we'll want to do a filter/map deal to remove all entries that have a {wizard}.createdAt that's > some amount, like 6 minutes
+						globalUserWizards.push(msg)
+						break;
+					case 'edit':
+						break;
+					case 'remove':
+						break;
+				}
+			}
+		}
+	}
 }
 
 client.on('interactionCreate', async interaction => {
