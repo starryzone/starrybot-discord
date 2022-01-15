@@ -19,6 +19,10 @@ let validatorURL = db.myConfig.VALIDATOR
 const { CosmWasmClient } = require('@cosmjs/cosmwasm-stargate')
 const RPC_ENDPOINT = process.env.NEXT_PUBLIC_CHAIN_RPC_ENDPOINT || 'https://rpc.uni.juno.deuslabs.fi/'
 
+///
+/// a helper to build display ux
+///
+
 function createEmbed(traveller, saganism) {
 	let url = `${validatorURL}?traveller=${traveller}`
 	return new MessageEmbed()
@@ -32,12 +36,11 @@ function createEmbed(traveller, saganism) {
 		.setFooter('Put your helmet on', 'https://i.imgur.com/AfFp7pu.png');
 }
 
-client.on("ready", async () => {
-	logger.info(`StarryBot has star(ry)ted.`)
-});
+///
+/// When StarryBot joins a new guild, let's create a default role and say hello
+///
 
-// When StarryBot joins a new guild, let's create a default role and say hello
-client.on("guildCreate", async guild => {
+async function guildCreate(guild) {
 	const systemChannelId = guild.systemChannelId;
 	let desiredRoles = ['osmo-hodler', 'juno-hodler'];
 	const desiredRolesForMessage = desiredRoles.join('\n- ');
@@ -86,11 +89,14 @@ client.on("guildCreate", async guild => {
 	// Add default roles
 	await db.rolesSet(guild.id, finalRoleMapping[desiredRoles[0]], desiredRoles[0], 'native', 'osmo', 'mainnet', true)
 	await db.rolesSet(guild.id, finalRoleMapping[desiredRoles[1]], desiredRoles[1], 'native', 'juno', 'mainnet', true)
-})
+}
 
-async function handleAddButton(interaction) {
-	// They say they've allowed the bot to add Slash Commands,
-	//   let's try to add ours for this guild and catch it they've lied to us.
+///
+/// They say they've allowed the bot to add Slash Commands,
+/// Let's try to add ours for this guild and catch it they've lied to us.
+///
+
+async function registerGuildCommands(interaction) {
 
 	const rest = new REST().setToken(myConfig.DISCORD_TOKEN);
 	try {
@@ -170,7 +176,11 @@ async function handleAddButton(interaction) {
 	}
 }
 
-client.on('messageReactionAdd', async (reaction, user) => {
+///
+/// A user may have sent an emoji - we are very interested in these
+///
+
+async function messageReactionAdd(reaction,user) {
 	if (user.bot) return; // don't care about bot's emoji reactions
 	// When a reaction is received, check if the structure is partial
 	if (reaction.partial) {
@@ -188,12 +198,16 @@ client.on('messageReactionAdd', async (reaction, user) => {
 	console.log(`${reaction.message.author}'s message "${reaction.message.content}" gained a reaction!`);
 	// The reaction is now also fully available and the properties will be reflected accurately:
 	console.log(`${reaction.count} user(s) have given the same reaction to this message!`);
-});
+}
 
 // This is where we'll keep user's progress through the wizard "in memory"
 let globalUserWizards = []
 
-async function handleCommands(interaction) {
+///
+/// A user has a command for us - resolve
+///
+
+async function handleGuildCommands(interaction) {
 	console.log('Interaction is a command')
 
 	// for all "/starry *" commands
@@ -249,16 +263,37 @@ async function handleCommands(interaction) {
 	}
 }
 
-client.on('interactionCreate', async interaction => {
+///
+/// A glorious user interaction has arrived - bask in its glow
+///
+
+async function interactionCreate(interaction) {
 	if (interaction.isButton()) {
-		if (interaction.customId === 'slash-commands-enabled') return handleAddButton(interaction)
+		if (interaction.customId === 'slash-commands-enabled') {
+			return registerGuildCommands(interaction)
+		}
 	} else if (interaction.isCommand()) {
-		return handleCommands(interaction)
+		return handleGuildCommands(interaction)
 	} else {
 		console.error('Interaction is NOT understood!')
 		console.error(interaction)
 	}
-});
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+///
+/// Handle inbound events from discord
+///
+
+client.on("ready", async () => { logger.info(`StarryBot has star(ry)ted.`) });
+client.on("guildCreate", guildCreate );
+client.on('interactionCreate', interactionCreate );
+client.on('messageReactionAdd', messageReactionAdd );
+
+///
+/// Register with discord
+///
 
 const login = async () => {
 	let token = db.myConfig.DISCORD_TOKEN || process.env.DISCORD_TOKEN;
