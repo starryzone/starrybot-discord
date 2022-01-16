@@ -20,6 +20,27 @@ const { CosmWasmClient } = require('@cosmjs/cosmwasm-stargate')
 const RPC_ENDPOINT = process.env.NEXT_PUBLIC_CHAIN_RPC_ENDPOINT || 'https://rpc.uni.juno.deuslabs.fi/'
 
 ///
+/// Default roles (later we may not have any default roles)
+///
+
+let desiredRoles = [
+	{
+		name:'osmo-hodler',
+		type:"native",
+		address:"osmo",
+		net:"mainnet",
+	},
+	{
+		name:'juno-hodler',
+		type:"native",
+		address:"juno",
+		net:"mainnet",
+	}
+];
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+///
 /// a helper to build display ux
 ///
 
@@ -37,18 +58,18 @@ function createEmbed(traveller, saganism) {
 }
 
 ///
-/// When StarryBot joins a new guild, let's create a default role and say hello
+/// A helper to print a nice message
 ///
 
-async function guildCreate(guild) {
+async function printNiceMessageInDiscord(guild,message) {
+
 	const systemChannelId = guild.systemChannelId;
-	let desiredRoles = ['osmo-hodler', 'juno-hodler'];
-	const desiredRolesForMessage = desiredRoles.join('\n- ');
 	let systemChannel = await client.channels.fetch(systemChannelId);
+
 	const embed = new MessageEmbed()
 		.setColor('#0099ff')
 		.setTitle(`Enable secure slash commands`)
-		.setDescription(`StarryBot just joined, and FYI there are two roles:\n- ${desiredRolesForMessage}`)
+		.setDescription(`StarryBot just joined${message}`)
 		.setImage('https://starrybot.xyz/starrybot-slash-commands2.gif')
 
 	const row = new MessageActionRow()
@@ -64,31 +85,74 @@ async function guildCreate(guild) {
 		embeds: [embed],
 		components: [row]
 	});
-	await systemChannel.send(msgPayload);
+	await systemChannel.send(msgPayload);	
+}
 
-	const existingObjectRoles = await guild.roles.fetch();
+///
+/// A helper to create a role if needed
+///
 
-	let existingRoles = {}
-	for (let role of existingObjectRoles.values()) {
-		existingRoles[role.name] = role.id
+async function createGuildRoleInDiscord(guild,role) {
+
+	// look in cache
+	let existing = guild.roles.cache.find(r => r.name === role.name) 
+
+	// try harder - unfortunately there's no real way around this since admins can create roles at their whim
+	if(!existing) {
+		await guild.roles.fetch();
+		existing = guild.roles.cache.find(r => r.name === role.name) 
 	}
 
-	// See if there are existing roles and only create ones we don't have
-	let finalRoleMapping = {}
-	for (let role of desiredRoles) {
-		// Create role unless it already existed above
-		if (existingRoles.hasOwnProperty(role)) {
-			finalRoleMapping[role] = existingRoles[role]
-		} else {
-			const newRole = await guild.roles.create({name: role, position: 0})
-			console.log('newRole', newRole)
-			finalRoleMapping[role] = newRole.id
+	// since the role exists simply return null to indicate that we did no work
+	if(existing) {
+		return false
+	}
+
+	// make role
+	await guild.roles.create({name: role.name, position: 0})
+	return true
+}
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////////
+
+///
+/// When StarryBot joins a new guild, let's create any default roles and say hello
+///
+
+async function guildCreate(guild) {
+
+	let added = []
+
+	for(let i = 0; i < desiredRoles.length; i++) {
+
+		let r = desiredRoles[i]
+
+		// 
+		added.push(r.name)
+
+		// make role in discord if needed else skip to next
+		let updated = await createGuildRoleInDiscord(guild,r)
+
+		// also remember new role in our db
+		if(updated) {
+			await db.rolesSet({
+				guildId : guild.id,
+				roleId : 0,
+				role : r.name,
+				tokenType : r.type||"native",
+				tokenAddress : r.address
+				// network:r.net
+			})
 		}
 	}
 
-	// Add default roles
-	await db.rolesSet(guild.id, finalRoleMapping[desiredRoles[0]], desiredRoles[0], 'native', 'osmo', 'mainnet', true)
-	await db.rolesSet(guild.id, finalRoleMapping[desiredRoles[1]], desiredRoles[1], 'native', 'juno', 'mainnet', true)
+	// print a nice message to the user
+	let message = ""
+	if(added.length) {
+		message = "\nFYI there are some roles:\n- " + added.join('\n- ');
+	}
+	await printNiceMessageInDiscord(guild,message);
 }
 
 ///
