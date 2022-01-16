@@ -136,14 +136,7 @@ async function guildCreate(guild) {
 
 		// also remember new role in our db
 		if(updated) {
-			await db.rolesSet({
-				guildId : guild.id,
-				roleId : 0,
-				role : r.name,
-				tokenType : r.type||"native",
-				tokenAddress : r.address
-				// network:r.net
-			})
+			await db.rolesSet(guild.id,0,r.name,r.type,r.address,r.net,true);
 		}
 	}
 
