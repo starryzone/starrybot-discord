@@ -120,7 +120,7 @@ const rolesSet = async (guildId, roleId, role, tokenType, tokenAddress, network,
 	// If this role for this guild already exists, return
 	let existingRows = await knex(myConfig.DB_TABLENAME_ROLES).where({
 		discord_guild_id,
-		discord_role_id
+		give_role
 	}).select('id')
 	if (existingRows.length) return
 
