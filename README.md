@@ -34,6 +34,7 @@ The way this works is:
 - the web page could actually be merged into this back end
 - db config env vars could be cleaned up
 - rather than a db the roles could be on the blockchain
+- litter this code with try catch
 
 
 ## DISCORD TO IMPROVE
