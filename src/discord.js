@@ -148,6 +148,44 @@ async function guildCreate(guild) {
 	await printNiceMessageInDiscord(guild,message);
 }
 
+// Note: discordjs doesn't have abstractions for subcommand groups and subcommands like I expected. Used logic from:
+// https://discord.com/developers/docs/interactions/application-commands#example-walkthrough
+
+
+const starryCommands = {
+	"name": "starry",
+	"description": "Use StarryBot (starrybot.xyz)",
+	"options": [
+		{
+			"name": "token-rule",
+			"description": "cw20 or cw721 token and Discord role",
+			"type": 2, // SUB_COMMAND_GROUP
+			"options": [
+				{
+					"name": "add",
+					"description": "Add a new token rule",
+					"type": 1 // SUB_COMMAND
+				},
+				{
+					"name": "edit",
+					"description": "Edit token rule",
+					"type": 1
+				},
+				{
+					"name": "remove",
+					"description": "Remove token rule",
+					"type": 1
+				}
+			]
+		},
+		{
+			"name": "join",
+			"description": "Get link to verify your account with Keplr",
+			"type": 1,
+		}
+	]
+}
+
 ///
 /// They say they've allowed the bot to add Slash Commands,
 /// Let's try to add ours for this guild and catch it they've lied to us.
@@ -155,47 +193,29 @@ async function guildCreate(guild) {
 
 async function registerGuildCommands(interaction) {
 
+	let appId = interaction.applicationId
+	let guildId = interaction.guildId
 	const rest = new REST().setToken(myConfig.DISCORD_TOKEN);
+
+	// delete global commands
+	let commands = await rest.get( Routes.applicationCommands(appId) );
+	for (let command of commands) {
+		console.log("deleting global : ",command);
+		let results = await rest.delete(`${Routes.applicationCommands(appId)}/${command.id}`);
+	}
+
+	// delete local commands
+	commands = await rest.get( Routes.applicationGuildCommands(appId,guildId) );
+	for (let command of commands) {
+		console.log("deleting local : ",command);
+		let results = await rest.delete(`${Routes.applicationGuildCommands(appId,guildId)}/${command.id}`);
+	}
+
+	// add guild commands
 	try {
-		// Note: discordjs doesn't have abstractions for subcommand groups and subcommands like I expected. Used logic from:
-		// https://discord.com/developers/docs/interactions/application-commands#example-walkthrough
-		await rest.post(
-			Routes.applicationGuildCommands(interaction.applicationId, interaction.guildId),
-			{ body: {
-					"name": "starry",
-					"description": "Use StarryBot (starrybot.xyz)",
-					"options": [
-						{
-							"name": "token-rule",
-							"description": "cw20 or cw721 token and Discord role",
-							"type": 2, // SUB_COMMAND_GROUP
-							"options": [
-								{
-									"name": "add",
-									"description": "Add a new token rule",
-									"type": 1 // SUB_COMMAND
-								},
-								{
-									"name": "edit",
-									"description": "Edit token rule",
-									"type": 1
-								},
-								{
-									"name": "remove",
-									"description": "Remove token rule",
-									"type": 1
-								}
-							]
-						},
-						{
-							"name": "join",
-							"description": "Get link to verify your account with Keplr",
-							"type": 1,
-						}
-					]
-				} },
-		);
+		await rest.post( Routes.applicationGuildCommands(appId,guildId), { body: starryCommands } );
 	} catch (e) {
+		console.error(e)
 		if (e.code === 50001 || e.message === 'Missing Access') {
 			// We have a prevaricator
 			const row = new MessageActionRow()
@@ -218,9 +238,7 @@ async function registerGuildCommands(interaction) {
 	}
 
 	// Slash command are added successfully, double-check then tell the channel it's ready
-	let enabledGuildCommands = await rest.get(
-		Routes.applicationGuildCommands(interaction.applicationId, interaction.guildId)
-	);
+	let enabledGuildCommands = await rest.get( Routes.applicationGuildCommands(appId,guildId) );
 	console.log('enabledGuildCommands', enabledGuildCommands)
 
 	// Ensure (double-check) we have the Slash Command registered,
