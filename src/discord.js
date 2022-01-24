@@ -3,21 +3,21 @@
 const db = require("./db")
 const logger = require("./logger")
 const logic = require("./logic")
-const Sagan = require("./sagan.js")
-const { Wizard, WizardStep } = require("./wizard/wizard.js")
+const { globalUserWizards } = require("./wizard/wizard.js")
 
-const { Client, Intents, MessageEmbed, Permissions, MessagePayload, MessageButton, MessageActionRow, RoleManager} = require('discord.js')
-const { SlashCommandBuilder } = require('@discordjs/builders');
+const { Client, Intents, MessageEmbed, MessagePayload, MessageButton, MessageActionRow } = require('discord.js')
 const { REST } = require('@discordjs/rest');
 const { Routes } = require('discord-api-types/v9');
 const { myConfig } = require("./db");
 const intents = new Intents([ Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILD_MEMBERS, Intents.FLAGS.GUILD_INTEGRATIONS, Intents.FLAGS.GUILD_MESSAGE_REACTIONS ]);
 const client = new Client({intents: intents })
+const TIMEOUT_DURATION = 360000; // 6 minutes in milliseconds
 
 let validatorURL = db.myConfig.VALIDATOR
 
-const { CosmWasmClient } = require('@cosmjs/cosmwasm-stargate')
-const RPC_ENDPOINT = process.env.NEXT_PUBLIC_CHAIN_RPC_ENDPOINT || 'https://rpc.uni.juno.deuslabs.fi/'
+const { WizardAddTokenRule } = require("./wizard/add-token-rule");
+// @todo find mainnet RPC endpoint we can use
+// const MAINNET_RPC_ENDPOINT = process.env.MAINNET_RPC_ENDPOINT || 'https://…halp…'
 
 function createEmbed(traveller, saganism) {
 	let url = `${validatorURL}?traveller=${traveller}`
@@ -25,7 +25,7 @@ function createEmbed(traveller, saganism) {
 		.setColor('#0099ff')
 		.setTitle(`Please visit ${url}`)
 		.setURL(url)
-		.setAuthor('Starrybot', 'https://i.imgur.com/AfFp7pu.png', 'https://discord.js.org')
+		.setAuthor('StarryBot', 'https://i.imgur.com/AfFp7pu.png', 'https://discord.js.org')
 		.setDescription(saganism)
 		.setThumbnail('https://i.imgur.com/AfFp7pu.png')
 		.setTimestamp()
@@ -84,8 +84,8 @@ client.on("guildCreate", async guild => {
 	}
 
 	// Add default roles
-	await db.rolesSet(guild.id, finalRoleMapping[desiredRoles[0]], desiredRoles[0], 'native', 'osmo', 'mainnet', true)
-	await db.rolesSet(guild.id, finalRoleMapping[desiredRoles[1]], desiredRoles[1], 'native', 'juno', 'mainnet', true)
+	await db.rolesSet(guild.id, desiredRoles[0], 'native', 'osmo', 'mainnet', true, client.user.id, 1)
+	await db.rolesSet(guild.id, desiredRoles[1], 'native', 'juno', 'mainnet', true, client.user.id, 1)
 })
 
 async function handleAddButton(interaction) {
@@ -96,7 +96,7 @@ async function handleAddButton(interaction) {
 	try {
 		// Note: discordjs doesn't have abstractions for subcommand groups and subcommands like I expected. Used logic from:
 		// https://discord.com/developers/docs/interactions/application-commands#example-walkthrough
-		await rest.post(
+		let postResult = await rest.post(
 			Routes.applicationGuildCommands(interaction.applicationId, interaction.guildId),
 			{ body: {
 					"name": "starry",
@@ -130,8 +130,10 @@ async function handleAddButton(interaction) {
 							"type": 1,
 						}
 					]
-				} },
+				}
+			 },
 		);
+		console.log('postResult', postResult)
 	} catch (e) {
 		if (e.code === 50001 || e.message === 'Missing Access') {
 			// We have a prevaricator
@@ -149,6 +151,7 @@ async function handleAddButton(interaction) {
 			});
 			interaction.reply(msgPayload)
 		} else {
+			console.log('post error', e)
 			interaction.reply('Something does not seem right, please try adding StarryBot again.')
 		}
 		return;
@@ -165,13 +168,13 @@ async function handleAddButton(interaction) {
 	for (let enabledGuildCommand of enabledGuildCommands) {
 		if (enabledGuildCommand.name === 'starry') {
 			return await interaction.reply('Feel free to use the /starry join command, friends.')
-			break;
 		}
 	}
 }
 
 client.on('messageReactionAdd', async (reaction, user) => {
 	if (user.bot) return; // don't care about bot's emoji reactions
+	await checkReactionWithWizard(reaction)
 	// When a reaction is received, check if the structure is partial
 	if (reaction.partial) {
 		// If the message this reaction belongs to was removed, the fetching might result in an API error which should be handled
@@ -184,17 +187,12 @@ client.on('messageReactionAdd', async (reaction, user) => {
 		}
 	}
 
-	// Now the message has been cached and is fully available
-	console.log(`${reaction.message.author}'s message "${reaction.message.content}" gained a reaction!`);
 	// The reaction is now also fully available and the properties will be reflected accurately:
 	console.log(`${reaction.count} user(s) have given the same reaction to this message!`);
 });
 
-// This is where we'll keep user's progress through the wizard "in memory"
-let globalUserWizards = []
-
 async function handleCommands(interaction) {
-	console.log('Interaction is a command')
+	const userId = interaction.user.id
 
 	// for all "/starry *" commands
 	if (interaction.commandName === 'starry') {
@@ -220,24 +218,17 @@ async function handleCommands(interaction) {
 				// User wants to modify a token and rule to add which Discord role
 				switch (interaction.options['_subcommand']) {
 					case 'add':
-						const msg = await interaction.reply(
-							{ embeds: [
-									new MessageEmbed()
-										.setColor('#FDC2A0')
-										.setTitle('Tell us about your token')
-										.setDescription('🌠 Choose a token\n✨ I need to make a token')
-								],
-								fetchReply: true
-							}
-						)
-						try {
-							await msg.react('🌠');
-							await msg.react('✨');
-						} catch (error) {
-							console.error('One of the emojis failed to react:', error);
-						}
 						// TODO: this is where we'll want to do a filter/map deal to remove all entries that have a {wizard}.createdAt that's > some amount, like 6 minutes
-						globalUserWizards.push(msg)
+
+						let addTokenRuleWizard = new WizardAddTokenRule(interaction.guildId, interaction.channelId, userId, client)
+						// Begin the wizard by calling the begin function on the first step
+						const msg = await addTokenRuleWizard.currentStep.beginFn({interaction});
+
+						// Now that we have the message object, we can set that, (sometimes) helping determine the user is reacting to the proper message
+						addTokenRuleWizard.currentStep.setMessageId(msg.id)
+
+						// Set the in-memory Map
+						globalUserWizards.set(`${interaction.guildId}-${userId}`, addTokenRuleWizard)
 						break;
 					case 'edit':
 						break;
@@ -249,12 +240,18 @@ async function handleCommands(interaction) {
 	}
 }
 
+client.on('messageCreate', async interaction => {
+	if (interaction.author.bot) return;
+	await checkInteractionWithWizard(interaction)
+});
+
 client.on('interactionCreate', async interaction => {
 	if (interaction.isButton()) {
 		if (interaction.customId === 'slash-commands-enabled') return handleAddButton(interaction)
 	} else if (interaction.isCommand()) {
 		return handleCommands(interaction)
 	} else {
+		await checkInteractionWithWizard(interaction)
 		console.error('Interaction is NOT understood!')
 		console.error(interaction)
 	}
@@ -278,5 +275,44 @@ login().then((res) => {
 		logger.log('Issue connecting to Discord')
 	}
 })
+
+// Respond to general interaction
+async function checkInteractionWithWizard(interaction) {
+	if (globalUserWizards.size === 0) return;
+	const authorId = interaction.author.id;
+	const wizardKey = `${interaction.guildId}-${authorId}`;
+	// If it's a regular "DEFAULT" message from a user in the wizard on that step
+	if (interaction.type === 'DEFAULT' && globalUserWizards.has(wizardKey)) {
+		// Check if its expired and delete it if so
+		const userWizard = globalUserWizards.get(wizardKey)
+		if (Date.now() - userWizard.createdAt > TIMEOUT_DURATION) {
+			globalUserWizards.delete(wizardKey)
+			console.log("Deleted a user's wizard as it took them too long to respond.")
+			return;
+		}
+		await userWizard.currentStep.resultFn({interaction})
+	}
+}
+
+// Respond to emoji reaction
+async function checkReactionWithWizard(reaction) {
+	if (globalUserWizards.size === 0) return;
+
+	// See if the "reactor" has a wizard going
+	// Note: checking for interaction key as some emoji reactions didn't seem to have this
+	// Also, this check exists because an emoji to a reply-message will have a null interaction value for some reason
+	if (!reaction.message.hasOwnProperty('interaction') || reaction.message.interaction === null) return;
+	const reactorUserId = reaction.message.interaction.user.id;
+
+	const globalUserWizardKey = `${reaction.message.guildId}-${reactorUserId}`;
+	if (!globalUserWizards.has(globalUserWizardKey)) return;
+
+	const emojiName = reaction._emoji.name;
+	let userCurrentStep = globalUserWizards.get(globalUserWizardKey).currentStep;
+	userCurrentStep.resultFn({
+		guildId: reaction.message.guildId,
+		channelId: reaction.message.channelId
+	}, emojiName)
+}
 
 module.exports = { client }
