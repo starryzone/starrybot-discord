@@ -19,6 +19,10 @@ const { WizardAddTokenRule } = require("./wizard/add-token-rule");
 // @todo find mainnet RPC endpoint we can use
 // const MAINNET_RPC_ENDPOINT = process.env.MAINNET_RPC_ENDPOINT || 'https://…halp…'
 
+///
+/// a helper to build display ux
+///
+
 function createEmbed(traveller, saganism) {
 	let url = `${validatorURL}?traveller=${traveller}`
 	return new MessageEmbed()
@@ -32,12 +36,11 @@ function createEmbed(traveller, saganism) {
 		.setFooter('Put your helmet on', 'https://i.imgur.com/AfFp7pu.png');
 }
 
-client.on("ready", async () => {
-	logger.info(`StarryBot has star(ry)ted.`)
-});
+///
+/// When StarryBot joins a new guild, let's create a default role and say hello
+///
 
-// When StarryBot joins a new guild, let's create a default role and say hello
-client.on("guildCreate", async guild => {
+async function guildCreate(guild) {
 	const systemChannelId = guild.systemChannelId;
 	let desiredRoles = ['osmo-hodler', 'juno-hodler'];
 	const desiredRolesForMessage = desiredRoles.join('\n- ');
@@ -86,11 +89,13 @@ client.on("guildCreate", async guild => {
 	// Add default roles
 	await db.rolesSet(guild.id, desiredRoles[0], 'native', 'osmo', 'mainnet', true, client.user.id, 1)
 	await db.rolesSet(guild.id, desiredRoles[1], 'native', 'juno', 'mainnet', true, client.user.id, 1)
-})
+}
 
-async function handleAddButton(interaction) {
-	// They say they've allowed the bot to add Slash Commands,
-	//   let's try to add ours for this guild and catch it they've lied to us.
+///
+/// They say they've allowed the bot to add Slash Commands,
+/// Let's try to add ours for this guild and catch it they've lied to us.
+///
+async function registerGuildCommands(interaction) {
 
 	const rest = new REST().setToken(myConfig.DISCORD_TOKEN);
 	try {
@@ -172,7 +177,11 @@ async function handleAddButton(interaction) {
 	}
 }
 
-client.on('messageReactionAdd', async (reaction, user) => {
+///
+/// A user may have sent an emoji - we are very interested in these
+///
+
+async function messageReactionAdd(reaction,user) {
 	if (user.bot) return; // don't care about bot's emoji reactions
 	await checkReactionWithWizard(reaction)
 	// When a reaction is received, check if the structure is partial
@@ -189,9 +198,13 @@ client.on('messageReactionAdd', async (reaction, user) => {
 
 	// The reaction is now also fully available and the properties will be reflected accurately:
 	console.log(`${reaction.count} user(s) have given the same reaction to this message!`);
-});
+}
 
-async function handleCommands(interaction) {
+///
+/// A user has a command for us - resolve
+///
+async function handleGuildCommands(interaction) {
+	console.log('Interaction is a command')
 	const userId = interaction.user.id
 
 	// for all "/starry *" commands
@@ -245,17 +258,38 @@ client.on('messageCreate', async interaction => {
 	await checkInteractionWithWizard(interaction)
 });
 
-client.on('interactionCreate', async interaction => {
+///
+/// A glorious user interaction has arrived - bask in its glow
+///
+
+async function interactionCreate(interaction) {
 	if (interaction.isButton()) {
-		if (interaction.customId === 'slash-commands-enabled') return handleAddButton(interaction)
+		if (interaction.customId === 'slash-commands-enabled') {
+			return registerGuildCommands(interaction)
+		}
 	} else if (interaction.isCommand()) {
-		return handleCommands(interaction)
+		return handleGuildCommands(interaction)
 	} else {
 		await checkInteractionWithWizard(interaction)
 		console.error('Interaction is NOT understood!')
 		console.error(interaction)
 	}
-});
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+///
+/// Handle inbound events from discord
+///
+
+client.on("ready", async () => { logger.info(`StarryBot has star(ry)ted.`) });
+client.on("guildCreate", guildCreate );
+client.on('interactionCreate', interactionCreate );
+client.on('messageReactionAdd', messageReactionAdd );
+
+///
+/// Register with discord
+///
 
 const login = async () => {
 	let token = db.myConfig.DISCORD_TOKEN || process.env.DISCORD_TOKEN;
