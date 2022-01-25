@@ -171,7 +171,7 @@ async function hoistFinalize(blob, client) {
 	const saganism = member.saganism;
 
 	// already validated?
-	if(member.is_member) {
+	if (member.is_member) {
 		return {error:"You're already validated on this server!"}
 	}
 

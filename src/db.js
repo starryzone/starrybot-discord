@@ -1,22 +1,9 @@
 const logger = require("./logger")
-const myConfig = require("./config.json");
-
+const defaultConfig = require("./config.json");
 // const defaultConfig = require("./auth-local.json");
 // const defaultConfig = require("./auth-prod.json");
-
-Object.keys(myConfig).forEach(key=>{
-	let value = process.env[key]
-	if(process[value]) { //process.env.hasOwnProperty(key)) {
-		myConfig[key] = value
-	} else {
-		//let value = defaultConfig[key]
-		//if(value) myConfig[key]=value
-	}
-})
-
-/*
-const myConfigUnused = {
-	"DISCORD_TOKEN": process.env.DISCORD_TOKEN | "set-discord-token",
+const myConfig = {
+	"DISCORD_TOKEN": process.env.DISCORD_TOKEN || "set-discord-token",
 	"PREFIX": process.env.PREFIX || defaultConfig.PREFIX || "!",
 	"DB_HOSTIP": process.env.DB_HOSTIP || defaultConfig.DB_HOSTIP || "127.0.0.1",
 	"DB_OUTGOINGIP": process.env.DB_OUTGOINGIP || defaultConfig.DB_OUTGOINGIP || "",
@@ -35,7 +22,7 @@ const myConfigUnused = {
 	"WINSTON": process.env.WINSTON || defaultConfig.WINSTON || false,
 	"PORT": process.env.PORT || defaultConfig.PORT || 8080,
 	"VALIDATOR": process.env.VALIDATOR || defaultConfig.VALIDATOR || 'https://verify.starrybot.xyz/'
-}*/
+}
 
 const enableSSL = myConfig.DB_HOSTIP !== 'localhost';
 
@@ -119,27 +106,28 @@ const rolesGet = async (guildId) => {
 	return roles
 }
 
-const rolesSet = async (guildId, roleId, role, tokenType, tokenAddress, network, removeInCleanup) => {
+const rolesSet = async (guildId, role, tokenType, tokenAddress, network, removeInCleanup, createdByDiscordId, hasMinimumOf) => {
 	await ensureDatabaseInitialized()
 
 	let discord_guild_id = guildId;
-	let discord_role_id = roleId
-	let token_address = tokenAddress
-	let token_type = tokenType
-	let has_minimum_of = "1"
-	let created_by_discord_id = "0"
 	let give_role = role
+	let token_type = tokenType
+	let token_address = tokenAddress
+	let created_by_discord_id = createdByDiscordId
+	let has_minimum_of = hasMinimumOf
 
 	// If this role for this guild already exists, return
 	let existingRows = await knex(myConfig.DB_TABLENAME_ROLES).where({
 		discord_guild_id,
 		give_role
 	}).select('id')
-	if (existingRows.length) return
+	if (existingRows.length) {
+		console.log('Not adding a row because one exists for this guild and role already.')
+		return
+	}
 
 	let results = await knex(myConfig.DB_TABLENAME_ROLES).insert({
 		discord_guild_id,
-		discord_role_id,
 		token_address,
 		token_type,
 		has_minimum_of,

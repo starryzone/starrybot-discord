@@ -3,21 +3,21 @@
 const db = require("./db")
 const logger = require("./logger")
 const logic = require("./logic")
-const Sagan = require("./sagan.js")
-const { Wizard, WizardStep } = require("./wizard/wizard.js")
+const { globalUserWizards } = require("./wizard/wizard.js")
 
-const { Client, Intents, MessageEmbed, Permissions, MessagePayload, MessageButton, MessageActionRow, RoleManager} = require('discord.js')
-const { SlashCommandBuilder } = require('@discordjs/builders');
+const { Client, Intents, MessageEmbed, MessagePayload, MessageButton, MessageActionRow } = require('discord.js')
 const { REST } = require('@discordjs/rest');
 const { Routes } = require('discord-api-types/v9');
 const { myConfig } = require("./db");
 const intents = new Intents([ Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILD_MEMBERS, Intents.FLAGS.GUILD_INTEGRATIONS, Intents.FLAGS.GUILD_MESSAGE_REACTIONS ]);
 const client = new Client({intents: intents })
+const TIMEOUT_DURATION = 360000; // 6 minutes in milliseconds
 
 let validatorURL = db.myConfig.VALIDATOR
 
-const { CosmWasmClient } = require('@cosmjs/cosmwasm-stargate')
-const RPC_ENDPOINT = process.env.NEXT_PUBLIC_CHAIN_RPC_ENDPOINT || 'https://rpc.uni.juno.deuslabs.fi/'
+const { WizardAddTokenRule } = require("./wizard/add-token-rule");
+// @todo find mainnet RPC endpoint we can use
+// const MAINNET_RPC_ENDPOINT = process.env.MAINNET_RPC_ENDPOINT || 'https://…halp…'
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -93,11 +93,11 @@ const starryCommands = {
 ///
 
 const starryCommandHandlers = {
-	"join": starryCommandJoin(),
-	"farewell": starryCommandJoin(),
-	"add": starryCommandTokenAdd(),
-	"edit": starryCommandTokenEdit(),
-	"remove": starryCommandTokenRemove()
+	"join": starryCommandJoin,
+	"farewell": starryCommandFarewell,
+	"token-rule add": starryCommandTokenAdd,
+	"token-rule edit": starryCommandTokenEdit,
+	"token-rule remove": starryCommandTokenRemove
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -112,7 +112,7 @@ function createEmbed(traveller, saganism) {
 		.setColor('#0099ff')
 		.setTitle(`Please visit ${url}`)
 		.setURL(url)
-		.setAuthor('Starrybot', 'https://i.imgur.com/AfFp7pu.png', 'https://discord.js.org')
+		.setAuthor('StarryBot', 'https://i.imgur.com/AfFp7pu.png', 'https://discord.js.org')
 		.setDescription(saganism)
 		.setThumbnail('https://i.imgur.com/AfFp7pu.png')
 		.setTimestamp()
@@ -120,18 +120,17 @@ function createEmbed(traveller, saganism) {
 }
 
 ///
-/// A helper to print a nice message
+/// A helper to print the welcome message
 ///
 
-async function printNiceMessageInDiscord(guild,message) {
-
+async function printWelcomeMessage(guild) {
 	const systemChannelId = guild.systemChannelId;
+	let desiredRolesForMessage = desiredRoles.map(role=>{role.name}).join('\n- ')
 	let systemChannel = await client.channels.fetch(systemChannelId);
-
 	const embed = new MessageEmbed()
 		.setColor('#0099ff')
 		.setTitle(`Enable secure slash commands`)
-		.setDescription(`StarryBot just joined${message}`)
+		.setDescription(`StarryBot just joined, and FYI there are some roles:\n- ${desiredRolesForMessage}`)
 		.setImage('https://starrybot.xyz/starrybot-slash-commands2.gif')
 
 	const row = new MessageActionRow()
@@ -147,34 +146,8 @@ async function printNiceMessageInDiscord(guild,message) {
 		embeds: [embed],
 		components: [row]
 	});
-	await systemChannel.send(msgPayload);	
+	await systemChannel.send(msgPayload);
 }
-
-///
-/// A helper to create a role if needed
-///
-
-async function createGuildRoleInDiscord(guild,role) {
-
-	// look in cache
-	let existing = guild.roles.cache.find(r => r.name === role.name) 
-
-	// try harder - unfortunately there's no real way around this since admins can create roles at their whim
-	if(!existing) {
-		await guild.roles.fetch();
-		existing = guild.roles.cache.find(r => r.name === role.name) 
-	}
-
-	// since the role exists simply return null to indicate that we did no work
-	if(existing) {
-		return false
-	}
-
-	// make role
-	await guild.roles.create({name: role.name, position: 0})
-	return true
-}
-
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -182,40 +155,23 @@ async function createGuildRoleInDiscord(guild,role) {
 /// When StarryBot joins a new guild, let's create any default roles and say hello
 ///
 
+
 async function guildCreate(guild) {
-
-	let added = []
-
-	for(let i = 0; i < desiredRoles.length; i++) {
-
-		let r = desiredRoles[i]
-
-		// 
-		added.push(r.name)
-
-		// make role in discord if needed else skip to next
-		let updated = await createGuildRoleInDiscord(guild,r)
-
-		// also remember new role in our db
-		if(updated) {
-			await db.rolesSet(guild.id,0,r.name,r.type,r.address,r.net,true);
+	await printWelcomeMessage(guild);
+	let existingRoles =	await guild.roles.fetch();
+	for(let i = 0;i<desiredRoles.length;i++) {
+		let role = desiredRoles[i]
+		if(!existingRoles.hasOwnProperty(role.name)) {
+			await guild.roles.create({name: role.name, position: 0})
 		}
+		await db.rolesSet(guild.id,role.name,role.type,role.address,role.net,true,client.user.id,1);
 	}
-
-	// print a nice message to the user
-	let message = ""
-	if(added.length) {
-		message = "\nFYI there are some roles:\n- " + added.join('\n- ');
-	}
-	await printNiceMessageInDiscord(guild,message);
 }
-
 
 ///
 /// They say they've allowed the bot to add Slash Commands,
 /// Let's try to add ours for this guild and catch it they've lied to us.
 ///
-
 async function registerGuildCommands(interaction) {
 
 	let appId = interaction.applicationId
@@ -224,7 +180,10 @@ async function registerGuildCommands(interaction) {
 
 	// add guild commands
 	try {
-		await rest.post( Routes.applicationGuildCommands(appId,guildId), { body: starryCommands } );
+		// Note: discordjs doesn't have abstractions for subcommand groups and subcommands like I expected. Used logic from:
+		// https://discord.com/developers/docs/interactions/application-commands#example-walkthrough
+		let postResult = await rest.post( Routes.applicationGuildCommands(appId,guildId), { body: starryCommands } );
+		console.log('postResult', postResult)
 	} catch (e) {
 		console.error(e)
 		if (e.code === 50001 || e.message === 'Missing Access') {
@@ -243,6 +202,7 @@ async function registerGuildCommands(interaction) {
 			});
 			interaction.reply(msgPayload)
 		} else {
+			console.log('post error', e)
 			interaction.reply('Something does not seem right, please try adding StarryBot again.')
 		}
 		return;
@@ -257,7 +217,6 @@ async function registerGuildCommands(interaction) {
 	for (let enabledGuildCommand of enabledGuildCommands) {
 		if (enabledGuildCommand.name === starryCommands.name) {
 			return await interaction.reply('Feel free to use the /starry join command, friends.')
-			break;
 		}
 	}
 }
@@ -268,6 +227,7 @@ async function registerGuildCommands(interaction) {
 
 async function messageReactionAdd(reaction,user) {
 	if (user.bot) return; // don't care about bot's emoji reactions
+	await checkReactionWithWizard(reaction)
 	// When a reaction is received, check if the structure is partial
 	if (reaction.partial) {
 		// If the message this reaction belongs to was removed, the fetching might result in an API error which should be handled
@@ -280,18 +240,18 @@ async function messageReactionAdd(reaction,user) {
 		}
 	}
 
-	// Now the message has been cached and is fully available
-	console.log(`${reaction.message.author}'s message "${reaction.message.content}" gained a reaction!`);
 	// The reaction is now also fully available and the properties will be reflected accurately:
 	console.log(`${reaction.count} user(s) have given the same reaction to this message!`);
 }
 
-// This is where we'll keep user's progress through the wizard "in memory"
-let globalUserWizards = []
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
-function starryCommandJoin(interaction) {
+///
+/// Join
+///
+
+async function starryCommandJoin(interaction) {
 	try {
 		let results = await logic.hoistRequest({guildId: interaction.guildId, authorId: interaction.member.user.id})
 		if (results.error || !results.traveller || !results.saganism) {
@@ -306,61 +266,84 @@ function starryCommandJoin(interaction) {
 	}
 }
 
-function starryCommandFarewell(interaction) {
+///
+/// Farewell
+///
+
+async function starryCommandFarewell(interaction) {
 
 	let appId = interaction.applicationId
 	let guildId = interaction.guildId
 	const rest = new REST().setToken(myConfig.DISCORD_TOKEN);
 
-	// delete global commands prior to re-adding
-	let commands = await rest.get( Routes.applicationCommands(appId) );
-	for (let command of commands) {
-		console.log("deleting global : ",command);
-		let results = await rest.delete(`${Routes.applicationCommands(appId)}/${command.id}`);
-	}
-
-	// delete local commands prior to re-adding
-	commands = await rest.get( Routes.applicationGuildCommands(appId,guildId) );
+	// delete local commands
+	let commands = await rest.get( Routes.applicationGuildCommands(appId,guildId) );
 	for (let command of commands) {
 		console.log("deleting local : ",command);
 		let results = await rest.delete(`${Routes.applicationGuildCommands(appId,guildId)}/${command.id}`);
 	}
 
 	// delete all the roles
-	db.rolesDeleteGuildAll()
+	await db.rolesDeleteGuildAll(guildId)
+
+	// confirm
+	await interaction.reply('Bye!')
 
 	// leave
-	guildId.leave()
+	let results = await interaction.guild.leave()
 }
 
-function starryCommandTokenAdd(interaction) {
-	const msg = await interaction.reply(
-		{ embeds: [
-				new MessageEmbed()
-					.setColor('#FDC2A0')
-					.setTitle('Tell us about your token')
-					.setDescription('🌠 Choose a token\n✨ I need to make a token')
-			],
-			fetchReply: true
-		}
-	)
-	try {
-		await msg.react('🌠');
-		await msg.react('✨');
-	} catch (error) {
-		console.error('One of the emojis failed to react:', error);
-	}
+///
+/// Add
+///
+
+async function starryCommandTokenAdd(interaction) {
+
+	const userId = interaction.user.id
+
 	// TODO: this is where we'll want to do a filter/map deal to remove all entries that have a {wizard}.createdAt that's > some amount, like 6 minutes
-	globalUserWizards.push(msg)
+
+	let addTokenRuleWizard = new WizardAddTokenRule(interaction.guildId, interaction.channelId, userId, client)
+	// Begin the wizard by calling the begin function on the first step
+	const msg = await addTokenRuleWizard.currentStep.beginFn({interaction});
+
+	// Now that we have the message object, we can set that, (sometimes) helping determine the user is reacting to the proper message
+	addTokenRuleWizard.currentStep.setMessageId(msg.id)
+
+	// Set the in-memory Map
+	globalUserWizards.set(`${interaction.guildId}-${userId}`, addTokenRuleWizard)
 }
 
-function starryCommandTokenEdit(interaction) {
+async function starryCommandTokenEdit(interaction) {
 }
 
-function starryCommandTokenRemove(interaction) {
+async function starryCommandTokenRemove(interaction) {
 }
 
-/////////////////////////////////////////////////////////////////////////////////////////////////
+///
+/// A user has a command for us - resolve
+///
+async function handleGuildCommands(interaction) {
+	// only observe "/starry *" commands
+	if (interaction.commandName !== starryCommands.name) {
+		return
+	}
+	let group = interaction.options['_group'] || ""
+	let subcommand = interaction.options['_subcommand']
+	let path = `${group} ${subcommand}`.trim()
+	let handler = starryCommandHandlers[path]
+	if(!handler) {
+		await interaction.channel.send("Cannot find the command you asked for")
+		return
+	} else {
+		await handler(interaction)
+	}
+}
+
+client.on('messageCreate', async interaction => {
+	if (interaction.author.bot) return;
+	await checkInteractionWithWizard(interaction)
+});
 
 ///
 /// A glorious user interaction has arrived - bask in its glow
@@ -372,24 +355,14 @@ async function interactionCreate(interaction) {
 			return registerGuildCommands(interaction)
 		}
 	} else if (interaction.isCommand()) {
-		// only observe "/starry *" commands
-		if (interaction.commandName !== starryCommands.name) {
-			return
-		}
-		// let group = interaction.options['_group'] <- completely ignore this prefix by having non collidant subcommands
-		let subcommand = interaction.options['_subcommand']
-		let handler = starryCommandHandlers[subcommand]
-		if(!handler) {
-			await interaction.channel.send("Cannot find the command you asked for")
-			return
-		} else {
-			handler(interaction)
-		}
+		return handleGuildCommands(interaction)
 	} else {
+		await checkInteractionWithWizard(interaction)
 		console.error('Interaction is NOT understood!')
 		console.error(interaction)
 	}
 }
+
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -401,6 +374,10 @@ client.on("ready", async () => { logger.info(`StarryBot has star(ry)ted.`) });
 client.on("guildCreate", guildCreate );
 client.on('interactionCreate', interactionCreate );
 client.on('messageReactionAdd', messageReactionAdd );
+client.on('messageCreate', async interaction => {
+	if (interaction.author.bot) return;
+	await checkInteractionWithWizard(interaction)
+});
 
 ///
 /// Register with discord
@@ -424,5 +401,44 @@ login().then((res) => {
 		logger.log('Issue connecting to Discord')
 	}
 })
+
+// Respond to general interaction
+async function checkInteractionWithWizard(interaction) {
+	if (globalUserWizards.size === 0) return;
+	const authorId = interaction.author.id;
+	const wizardKey = `${interaction.guildId}-${authorId}`;
+	// If it's a regular "DEFAULT" message from a user in the wizard on that step
+	if (interaction.type === 'DEFAULT' && globalUserWizards.has(wizardKey)) {
+		// Check if its expired and delete it if so
+		const userWizard = globalUserWizards.get(wizardKey)
+		if (Date.now() - userWizard.createdAt > TIMEOUT_DURATION) {
+			globalUserWizards.delete(wizardKey)
+			console.log("Deleted a user's wizard as it took them too long to respond.")
+			return;
+		}
+		await userWizard.currentStep.resultFn({interaction})
+	}
+}
+
+// Respond to emoji reaction
+async function checkReactionWithWizard(reaction) {
+	if (globalUserWizards.size === 0) return;
+
+	// See if the "reactor" has a wizard going
+	// Note: checking for interaction key as some emoji reactions didn't seem to have this
+	// Also, this check exists because an emoji to a reply-message will have a null interaction value for some reason
+	if (!reaction.message.hasOwnProperty('interaction') || reaction.message.interaction === null) return;
+	const reactorUserId = reaction.message.interaction.user.id;
+
+	const globalUserWizardKey = `${reaction.message.guildId}-${reactorUserId}`;
+	if (!globalUserWizards.has(globalUserWizardKey)) return;
+
+	const emojiName = reaction._emoji.name;
+	let userCurrentStep = globalUserWizards.get(globalUserWizardKey).currentStep;
+	userCurrentStep.resultFn({
+		guildId: reaction.message.guildId,
+		channelId: reaction.message.channelId
+	}, emojiName)
+}
 
 module.exports = { client }
