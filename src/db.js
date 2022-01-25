@@ -121,21 +121,30 @@ const rolesSet = async (guildId, role, tokenType, tokenAddress, network, removeI
 		discord_guild_id,
 		give_role
 	}).select('id')
+	let results
 	if (existingRows.length) {
-		console.log('Not adding a row because one exists for this guild and role already.')
-		return
+		results = await knex(myConfig.DB_TABLENAME_ROLES).update({
+			discord_guild_id,
+			token_address,
+			token_type,
+			has_minimum_of,
+			created_by_discord_id,
+			give_role,
+			network,
+			remove_in_cleanup: removeInCleanup
+		}).where('id', existingRows[0].id)
+	} else {
+		results = await knex(myConfig.DB_TABLENAME_ROLES).insert({
+			discord_guild_id,
+			token_address,
+			token_type,
+			has_minimum_of,
+			created_by_discord_id,
+			give_role,
+			network,
+			remove_in_cleanup: removeInCleanup
+		})
 	}
-
-	let results = await knex(myConfig.DB_TABLENAME_ROLES).insert({
-		discord_guild_id,
-		token_address,
-		token_type,
-		has_minimum_of,
-		created_by_discord_id,
-		give_role,
-		network,
-		remove_in_cleanup: removeInCleanup
-	})
 	console.log('results', results)
 }
 
