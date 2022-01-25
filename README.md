@@ -1,8 +1,48 @@
 # Starrybot
 
-## Running
+## Getting Started
 
-yarn start
+### Discord Set-up
+* Choose an existing Discord Server or make a new Discord Server for local dev
+    * You must be an admin of this server, and Starrybot must not be in there already
+* Click on “New Application” in the [Discord Developer Portal](https://discord.com/developers/applications)
+* Go to the “Bot” tab and add a bot
+    * Scroll down to "Privileged Gateway Intents" and toggle the “Server Members Intent” on
+    * (Optional) Untoggle “Public Bot” if you don’t want anyone else adding your bot to discord servers in the meantime
+    * Save your changes
+* Go to the “OAuth2” tab, scroll to Default Authorization Link and select “In-App Authorization Method”
+    * Select both “bot” and “applications.commands” as scopes
+    * Select “Administrator” under Bot Permissions (under General Permissions, first checkbox)
+    * Save your changes
+
+### Run the Bot Server
+* Make sure you have node version >= 16.6.0 installed
+* Run `yarn install` in the root directory
+* _// TO-DO: Config.json currently needs to be changed in order for Knex to work_
+* Go to “Bot” tab and copy the token
+* Run `DISCORD_TOKEN=[your bot token] yarn start`
+
+### Add your Bot to your Discord Server
+* Go to the "General" tab of your app in the Discord Developer Portal and copy the application ID
+* Go to `https://discord.com/oauth2/authorize?client_id=[your application ID]&scope=bot&permissions=8`
+    * Follow the steps to authorize the bot
+    * You will need to kick the bot a lot for testing, so keep this URL around
+* Your bot should be successfully added to the server!
+* Follow the steps in the welcome message to re-authorize the bot to enable slash commands
+
+### Get Juno Testnet tokens for testing
+* Make sure you have [Keplr for Chrome](https://www.keplr.app/) installed (doesn't work on Brave)
+* Click on "Enter the app" at https://daodao.zone/
+* Hit "Connect Wallet" to add Juno Testnet to your Keplr
+* Go to the [Juno Discord server](https://discord.gg/4a8PRXNc)
+* Verify yourself in #verify-here via the instructions sent by automated DM
+* Open the Keplr chrome extension (top bar)
+    * Hit the dropdown that says “Cosmo”
+    * Scroll down to the bottom and click on “Juno Testnet”
+* Click on the `junoxyz...` string under your Keplr wallet name to copy the Juno Testnet address
+* Paste `$request [your Juno Testnet address]` in #faucet
+    * You don’t need to keep the ID in the response - you can always get it later and it doesn’t work the same on testnet anyways
+    * You can run this command after some delay (hours/days) to get more for testing if needed
 
 ## Overview
 
@@ -43,3 +83,14 @@ The way this works is:
 - having to add the bot twice could be improved
 - it would be nicer to know if we knew if a person was an admin or not, this would make it easier for us
 
+---
+## Debugging Tips
+
+**Problem**: `Error [DISALLOWED_INTENTS]: Privileged intent provided is not enabled or whitelisted.`  
+**Answer**: Bot intents aren’t set in the dev portal correctly
+
+**Problem**: Server is showing error messages about Knex schema migration  
+**Answer**: Config.json needs to be changed
+
+**Problem**: Can’t see "Add to Server" button after clicking on the bot in the Discord Server users list  
+**Answer**: You have an older version of Discord, upgrade and try again
