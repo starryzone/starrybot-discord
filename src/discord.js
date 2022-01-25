@@ -374,10 +374,6 @@ client.on("ready", async () => { logger.info(`StarryBot has star(ry)ted.`) });
 client.on("guildCreate", guildCreate );
 client.on('interactionCreate', interactionCreate );
 client.on('messageReactionAdd', messageReactionAdd );
-client.on('messageCreate', async interaction => {
-	if (interaction.author.bot) return;
-	await checkInteractionWithWizard(interaction)
-});
 
 ///
 /// Register with discord
