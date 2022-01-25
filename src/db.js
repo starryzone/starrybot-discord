@@ -1,9 +1,22 @@
 const logger = require("./logger")
-const defaultConfig = require("./config.json");
+const myConfig = require("./config.json");
+
 // const defaultConfig = require("./auth-local.json");
 // const defaultConfig = require("./auth-prod.json");
-const myConfig = {
-	"DISCORD_TOKEN": process.env.DISCORD_TOKEN || "set-discord-token",
+
+Object.keys(myConfig).forEach(key=>{
+	let value = process.env[key]
+	if(process[value]) { //process.env.hasOwnProperty(key)) {
+		myConfig[key] = value
+	} else {
+		//let value = defaultConfig[key]
+		//if(value) myConfig[key]=value
+	}
+})
+
+/*
+const myConfigUnused = {
+	"DISCORD_TOKEN": process.env.DISCORD_TOKEN | "set-discord-token",
 	"PREFIX": process.env.PREFIX || defaultConfig.PREFIX || "!",
 	"DB_HOSTIP": process.env.DB_HOSTIP || defaultConfig.DB_HOSTIP || "127.0.0.1",
 	"DB_OUTGOINGIP": process.env.DB_OUTGOINGIP || defaultConfig.DB_OUTGOINGIP || "",
@@ -22,7 +35,7 @@ const myConfig = {
 	"WINSTON": process.env.WINSTON || defaultConfig.WINSTON || false,
 	"PORT": process.env.PORT || defaultConfig.PORT || 8080,
 	"VALIDATOR": process.env.VALIDATOR || defaultConfig.VALIDATOR || 'https://verify.starrybot.xyz/'
-}
+}*/
 
 const enableSSL = myConfig.DB_HOSTIP !== 'localhost';
 
@@ -138,7 +151,7 @@ const rolesSet = async (guildId, roleId, role, tokenType, tokenAddress, network,
 	console.log('results', results)
 }
 
- const rolesDelete = async (guildId,role) => {
+const rolesDelete = async (guildId,role) => {
 
  	await ensureDatabaseInitialized()
 	try {
@@ -148,7 +161,19 @@ const rolesSet = async (guildId, roleId, role, tokenType, tokenAddress, network,
 		console.warn('Error deleting row', e)
 	}
 
- }
+}
+
+const rolesDeleteGuildAll = async (guildId) => {
+
+ 	await ensureDatabaseInitialized()
+	try {
+		await knex(myConfig.DB_TABLENAME_ROLES).where( { discord_guild_id: guildId })
+			.del()
+	} catch (e) {
+		console.warn('Error deleting row', e)
+	}
+
+}
 
 ///
 /// SessionID
@@ -220,4 +245,4 @@ const memberDelete = async ({authorId, guildId}) => {
 	}
 }
 
-module.exports = { membersAll, memberExists, memberBySessionToken, memberByIdAndGuild, memberAdd, memberDelete, myConfig, rolesGet, rolesSet, rolesDelete }
+module.exports = { membersAll, memberExists, memberBySessionToken, memberByIdAndGuild, memberAdd, memberDelete, myConfig, rolesGet, rolesSet, rolesDelete, rolesDeleteGuildAll }
