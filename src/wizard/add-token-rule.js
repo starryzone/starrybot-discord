@@ -3,6 +3,7 @@ const { rolesSet } = require("../db")
 const { MessageEmbed } = require("discord.js");
 const { CosmWasmClient } = require("@cosmjs/cosmwasm-stargate");
 const TESTNET_RPC_ENDPOINT = process.env.TESTNET_RPC_ENDPOINT || 'https://rpc.uni.juno.deuslabs.fi/'
+const MAINNET_RPC_ENDPOINT = process.env.MAINNET_RPC_ENDPOINT || 'https://rpc-juno.itastakers.com/'
 
 class WizardAddTokenRule extends Wizard {
   constructor(guildId, channelId, userId, client) {
@@ -69,19 +70,8 @@ function createStep1(userId, parentWizard) {
     }
   )
 
-  const handleCW20Entry = async ({interaction}, ...extra) => {
-    // We may modify this, but for now we're just dealing with text inputs
-    if (parentWizard.currentStep.interactionType !== 'text') return;
-
-    // Check user's cw20 token for existence on mainnet then testnet
-    // @todo: circle back when we have a mainnet RPC endpoint
-    const cw20Input = interaction.content;
-    const cosmClient = await CosmWasmClient.connect(TESTNET_RPC_ENDPOINT)
-    const daoInfo = await cosmClient.queryContractSmart('juno129spsp500mjpx7eut9p08s0jla9wmsen2g8nnjk3wmvwgc83srqq85awld', {
-      get_config: { },
-    })
-    console.log('daoInfo', daoInfo)
-
+  // This will check mainnet or testnet for the existence and balance of the cw20 contract
+  const checkForCW20 = async (cosmClient, cw20Input, isMainnet) => {
     let tokenInfo
     try {
       tokenInfo = await cosmClient.queryContractSmart(cw20Input, {
@@ -92,15 +82,44 @@ function createStep1(userId, parentWizard) {
       if (e.message.includes('decoding bech32 failed')) {
         return await parentWizard.failure('Invalid address')
       } else if (e.message.includes('contract: not found')) {
+        if (isMainnet) return false
         return await parentWizard.failure('No contract at that address')
       } else if (e.message.includes('Error parsing into type')) {
+        if (isMainnet) return false
         return await parentWizard.failure('Entered valid contract that is not a cw20')
       }
     }
-    parentWizard.state.cw20 = cw20Input
-    // TODO: make this dynamic when DAODAO is on mainnet and we can test
-    parentWizard.state.network = 'testnet'
+    return tokenInfo
+  }
+
+  const handleCW20Entry = async ({interaction}, ...extra) => {
+    // We may modify this, but for now we're just dealing with text inputs
+    if (parentWizard.currentStep.interactionType !== 'text') return;
+
+    // Check user's cw20 token for existence on mainnet then testnet
+
+    const cw20Input = interaction.content;
+    let network = 'mainnet'
+    let cosmClient = await CosmWasmClient.connect(MAINNET_RPC_ENDPOINT)
+    let tokenInfo = await checkForCW20(cosmClient, cw20Input, true)
+    if (tokenInfo === false) {
+      // Nothing was found on mainnet, try testnet
+      network = 'testnet'
+      cosmClient = await CosmWasmClient.connect(TESTNET_RPC_ENDPOINT)
+      tokenInfo = await checkForCW20(cosmClient, cw20Input, false)
+    }
+
+    // If there were an error it would have returned a failure.
+    // At this point we have the network and token info
     console.log('tokenInfo for user input', tokenInfo)
+
+    const daoInfo = await cosmClient.queryContractSmart('juno129spsp500mjpx7eut9p08s0jla9wmsen2g8nnjk3wmvwgc83srqq85awld', {
+      get_config: { },
+    })
+    console.log('daoInfo', daoInfo)
+
+    parentWizard.state.cw20 = cw20Input
+    parentWizard.state.network = network
     parentWizard.state.tokenSymbol = tokenInfo.symbol
     // Move to step 2
     parentWizard.currentStep = parentWizard.steps[1]
