@@ -226,7 +226,7 @@ function createStep1(userId, parentWizard) {
             inline: true
           }
         ])
-          .setFooter({text: "🎗️ When you're finished creating your cw20 token, please type the address in this channel."})
+          .setFooter("🎗️ When you're finished creating your cw20 token, please type the address in this channel.")
         ]
       });
     },
@@ -277,7 +277,7 @@ function createStep2(userId, parentWizard) {
           .setColor('#FDC2A0')
           .setTitle('How many tokens?')
           .setDescription('Please enter the number of tokens a user must have to get a special role.')
-          .setFooter({text: 'Note: this role will be created automatically'}) ]
+          .setFooter('Note: this role will be created automatically') ]
       });
     },
     async({ interaction }, ...extra) => {
