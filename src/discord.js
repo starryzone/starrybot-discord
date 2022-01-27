@@ -19,6 +19,89 @@ const { WizardAddTokenRule } = require("./wizard/add-token-rule");
 // @todo find mainnet RPC endpoint we can use
 // const MAINNET_RPC_ENDPOINT = process.env.MAINNET_RPC_ENDPOINT || 'https://…halp…'
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+///
+/// Default roles (later we may not have any default roles)
+///
+
+let desiredRoles = [
+	{
+		name:'osmo-hodler',
+		type:"native",
+		address:"osmo",
+		net:"mainnet",
+	},
+	{
+		name:'juno-hodler',
+		type:"native",
+		address:"juno",
+		net:"mainnet",
+	}
+];
+
+///
+/// This is correctly shaped blob for registering our commands with discord via rest
+///
+/// Note: discordjs doesn't have abstractions for subcommand groups and subcommands like I expected. Used logic from:
+/// https://discord.com/developers/docs/interactions/application-commands#example-walkthrough
+///
+
+const starryCommands = {
+	"name": "starry",
+	"description": "Use StarryBot (starrybot.xyz)",
+	"options": [
+		{
+			"name": "token-rule",
+			"description": "cw20 or cw721 token and Discord role",
+			"type": 2, // SUB_COMMAND_GROUP
+			"options": [
+				{
+					"name": "add",
+					"description": "Add a new token rule",
+					"type": 1 // SUB_COMMAND
+				},
+				{
+					"name": "edit",
+					"description": "Edit token rule",
+					"type": 1
+				},
+				{
+					"name": "remove",
+					"description": "Remove token rule",
+					"type": 1
+				}
+			]
+		},
+		{
+			"name": "join",
+			"description": "Get link to verify your account with Keplr",
+			"type": 1,
+		},
+		{
+			"name": "farewell",
+			"description": "Kick starrybot itself from your guild",
+			"type": 1,
+		}
+	]
+}
+
+///
+/// Command lookup
+/// The command handlers for the above commands
+/// (Kept separate from above for now because the blob above is already formatted for discords consumption)
+///
+
+const starryCommandHandlers = {
+	"join": starryCommandJoin,
+	"farewell": starryCommandFarewell,
+	"token-rule add": starryCommandTokenAdd,
+	"token-rule edit": starryCommandTokenEdit,
+	"token-rule remove": starryCommandTokenRemove
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 ///
 /// a helper to build display ux
 ///
@@ -37,18 +120,17 @@ function createEmbed(traveller, saganism) {
 }
 
 ///
-/// When StarryBot joins a new guild, let's create a default role and say hello
+/// A helper to print the welcome message
 ///
 
-async function guildCreate(guild) {
+async function printWelcomeMessage(guild) {
 	const systemChannelId = guild.systemChannelId;
-	let desiredRoles = ['osmo-hodler', 'juno-hodler'];
-	const desiredRolesForMessage = desiredRoles.join('\n- ');
+	let desiredRolesForMessage = desiredRoles.map(role=>{role.name}).join('\n- ')
 	let systemChannel = await client.channels.fetch(systemChannelId);
 	const embed = new MessageEmbed()
 		.setColor('#0099ff')
 		.setTitle(`Enable secure slash commands`)
-		.setDescription(`StarryBot just joined, and FYI there are two roles:\n- ${desiredRolesForMessage}`)
+		.setDescription(`StarryBot just joined, and FYI there are some roles:\n- ${desiredRolesForMessage}`)
 		.setImage('https://starrybot.xyz/starrybot-slash-commands2.gif')
 
 	const row = new MessageActionRow()
@@ -65,30 +147,25 @@ async function guildCreate(guild) {
 		components: [row]
 	});
 	await systemChannel.send(msgPayload);
+}
 
-	const existingObjectRoles = await guild.roles.fetch();
+//////////////////////////////////////////////////////////////////////////////////////////////////
 
-	let existingRoles = {}
-	for (let role of existingObjectRoles.values()) {
-		existingRoles[role.name] = role.id
-	}
+///
+/// When StarryBot joins a new guild, let's create any default roles and say hello
+///
 
-	// See if there are existing roles and only create ones we don't have
-	let finalRoleMapping = {}
-	for (let role of desiredRoles) {
-		// Create role unless it already existed above
-		if (existingRoles.hasOwnProperty(role)) {
-			finalRoleMapping[role] = existingRoles[role]
-		} else {
-			const newRole = await guild.roles.create({name: role, position: 0})
-			console.log('newRole', newRole)
-			finalRoleMapping[role] = newRole.id
+
+async function guildCreate(guild) {
+	await printWelcomeMessage(guild);
+	let existingRoles =	await guild.roles.fetch();
+	for(let i = 0;i<desiredRoles.length;i++) {
+		let role = desiredRoles[i]
+		if(!existingRoles.hasOwnProperty(role.name)) {
+			await guild.roles.create({name: role.name, position: 0})
 		}
+		await db.rolesSet(guild.id,role.name,role.type,role.address,role.net,true,client.user.id,1);
 	}
-
-	// Add default roles
-	await db.rolesSet(guild.id, desiredRoles[0], 'native', 'osmo', 'mainnet', true, client.user.id, 1)
-	await db.rolesSet(guild.id, desiredRoles[1], 'native', 'juno', 'mainnet', true, client.user.id, 1)
 }
 
 ///
@@ -97,49 +174,18 @@ async function guildCreate(guild) {
 ///
 async function registerGuildCommands(interaction) {
 
+	let appId = interaction.applicationId
+	let guildId = interaction.guildId
 	const rest = new REST().setToken(myConfig.DISCORD_TOKEN);
+
+	// add guild commands
 	try {
 		// Note: discordjs doesn't have abstractions for subcommand groups and subcommands like I expected. Used logic from:
 		// https://discord.com/developers/docs/interactions/application-commands#example-walkthrough
-		let postResult = await rest.post(
-			Routes.applicationGuildCommands(interaction.applicationId, interaction.guildId),
-			{ body: {
-					"name": "starry",
-					"description": "Use StarryBot (starrybot.xyz)",
-					"options": [
-						{
-							"name": "token-rule",
-							"description": "cw20 or cw721 token and Discord role",
-							"type": 2, // SUB_COMMAND_GROUP
-							"options": [
-								{
-									"name": "add",
-									"description": "Add a new token rule",
-									"type": 1 // SUB_COMMAND
-								},
-								{
-									"name": "edit",
-									"description": "Edit token rule",
-									"type": 1
-								},
-								{
-									"name": "remove",
-									"description": "Remove token rule",
-									"type": 1
-								}
-							]
-						},
-						{
-							"name": "join",
-							"description": "Get link to verify your account with Keplr",
-							"type": 1,
-						}
-					]
-				}
-			 },
-		);
+		let postResult = await rest.post( Routes.applicationGuildCommands(appId,guildId), { body: starryCommands } );
 		console.log('postResult', postResult)
 	} catch (e) {
+		console.error(e)
 		if (e.code === 50001 || e.message === 'Missing Access') {
 			// We have a prevaricator
 			const row = new MessageActionRow()
@@ -163,15 +209,13 @@ async function registerGuildCommands(interaction) {
 	}
 
 	// Slash command are added successfully, double-check then tell the channel it's ready
-	let enabledGuildCommands = await rest.get(
-		Routes.applicationGuildCommands(interaction.applicationId, interaction.guildId)
-	);
+	let enabledGuildCommands = await rest.get( Routes.applicationGuildCommands(appId,guildId) );
 	console.log('enabledGuildCommands', enabledGuildCommands)
 
 	// Ensure (double-check) we have the Slash Command registered,
 	//   then publicly tell everyone they can use it
 	for (let enabledGuildCommand of enabledGuildCommands) {
-		if (enabledGuildCommand.name === 'starry') {
+		if (enabledGuildCommand.name === starryCommands.name) {
 			return await interaction.reply('Feel free to use the /starry join command, friends.')
 		}
 	}
@@ -200,56 +244,99 @@ async function messageReactionAdd(reaction,user) {
 	console.log(`${reaction.count} user(s) have given the same reaction to this message!`);
 }
 
+
+////////////////////////////////////////////////////////////////////////////////////////////////
+
+///
+/// Join
+///
+
+async function starryCommandJoin(interaction) {
+	try {
+		let results = await logic.hoistRequest({guildId: interaction.guildId, authorId: interaction.member.user.id})
+		if (results.error || !results.traveller || !results.saganism) {
+			interaction.channel.send(results.error || "Internal error")
+		} else {
+			// We reply "privately" instead of sending a DM here
+			return await interaction.reply({embeds:[createEmbed(results.traveller,results.saganism)], ephemeral: true})
+		}
+	} catch(err) {
+		logger.error(err)
+		await interaction.channel.send("Internal error adding you")
+	}
+}
+
+///
+/// Farewell
+///
+
+async function starryCommandFarewell(interaction) {
+
+	let appId = interaction.applicationId
+	let guildId = interaction.guildId
+	const rest = new REST().setToken(myConfig.DISCORD_TOKEN);
+
+	// delete local commands
+	let commands = await rest.get( Routes.applicationGuildCommands(appId,guildId) );
+	for (let command of commands) {
+		console.log("deleting local : ",command);
+		let results = await rest.delete(`${Routes.applicationGuildCommands(appId,guildId)}/${command.id}`);
+	}
+
+	// delete all the roles
+	await db.rolesDeleteGuildAll(guildId)
+
+	// confirm
+	await interaction.reply('Bye!')
+
+	// leave
+	let results = await interaction.guild.leave()
+}
+
+///
+/// Add
+///
+
+async function starryCommandTokenAdd(interaction) {
+
+	const userId = interaction.user.id
+
+	// TODO: this is where we'll want to do a filter/map deal to remove all entries that have a {wizard}.createdAt that's > some amount, like 6 minutes
+
+	let addTokenRuleWizard = new WizardAddTokenRule(interaction.guildId, interaction.channelId, userId, client)
+	// Begin the wizard by calling the begin function on the first step
+	const msg = await addTokenRuleWizard.currentStep.beginFn({interaction});
+
+	// Now that we have the message object, we can set that, (sometimes) helping determine the user is reacting to the proper message
+	addTokenRuleWizard.currentStep.setMessageId(msg.id)
+
+	// Set the in-memory Map
+	globalUserWizards.set(`${interaction.guildId}-${userId}`, addTokenRuleWizard)
+}
+
+async function starryCommandTokenEdit(interaction) {
+}
+
+async function starryCommandTokenRemove(interaction) {
+}
+
 ///
 /// A user has a command for us - resolve
 ///
 async function handleGuildCommands(interaction) {
-	console.log('Interaction is a command')
-	const userId = interaction.user.id
-
-	// for all "/starry *" commands
-	if (interaction.commandName === 'starry') {
-		if (interaction.options['_group'] === null) {
-			// Immediate subcommands, so "/starry foo"
-			if (interaction.options['_subcommand'] === 'join') {
-				try {
-					let results = await logic.hoistRequest({guildId: interaction.guildId, authorId: interaction.member.user.id})
-					if (results.error || !results.traveller || !results.saganism) {
-						interaction.channel.send(results.error || "Internal error")
-					} else {
-						// We reply "privately" instead of sending a DM here
-						return await interaction.reply({embeds:[createEmbed(results.traveller,results.saganism)], ephemeral: true})
-					}
-				} catch(err) {
-					logger.error(err)
-					await interaction.channel.send("Internal error adding you")
-				}
-			}
-		} else {
-			// This has a subcommand group, so "/starry my-group foo"
-			if (interaction.options['_group'] === 'token-rule') {
-				// User wants to modify a token and rule to add which Discord role
-				switch (interaction.options['_subcommand']) {
-					case 'add':
-						// TODO: this is where we'll want to do a filter/map deal to remove all entries that have a {wizard}.createdAt that's > some amount, like 6 minutes
-
-						let addTokenRuleWizard = new WizardAddTokenRule(interaction.guildId, interaction.channelId, userId, client)
-						// Begin the wizard by calling the begin function on the first step
-						const msg = await addTokenRuleWizard.currentStep.beginFn({interaction});
-
-						// Now that we have the message object, we can set that, (sometimes) helping determine the user is reacting to the proper message
-						addTokenRuleWizard.currentStep.setMessageId(msg.id)
-
-						// Set the in-memory Map
-						globalUserWizards.set(`${interaction.guildId}-${userId}`, addTokenRuleWizard)
-						break;
-					case 'edit':
-						break;
-					case 'remove':
-						break;
-				}
-			}
-		}
+	// only observe "/starry *" commands
+	if (interaction.commandName !== starryCommands.name) {
+		return
+	}
+	let group = interaction.options['_group'] || ""
+	let subcommand = interaction.options['_subcommand']
+	let path = `${group} ${subcommand}`.trim()
+	let handler = starryCommandHandlers[path]
+	if(!handler) {
+		await interaction.channel.send("Cannot find the command you asked for")
+		return
+	} else {
+		await handler(interaction)
 	}
 }
 
@@ -275,6 +362,7 @@ async function interactionCreate(interaction) {
 		console.error(interaction)
 	}
 }
+
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 
