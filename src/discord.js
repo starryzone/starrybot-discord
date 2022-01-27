@@ -10,7 +10,13 @@ const { Routes } = require('discord-api-types/v9');
 const { myConfig } = require("./db");
 const { createMissingAccessMessage, createWelcomeMessage } = require("./utils/messaging");
 
-const { starryCommandFarewell, starryCommandJoin, starryCommandTokenAdd } = require('./commands');
+const {
+	starryCommandFarewell,
+	starryCommandJoin,
+	starryCommandTokenAdd,
+	starryCommandTokenEdit,
+	starryCommandTokenRemove
+} = require('./commands');
 
 const intents = new Intents([ Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILD_MEMBERS, Intents.FLAGS.GUILD_INTEGRATIONS, Intents.FLAGS.GUILD_MESSAGE_REACTIONS ]);
 const client = new Client({intents: intents })
@@ -188,14 +194,7 @@ async function messageReactionAdd(reaction,user) {
 	console.log(`${reaction.count} user(s) have given the same reaction to this message!`);
 }
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////
-
-async function starryCommandTokenEdit(interaction) {
-}
-
-async function starryCommandTokenRemove(interaction) {
-}
 
 ///
 /// A user has a command for us - resolve
