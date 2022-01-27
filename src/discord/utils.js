@@ -57,7 +57,20 @@ function createEmbed({
     return embed;
 }
 
+function createButton({
+    customId = 'slash-commands-enabled',
+    label,
+    style = 'PRIMARY'
+}) {
+    const button = new MessageButton()
+        .setCustomId(customId)
+        .setStyle(style);
 
+    if (label) {
+        button.setLabel(label);
+    }
+    return new MessageActionRow().addComponents(button);
+}
 
 ///
 /// Specific embeds used by the bot
@@ -84,24 +97,11 @@ function createWelcomeEmbed(desiredRolesForMessage) {
 }
 
 function createWelcomeButton() {
-    return new MessageActionRow()
-        .addComponents(
-            new MessageButton()
-                .setCustomId('slash-commands-enabled')
-                .setLabel("I just did it")
-                .setStyle('PRIMARY'),
-        );
-
+    return createButton({ label: `I just did it`});
 }
 
 function createMissingAccessButton() {
-    return new MessageActionRow()
-        .addComponents(
-            new MessageButton()
-                .setCustomId('slash-commands-enabled')
-                .setLabel("I really did it this time")
-                .setStyle('PRIMARY'),
-        );
+    return createButton({ label: `I really did it this time`});
 }
 
 module.exports = {
