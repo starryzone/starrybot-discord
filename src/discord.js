@@ -9,7 +9,7 @@ const { REST } = require('@discordjs/rest');
 const { Routes } = require('discord-api-types/v9');
 const { myConfig } = require("./db");
 const { createMissingAccessMessage, createWelcomeMessage } = require("./utils/messaging");
-const { getCommandHandler, starryCommands } = require("./utils/commands");
+const { checkIfCommandsEnabled, getCommandHandler, starryCommands } = require("./utils/commands");
 
 const intents = new Intents([ Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILD_MEMBERS, Intents.FLAGS.GUILD_INTEGRATIONS, Intents.FLAGS.GUILD_MESSAGE_REACTIONS ]);
 const client = new Client({intents: intents })
@@ -101,13 +101,8 @@ async function registerGuildCommands(interaction) {
 	// Slash command are added successfully, double-check then tell the channel it's ready
 	let enabledGuildCommands = await rest.get( Routes.applicationGuildCommands(appId,guildId) );
 	console.log('enabledGuildCommands', enabledGuildCommands)
-
-	// Ensure (double-check) we have the Slash Command registered,
-	//   then publicly tell everyone they can use it
-	for (let enabledGuildCommand of enabledGuildCommands) {
-		if (enabledGuildCommand.name === starryCommands.name) {
-			return await interaction.reply('Feel free to use the /starry join command, friends.')
-		}
+	if (checkIfCommandsEnabled(enabledGuildCommands)) {
+		return await interaction.reply('Feel free to use the /starry join command, friends.');
 	}
 }
 

@@ -64,7 +64,20 @@ function getCommandHandler(path) {
     return starryCommandHandlers[path];
 }
 
+function checkIfCommandsEnabled(enabledGuildCommands) {
+    // Ensure (double-check) we have the Slash Command registered,
+    //   then publicly tell everyone they can use it
+    for (let enabledGuildCommand of enabledGuildCommands) {
+        if (enabledGuildCommand.name === starryCommands.name) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 module.exports = {
+    checkIfCommandsEnabled,
     getCommandHandler,
     starryCommands,
 }
