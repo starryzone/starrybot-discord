@@ -5,11 +5,11 @@ const logger = require("./logger")
 const logic = require("./logic")
 const { globalUserWizards } = require("./wizard/wizard.js")
 
-const { Client, Intents, MessageEmbed, MessagePayload, MessageButton, MessageActionRow } = require('discord.js')
+const { Client, Intents, MessagePayload, MessageButton, MessageActionRow } = require('discord.js')
 const { REST } = require('@discordjs/rest');
 const { Routes } = require('discord-api-types/v9');
 const { myConfig } = require("./db");
-const { createEmbed } = require("./discord/utils");
+const { createEmbed, createWelcomeEmbed } = require("./discord/utils");
 
 const intents = new Intents([ Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILD_MEMBERS, Intents.FLAGS.GUILD_INTEGRATIONS, Intents.FLAGS.GUILD_MESSAGE_REACTIONS ]);
 const client = new Client({intents: intents })
@@ -111,11 +111,7 @@ async function printWelcomeMessage(guild) {
 	const systemChannelId = guild.systemChannelId;
 	let desiredRolesForMessage = desiredRoles.map(role=>{role.name}).join('\n- ')
 	let systemChannel = await client.channels.fetch(systemChannelId);
-	const embed = new MessageEmbed()
-		.setColor('#0099ff')
-		.setTitle(`Enable secure slash commands`)
-		.setDescription(`StarryBot just joined, and FYI there are some roles:\n- ${desiredRolesForMessage}`)
-		.setImage('https://starrybot.xyz/starrybot-slash-commands2.gif')
+	const embed = createWelcomeEmbed(desiredRolesForMessage)
 
 	const row = new MessageActionRow()
 		.addComponents(

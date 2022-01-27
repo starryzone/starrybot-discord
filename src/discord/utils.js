@@ -20,6 +20,15 @@ function createEmbed(traveller, saganism) {
 		.setFooter('Put your helmet on', 'https://i.imgur.com/AfFp7pu.png');
 }
 
+function createWelcomeEmbed(desiredRolesForMessage) {
+    return new MessageEmbed()
+        .setColor('#0099ff')
+        .setTitle(`Enable secure slash commands`)
+        .setDescription(`StarryBot just joined, and FYI there are some roles:\n- ${desiredRolesForMessage}`)
+        .setImage('https://starrybot.xyz/starrybot-slash-commands2.gif');
+}
+
 module.exports = {
     createEmbed,
+    createWelcomeEmbed,
 }
