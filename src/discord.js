@@ -2,14 +2,15 @@
 
 const db = require("./db")
 const logger = require("./logger")
-const logic = require("./logic")
 const { globalUserWizards } = require("./wizard/wizard.js")
 
 const { Client, Intents } = require('discord.js')
 const { REST } = require('@discordjs/rest');
 const { Routes } = require('discord-api-types/v9');
 const { myConfig } = require("./db");
-const { createJoinEmbed, createMissingAccessMessage, createWelcomeMessage } = require("./utils/messaging");
+const { createMissingAccessMessage, createWelcomeMessage } = require("./utils/messaging");
+
+const { starryCommandJoin } = require('./commands');
 
 const intents = new Intents([ Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILD_MEMBERS, Intents.FLAGS.GUILD_INTEGRATIONS, Intents.FLAGS.GUILD_MESSAGE_REACTIONS ]);
 const client = new Client({intents: intents })
@@ -190,26 +191,6 @@ async function messageReactionAdd(reaction,user) {
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
-
-///
-/// Join
-///
-
-async function starryCommandJoin(interaction) {
-	try {
-		let results = await logic.hoistRequest({guildId: interaction.guildId, authorId: interaction.member.user.id})
-		if (results.error || !results.traveller || !results.saganism) {
-			interaction.channel.send(results.error || "Internal error")
-		} else {
-			// We reply "privately" instead of sending a DM here
-			return await interaction.reply({embeds:[createJoinEmbed(results.traveller,results.saganism)], ephemeral: true})
-		}
-	} catch(err) {
-		logger.error(err)
-		await interaction.channel.send("Internal error adding you")
-	}
-}
-
 ///
 /// Farewell
 ///
