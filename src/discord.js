@@ -125,7 +125,7 @@ function createEmbed(traveller, saganism) {
 
 async function printWelcomeMessage(guild) {
 	const systemChannelId = guild.systemChannelId;
-	let desiredRolesForMessage = desiredRoles.map(role=>{role.name}).join('\n- ')
+	let desiredRolesForMessage = desiredRoles.map(role => role.name).join('\n- ')
 	let systemChannel = await client.channels.fetch(systemChannelId);
 	const embed = new MessageEmbed()
 		.setColor('#0099ff')
