@@ -1,67 +1,50 @@
-const {
-	starryCommandFarewell,
-	starryCommandJoin,
-	starryCommandTokenAdd,
-	starryCommandTokenEdit,
-	starryCommandTokenRemove
-} = require('../commands');
+const { starryCommands } = require('../commands');
 
-const starryCommands = {
-	"name": "starry",
-	"description": "Use StarryBot (starrybot.xyz)",
-	"options": [
-		{
-			"name": "token-rule",
-			"description": "cw20 or cw721 token and Discord role",
-			"type": 2, // SUB_COMMAND_GROUP
-			"options": [
-				{
-					"name": "add",
-					"description": "Add a new token rule",
-					"type": 1 // SUB_COMMAND
-				},
-				{
-					"name": "edit",
-					"description": "Edit token rule",
-					"type": 1
-				},
-				{
-					"name": "remove",
-					"description": "Remove token rule",
-					"type": 1
-				}
-			]
-		},
-		{
-			"name": "join",
-			"description": "Get link to verify your account with Keplr",
-			"type": 1,
-		},
-		{
-			"name": "farewell",
-			"description": "Kick starrybot itself from your guild",
-			"type": 1,
-		}
-	]
-}
+// Only need to format the blob once for Discord's consumption
+const starryGuildCommands = getApplicationGuildCommands();
 
-
-///
-/// Command lookup
-/// The command handlers for the above commands
-/// (Kept separate from starryCommands for now because the blob above is already formatted for discords consumption)
-///
-
-const starryCommandHandlers = {
-	"join": starryCommandJoin,
-	"farewell": starryCommandFarewell,
-	"token-rule add": starryCommandTokenAdd,
-	"token-rule edit": starryCommandTokenEdit,
-	"token-rule remove": starryCommandTokenRemove
-}
+// Only need to make our convenient map once
+const starryCommandHandlers = getStarryHandlers();
 
 function getApplicationGuildCommands() {
-    return starryCommands;
+    return {
+        name: 'starry',
+        description: 'Use StarryBot (starrybot.xyz)',
+        options: starryCommands.map(starryCommand => {
+            const mappedCommand = {
+                name: starryCommand.name,
+                description: starryCommand.description
+            }
+            if (starryCommand.options) {
+                mappedCommand.type = 2; // SUB_COMMAND_GROUP
+                mappedCommand.options = starryCommand.options
+                    .map(option => ({
+                        name: option.name,
+                        description: option.description,
+                        type: 1, // SUB_COMMAND
+                    }));
+            } else {
+                mappedCommand.type = 1; // SUB_COMMAND
+            }
+            return mappedCommand;
+        })
+    };
+}
+
+function getStarryHandlers () {
+    const starryCommandHandlers = {};
+
+    starryCommands.forEach(command => {
+        if (command.options) {
+            command.options.forEach(option => {
+                starryCommandHandlers[`${command.name} ${option.name}`] = option.handler;
+            });
+        } else {
+            starryCommandHandlers[command.name] = command.handler;
+        }
+    })
+
+    return starryCommandHandlers;
 }
 
 function getCommandHandler(path) {
@@ -72,7 +55,7 @@ function checkIfCommandsEnabled(enabledGuildCommands) {
     // Ensure (double-check) we have the Slash Command registered,
     //   then publicly tell everyone they can use it
     for (let enabledGuildCommand of enabledGuildCommands) {
-        if (enabledGuildCommand.name === starryCommands.name) {
+        if (enabledGuildCommand.name === starryGuildCommands.name) {
             return true;
         }
     }
@@ -81,12 +64,13 @@ function checkIfCommandsEnabled(enabledGuildCommands) {
 }
 
 function checkIfInteractionIsStarry(interaction) {
-    return interaction.commandName === starryCommands.name;
+    return interaction.commandName === starryGuildCommands.name;
 }
 
 module.exports = {
     checkIfCommandsEnabled,
     checkIfInteractionIsStarry,
-    getApplicationGuildCommands,
     getCommandHandler,
+
+    starryGuildCommands,
 }
