@@ -9,14 +9,7 @@ const { REST } = require('@discordjs/rest');
 const { Routes } = require('discord-api-types/v9');
 const { myConfig } = require("./db");
 const { createMissingAccessMessage, createWelcomeMessage } = require("./utils/messaging");
-
-const {
-	starryCommandFarewell,
-	starryCommandJoin,
-	starryCommandTokenAdd,
-	starryCommandTokenEdit,
-	starryCommandTokenRemove
-} = require('./commands');
+const { getCommandHandler } = require("./utils/commands");
 
 const intents = new Intents([ Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILD_MEMBERS, Intents.FLAGS.GUILD_INTEGRATIONS, Intents.FLAGS.GUILD_MESSAGE_REACTIONS ]);
 const client = new Client({intents: intents })
@@ -92,20 +85,6 @@ const starryCommands = {
 			"type": 1,
 		}
 	]
-}
-
-///
-/// Command lookup
-/// The command handlers for the above commands
-/// (Kept separate from above for now because the blob above is already formatted for discords consumption)
-///
-
-const starryCommandHandlers = {
-	"join": starryCommandJoin,
-	"farewell": starryCommandFarewell,
-	"token-rule add": starryCommandTokenAdd,
-	"token-rule edit": starryCommandTokenEdit,
-	"token-rule remove": starryCommandTokenRemove
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
@@ -207,7 +186,7 @@ async function handleGuildCommands(interaction) {
 	let group = interaction.options['_group'] || ""
 	let subcommand = interaction.options['_subcommand']
 	let path = `${group} ${subcommand}`.trim()
-	let handler = starryCommandHandlers[path]
+	let handler = getCommandHandler(path);
 	if(!handler) {
 		await interaction.channel.send("Cannot find the command you asked for")
 		return
