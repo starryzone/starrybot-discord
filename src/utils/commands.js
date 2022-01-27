@@ -60,6 +60,10 @@ const starryCommandHandlers = {
 	"token-rule remove": starryCommandTokenRemove
 }
 
+function getApplicationGuildCommands() {
+    return starryCommands;
+}
+
 function getCommandHandler(path) {
     return starryCommandHandlers[path];
 }
@@ -83,6 +87,6 @@ function checkIfInteractionIsStarry(interaction) {
 module.exports = {
     checkIfCommandsEnabled,
     checkIfInteractionIsStarry,
+    getApplicationGuildCommands,
     getCommandHandler,
-    starryCommands,
 }

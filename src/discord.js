@@ -9,7 +9,7 @@ const { REST } = require('@discordjs/rest');
 const { Routes } = require('discord-api-types/v9');
 const { myConfig } = require("./db");
 const { createMissingAccessMessage, createWelcomeMessage } = require("./utils/messaging");
-const { checkIfCommandsEnabled, checkIfInteractionIsStarry, getCommandHandler, starryCommands } = require("./utils/commands");
+const { checkIfCommandsEnabled, checkIfInteractionIsStarry, getApplicationGuildCommands, getCommandHandler } = require("./utils/commands");
 
 const intents = new Intents([ Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILD_MEMBERS, Intents.FLAGS.GUILD_INTEGRATIONS, Intents.FLAGS.GUILD_MESSAGE_REACTIONS ]);
 const client = new Client({intents: intents })
@@ -83,7 +83,7 @@ async function registerGuildCommands(interaction) {
 	try {
 		// Note: discordjs doesn't have abstractions for subcommand groups and subcommands like I expected. Used logic from:
 		// https://discord.com/developers/docs/interactions/application-commands#example-walkthrough
-		let postResult = await rest.post( Routes.applicationGuildCommands(appId,guildId), { body: starryCommands } );
+		let postResult = await rest.post( Routes.applicationGuildCommands(appId,guildId), { body: getApplicationGuildCommands() } );
 		console.log('postResult', postResult)
 	} catch (e) {
 		console.error(e)
