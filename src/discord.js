@@ -10,13 +10,12 @@ const { Routes } = require('discord-api-types/v9');
 const { myConfig } = require("./db");
 const { createMissingAccessMessage, createWelcomeMessage } = require("./utils/messaging");
 
-const { starryCommandFarewell, starryCommandJoin } = require('./commands');
+const { starryCommandFarewell, starryCommandJoin, starryCommandTokenAdd } = require('./commands');
 
 const intents = new Intents([ Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILD_MEMBERS, Intents.FLAGS.GUILD_INTEGRATIONS, Intents.FLAGS.GUILD_MESSAGE_REACTIONS ]);
 const client = new Client({intents: intents })
 const TIMEOUT_DURATION = 360000; // 6 minutes in milliseconds
 
-const { WizardAddTokenRule } = require("./wizard/add-token-rule");
 // @todo find mainnet RPC endpoint we can use
 // const MAINNET_RPC_ENDPOINT = process.env.MAINNET_RPC_ENDPOINT || 'https://…halp…'
 
@@ -192,27 +191,6 @@ async function messageReactionAdd(reaction,user) {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
-///
-/// Add
-///
-
-async function starryCommandTokenAdd(interaction) {
-
-	const userId = interaction.user.id
-
-	// TODO: this is where we'll want to do a filter/map deal to remove all entries that have a {wizard}.createdAt that's > some amount, like 6 minutes
-
-	let addTokenRuleWizard = new WizardAddTokenRule(interaction.guildId, interaction.channelId, userId, client)
-	// Begin the wizard by calling the begin function on the first step
-	const msg = await addTokenRuleWizard.currentStep.beginFn({interaction});
-
-	// Now that we have the message object, we can set that, (sometimes) helping determine the user is reacting to the proper message
-	addTokenRuleWizard.currentStep.setMessageId(msg.id)
-
-	// Set the in-memory Map
-	globalUserWizards.set(`${interaction.guildId}-${userId}`, addTokenRuleWizard)
-}
-
 async function starryCommandTokenEdit(interaction) {
 }
 
@@ -235,7 +213,7 @@ async function handleGuildCommands(interaction) {
 		await interaction.channel.send("Cannot find the command you asked for")
 		return
 	} else {
-		await handler(interaction)
+		await handler(interaction, client, globalUserWizards)
 	}
 }
 
