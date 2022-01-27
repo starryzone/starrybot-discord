@@ -39,8 +39,19 @@ function createWelcomeButton() {
 
 }
 
+function createMissingAccessButton() {
+    return new MessageActionRow()
+        .addComponents(
+            new MessageButton()
+                .setCustomId('slash-commands-enabled')
+                .setLabel("I really did it this time")
+                .setStyle('PRIMARY'),
+        );
+}
+
 module.exports = {
     createEmbed,
+    createMissingAccessButton,
     createWelcomeEmbed,
     createWelcomeButton,
 }

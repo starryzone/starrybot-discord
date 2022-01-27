@@ -5,11 +5,11 @@ const logger = require("./logger")
 const logic = require("./logic")
 const { globalUserWizards } = require("./wizard/wizard.js")
 
-const { Client, Intents, MessagePayload, MessageButton, MessageActionRow } = require('discord.js')
+const { Client, Intents, MessagePayload } = require('discord.js')
 const { REST } = require('@discordjs/rest');
 const { Routes } = require('discord-api-types/v9');
 const { myConfig } = require("./db");
-const { createEmbed, createWelcomeButton, createWelcomeEmbed } = require("./discord/utils");
+const { createEmbed, createMissingAccessButton, createWelcomeButton, createWelcomeEmbed } = require("./discord/utils");
 
 const intents = new Intents([ Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILD_MEMBERS, Intents.FLAGS.GUILD_INTEGRATIONS, Intents.FLAGS.GUILD_MESSAGE_REACTIONS ]);
 const client = new Client({intents: intents })
@@ -161,13 +161,7 @@ async function registerGuildCommands(interaction) {
 		console.error(e)
 		if (e.code === 50001 || e.message === 'Missing Access') {
 			// We have a prevaricator
-			const row = new MessageActionRow()
-				.addComponents(
-					new MessageButton()
-						.setCustomId('slash-commands-enabled')
-						.setLabel("I really did it this time")
-						.setStyle('PRIMARY'),
-				);
+			const row = createMissingAccessButton();
 
 			const msgPayload = MessagePayload.create(client.user, {
 				content: "That's funny because Discord just told me you didn't. :/\nCan we try that again? (Scroll up to see the animated GIF for instructions)",
