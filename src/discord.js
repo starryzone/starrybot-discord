@@ -9,7 +9,7 @@ const { Client, Intents, MessagePayload } = require('discord.js')
 const { REST } = require('@discordjs/rest');
 const { Routes } = require('discord-api-types/v9');
 const { myConfig } = require("./db");
-const { createEmbed, createMissingAccessButton, createWelcomeButton, createWelcomeEmbed } = require("./discord/utils");
+const { createJoinEmbed, createMissingAccessButton, createWelcomeButton, createWelcomeEmbed } = require("./discord/utils");
 
 const intents = new Intents([ Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILD_MEMBERS, Intents.FLAGS.GUILD_INTEGRATIONS, Intents.FLAGS.GUILD_MESSAGE_REACTIONS ]);
 const client = new Client({intents: intents })
@@ -225,7 +225,7 @@ async function starryCommandJoin(interaction) {
 			interaction.channel.send(results.error || "Internal error")
 		} else {
 			// We reply "privately" instead of sending a DM here
-			return await interaction.reply({embeds:[createEmbed(results.traveller,results.saganism)], ephemeral: true})
+			return await interaction.reply({embeds:[createJoinEmbed(results.traveller,results.saganism)], ephemeral: true})
 		}
 	} catch(err) {
 		logger.error(err)

@@ -7,7 +7,7 @@ let validatorURL = db.myConfig.VALIDATOR
 /// a helper to build display ux
 ///
 
-function createEmbed(traveller, saganism) {
+function createJoinEmbed(traveller, saganism) {
 	let url = `${validatorURL}?traveller=${traveller}`
 	return new MessageEmbed()
 		.setColor('#0099ff')
@@ -50,7 +50,7 @@ function createMissingAccessButton() {
 }
 
 module.exports = {
-    createEmbed,
+    createJoinEmbed,
     createMissingAccessButton,
     createWelcomeEmbed,
     createWelcomeButton,
