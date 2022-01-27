@@ -9,7 +9,7 @@ const { REST } = require('@discordjs/rest');
 const { Routes } = require('discord-api-types/v9');
 const { myConfig } = require("./db");
 const { createMissingAccessMessage, createWelcomeMessage } = require("./utils/messaging");
-const { getCommandHandler } = require("./utils/commands");
+const { getCommandHandler, starryCommands } = require("./utils/commands");
 
 const intents = new Intents([ Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILD_MEMBERS, Intents.FLAGS.GUILD_INTEGRATIONS, Intents.FLAGS.GUILD_MESSAGE_REACTIONS ]);
 const client = new Client({intents: intents })
@@ -47,45 +47,6 @@ let desiredRolesForMessage = desiredRoles.map(role=>{role.name}).join('\n- ');
 /// Note: discordjs doesn't have abstractions for subcommand groups and subcommands like I expected. Used logic from:
 /// https://discord.com/developers/docs/interactions/application-commands#example-walkthrough
 ///
-
-const starryCommands = {
-	"name": "starry",
-	"description": "Use StarryBot (starrybot.xyz)",
-	"options": [
-		{
-			"name": "token-rule",
-			"description": "cw20 or cw721 token and Discord role",
-			"type": 2, // SUB_COMMAND_GROUP
-			"options": [
-				{
-					"name": "add",
-					"description": "Add a new token rule",
-					"type": 1 // SUB_COMMAND
-				},
-				{
-					"name": "edit",
-					"description": "Edit token rule",
-					"type": 1
-				},
-				{
-					"name": "remove",
-					"description": "Remove token rule",
-					"type": 1
-				}
-			]
-		},
-		{
-			"name": "join",
-			"description": "Get link to verify your account with Keplr",
-			"type": 1,
-		},
-		{
-			"name": "farewell",
-			"description": "Kick starrybot itself from your guild",
-			"type": 1,
-		}
-	]
-}
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
