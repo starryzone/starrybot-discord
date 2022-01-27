@@ -9,11 +9,11 @@ const { Client, Intents, MessageEmbed, MessagePayload, MessageButton, MessageAct
 const { REST } = require('@discordjs/rest');
 const { Routes } = require('discord-api-types/v9');
 const { myConfig } = require("./db");
+const { createEmbed } = require("./discord/utils");
+
 const intents = new Intents([ Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILD_MEMBERS, Intents.FLAGS.GUILD_INTEGRATIONS, Intents.FLAGS.GUILD_MESSAGE_REACTIONS ]);
 const client = new Client({intents: intents })
 const TIMEOUT_DURATION = 360000; // 6 minutes in milliseconds
-
-let validatorURL = db.myConfig.VALIDATOR
 
 const { WizardAddTokenRule } = require("./wizard/add-token-rule");
 // @todo find mainnet RPC endpoint we can use
@@ -102,22 +102,6 @@ const starryCommandHandlers = {
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-///
-/// a helper to build display ux
-///
-
-function createEmbed(traveller, saganism) {
-	let url = `${validatorURL}?traveller=${traveller}`
-	return new MessageEmbed()
-		.setColor('#0099ff')
-		.setTitle(`Please visit ${url}`)
-		.setURL(url)
-		.setAuthor('StarryBot', 'https://i.imgur.com/AfFp7pu.png', 'https://discord.js.org')
-		.setDescription(saganism)
-		.setThumbnail('https://i.imgur.com/AfFp7pu.png')
-		.setTimestamp()
-		.setFooter('Put your helmet on', 'https://i.imgur.com/AfFp7pu.png');
-}
 
 ///
 /// A helper to print the welcome message
