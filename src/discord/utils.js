@@ -1,5 +1,5 @@
 const db = require("../db")
-const { MessageActionRow, MessageButton, MessageEmbed } = require('discord.js')
+const { MessageActionRow, MessageButton, MessageEmbed, MessagePayload } = require('discord.js')
 
 let validatorURL = db.myConfig.VALIDATOR
 
@@ -104,9 +104,23 @@ function createMissingAccessButton() {
     return createButton({ label: `I really did it this time`});
 }
 
+///
+/// A helper to print the welcome message
+///
+
+function createWelcomeMessage(user, desiredRolesForMessage) {
+	const embed = createWelcomeEmbed(desiredRolesForMessage)
+	const row = createWelcomeButton();
+
+	return MessagePayload.create(user, {
+		content: 'Hello friends, one more step please.\nSee the GIF below…',
+		embeds: [embed],
+		components: [row]
+	});
+}
+
 module.exports = {
     createJoinEmbed,
     createMissingAccessButton,
-    createWelcomeEmbed,
-    createWelcomeButton,
+    createWelcomeMessage,
 }

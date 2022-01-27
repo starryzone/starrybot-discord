@@ -9,7 +9,7 @@ const { Client, Intents, MessagePayload } = require('discord.js')
 const { REST } = require('@discordjs/rest');
 const { Routes } = require('discord-api-types/v9');
 const { myConfig } = require("./db");
-const { createJoinEmbed, createMissingAccessButton, createWelcomeButton, createWelcomeEmbed } = require("./discord/utils");
+const { createJoinEmbed, createMissingAccessButton, createWelcomeMessage } = require("./discord/utils");
 
 const intents = new Intents([ Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILD_MEMBERS, Intents.FLAGS.GUILD_INTEGRATIONS, Intents.FLAGS.GUILD_MESSAGE_REACTIONS ]);
 const client = new Client({intents: intents })
@@ -39,6 +39,8 @@ let desiredRoles = [
 		net:"mainnet",
 	}
 ];
+// Display name for the roles in the welcome embed
+let desiredRolesForMessage = desiredRoles.map(role=>{role.name}).join('\n- ');
 
 ///
 /// This is correctly shaped blob for registering our commands with discord via rest
@@ -100,37 +102,17 @@ const starryCommandHandlers = {
 	"token-rule remove": starryCommandTokenRemove
 }
 
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-///
-/// A helper to print the welcome message
-///
-
-async function printWelcomeMessage(guild) {
-	const systemChannelId = guild.systemChannelId;
-	let desiredRolesForMessage = desiredRoles.map(role=>{role.name}).join('\n- ')
-	let systemChannel = await client.channels.fetch(systemChannelId);
-	const embed = createWelcomeEmbed(desiredRolesForMessage)
-	const row = createWelcomeButton();
-
-	const msgPayload = MessagePayload.create(client.user, {
-		content: 'Hello friends, one more step please.\nSee the GIF below…',
-		embeds: [embed],
-		components: [row]
-	});
-	await systemChannel.send(msgPayload);
-}
-
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
 ///
 /// When StarryBot joins a new guild, let's create any default roles and say hello
 ///
 
-
 async function guildCreate(guild) {
-	await printWelcomeMessage(guild);
+	const systemChannelId = guild.systemChannelId;
+	let systemChannel = await client.channels.fetch(systemChannelId);
+	const welcomeMessage = createWelcomeMessage(client.user, desiredRolesForMessage);
+	await systemChannel.send(welcomeMessage);
 	let existingRoles =	await guild.roles.fetch();
 	for(let i = 0;i<desiredRoles.length;i++) {
 		let role = desiredRoles[i]
