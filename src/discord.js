@@ -9,7 +9,7 @@ const { REST } = require('@discordjs/rest');
 const { Routes } = require('discord-api-types/v9');
 const { myConfig } = require("./db");
 const { createMissingAccessMessage, createWelcomeMessage } = require("./utils/messaging");
-const { checkIfCommandsEnabled, getCommandHandler, starryCommands } = require("./utils/commands");
+const { checkIfCommandsEnabled, checkIfInteractionIsStarry, getCommandHandler, starryCommands } = require("./utils/commands");
 
 const intents = new Intents([ Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILD_MEMBERS, Intents.FLAGS.GUILD_INTEGRATIONS, Intents.FLAGS.GUILD_MESSAGE_REACTIONS ]);
 const client = new Client({intents: intents })
@@ -136,7 +136,7 @@ async function messageReactionAdd(reaction,user) {
 ///
 async function handleGuildCommands(interaction) {
 	// only observe "/starry *" commands
-	if (interaction.commandName !== starryCommands.name) {
+	if (!checkIfInteractionIsStarry(interaction)) {
 		return
 	}
 	let group = interaction.options['_group'] || ""

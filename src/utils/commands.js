@@ -76,8 +76,13 @@ function checkIfCommandsEnabled(enabledGuildCommands) {
     return false;
 }
 
+function checkIfInteractionIsStarry(interaction) {
+    return interaction.commandName === starryCommands.name;
+}
+
 module.exports = {
     checkIfCommandsEnabled,
+    checkIfInteractionIsStarry,
     getCommandHandler,
     starryCommands,
 }
