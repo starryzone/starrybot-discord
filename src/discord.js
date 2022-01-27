@@ -9,7 +9,7 @@ const { Client, Intents, MessagePayload, MessageButton, MessageActionRow } = req
 const { REST } = require('@discordjs/rest');
 const { Routes } = require('discord-api-types/v9');
 const { myConfig } = require("./db");
-const { createEmbed, createWelcomeEmbed } = require("./discord/utils");
+const { createEmbed, createWelcomeButton, createWelcomeEmbed } = require("./discord/utils");
 
 const intents = new Intents([ Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILD_MEMBERS, Intents.FLAGS.GUILD_INTEGRATIONS, Intents.FLAGS.GUILD_MESSAGE_REACTIONS ]);
 const client = new Client({intents: intents })
@@ -112,14 +112,7 @@ async function printWelcomeMessage(guild) {
 	let desiredRolesForMessage = desiredRoles.map(role=>{role.name}).join('\n- ')
 	let systemChannel = await client.channels.fetch(systemChannelId);
 	const embed = createWelcomeEmbed(desiredRolesForMessage)
-
-	const row = new MessageActionRow()
-		.addComponents(
-			new MessageButton()
-				.setCustomId('slash-commands-enabled')
-				.setLabel("I just did it")
-				.setStyle('PRIMARY'),
-		);
+	const row = createWelcomeButton();
 
 	const msgPayload = MessagePayload.create(client.user, {
 		content: 'Hello friends, one more step please.\nSee the GIF below…',

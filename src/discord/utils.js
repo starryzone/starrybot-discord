@@ -1,5 +1,5 @@
 const db = require("../db")
-const { MessageEmbed } = require('discord.js')
+const { MessageActionRow, MessageButton, MessageEmbed } = require('discord.js')
 
 let validatorURL = db.myConfig.VALIDATOR
 
@@ -28,7 +28,19 @@ function createWelcomeEmbed(desiredRolesForMessage) {
         .setImage('https://starrybot.xyz/starrybot-slash-commands2.gif');
 }
 
+function createWelcomeButton() {
+    return new MessageActionRow()
+        .addComponents(
+            new MessageButton()
+                .setCustomId('slash-commands-enabled')
+                .setLabel("I just did it")
+                .setStyle('PRIMARY'),
+        );
+
+}
+
 module.exports = {
     createEmbed,
     createWelcomeEmbed,
+    createWelcomeButton,
 }
