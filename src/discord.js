@@ -41,13 +41,6 @@ let desiredRoles = [
 // Display name for the roles in the welcome embed
 let desiredRolesForMessage = desiredRoles.map(role=>{role.name}).join('\n- ');
 
-///
-/// This is correctly shaped blob for registering our commands with discord via rest
-///
-/// Note: discordjs doesn't have abstractions for subcommand groups and subcommands like I expected. Used logic from:
-/// https://discord.com/developers/docs/interactions/application-commands#example-walkthrough
-///
-
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
 ///

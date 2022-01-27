@@ -6,6 +6,12 @@ const starryGuildCommands = getApplicationGuildCommands();
 // Only need to make our convenient map once
 const starryCommandHandlers = getStarryHandlers();
 
+///
+/// This generates the correctly shaped blob for registering our commands with discord via rest
+///
+/// Note: discordjs doesn't have abstractions for subcommand groups and subcommands like I expected. Used logic from:
+/// https://discord.com/developers/docs/interactions/application-commands#example-walkthrough
+///
 function getApplicationGuildCommands() {
     return {
         name: 'starry',
