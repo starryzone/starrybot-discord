@@ -119,8 +119,17 @@ function createWelcomeMessage(user, desiredRolesForMessage) {
 	});
 }
 
+function createMissingAccessMessage(user) {
+    const row = createMissingAccessButton();
+
+    return MessagePayload.create(user, {
+        content: "That's funny because Discord just told me you didn't. :/\nCan we try that again? (Scroll up to see the animated GIF for instructions)",
+        components: [row]
+    });
+}
+
 module.exports = {
     createJoinEmbed,
-    createMissingAccessButton,
+    createMissingAccessMessage,
     createWelcomeMessage,
 }
