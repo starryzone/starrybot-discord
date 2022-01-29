@@ -161,7 +161,8 @@ async function guildCreate(guild) {
 	let existingRoles =	await guild.roles.fetch();
 	for(let i = 0;i<desiredRoles.length;i++) {
 		let role = desiredRoles[i]
-		if(!existingRoles.hasOwnProperty(role.name)) {
+		// See if we can find an existing role with the same name.
+		if(!existingRoles.find(existingRole => existingRole.name === role.name)) {
 			await guild.roles.create({name: role.name, position: 0})
 		}
 		await db.rolesSet(guild.id,role.name,role.type,role.address,role.net,true,client.user.id,1);
