@@ -5,10 +5,12 @@ const logger = require("./logger")
 const logic = require("./logic")
 const { globalUserWizards } = require("./wizard/wizard.js")
 
-const { Client, Intents, MessageEmbed, MessagePayload, MessageButton, MessageActionRow } = require('discord.js')
+const { Client, Intents } = require('discord.js')
 const { REST } = require('@discordjs/rest');
 const { Routes } = require('discord-api-types/v9');
 const { myConfig } = require("./db");
+const { createJoinEmbed, createMissingAccessMessage, createWelcomeMessage } = require("./utils/messages");
+
 const intents = new Intents([ Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILD_MEMBERS, Intents.FLAGS.GUILD_INTEGRATIONS, Intents.FLAGS.GUILD_MESSAGE_REACTIONS ]);
 const client = new Client({intents: intents })
 const TIMEOUT_DURATION = 360000; // 6 minutes in milliseconds
@@ -85,6 +87,8 @@ const starryCommands = {
 		}
 	]
 }
+// Display name for the roles in the welcome embed
+let desiredRolesForMessage = desiredRoles.map(role=>{role.name}).join('\n- ');
 
 ///
 /// Command lookup
@@ -100,64 +104,17 @@ const starryCommandHandlers = {
 	"token-rule remove": starryCommandTokenRemove
 }
 
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-///
-/// a helper to build display ux
-///
-
-function createEmbed(traveller, saganism) {
-	let url = `${validatorURL}?traveller=${traveller}`
-	return new MessageEmbed()
-		.setColor('#0099ff')
-		.setTitle(`Please visit ${url}`)
-		.setURL(url)
-		.setAuthor('StarryBot', 'https://i.imgur.com/AfFp7pu.png', 'https://discord.js.org')
-		.setDescription(saganism)
-		.setThumbnail('https://i.imgur.com/AfFp7pu.png')
-		.setTimestamp()
-		.setFooter('Put your helmet on', 'https://i.imgur.com/AfFp7pu.png');
-}
-
-///
-/// A helper to print the welcome message
-///
-
-async function printWelcomeMessage(guild) {
-	const systemChannelId = guild.systemChannelId;
-	let desiredRolesForMessage = desiredRoles.map(role => role.name).join('\n- ')
-	let systemChannel = await client.channels.fetch(systemChannelId);
-	const embed = new MessageEmbed()
-		.setColor('#0099ff')
-		.setTitle(`Enable secure slash commands`)
-		.setDescription(`StarryBot just joined, and FYI there are some roles:\n- ${desiredRolesForMessage}`)
-		.setImage('https://starrybot.xyz/starrybot-slash-commands2.gif')
-
-	const row = new MessageActionRow()
-		.addComponents(
-			new MessageButton()
-				.setCustomId('slash-commands-enabled')
-				.setLabel("I just did it")
-				.setStyle('PRIMARY'),
-		);
-
-	const msgPayload = MessagePayload.create(client.user, {
-		content: 'Hello friends, one more step please.\nSee the GIF below…',
-		embeds: [embed],
-		components: [row]
-	});
-	await systemChannel.send(msgPayload);
-}
-
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
 ///
 /// When StarryBot joins a new guild, let's create any default roles and say hello
 ///
 
-
 async function guildCreate(guild) {
-	await printWelcomeMessage(guild);
+	const systemChannelId = guild.systemChannelId;
+	let systemChannel = await client.channels.fetch(systemChannelId);
+	const welcomeMessage = createWelcomeMessage(client.user, desiredRolesForMessage);
+	await systemChannel.send(welcomeMessage);
 	let existingRoles =	await guild.roles.fetch();
 	for(let i = 0;i<desiredRoles.length;i++) {
 		let role = desiredRoles[i]
@@ -189,18 +146,7 @@ async function registerGuildCommands(interaction) {
 		console.error(e)
 		if (e.code === 50001 || e.message === 'Missing Access') {
 			// We have a prevaricator
-			const row = new MessageActionRow()
-				.addComponents(
-					new MessageButton()
-						.setCustomId('slash-commands-enabled')
-						.setLabel("I really did it this time")
-						.setStyle('PRIMARY'),
-				);
-
-			const msgPayload = MessagePayload.create(client.user, {
-				content: "That's funny because Discord just told me you didn't. :/\nCan we try that again? (Scroll up to see the animated GIF for instructions)",
-				components: [row]
-			});
+			const msgPayload = createMissingAccessMessage(client.user);
 			interaction.reply(msgPayload)
 		} else {
 			console.log('post error', e)
@@ -259,7 +205,7 @@ async function starryCommandJoin(interaction) {
 			interaction.channel.send(results.error || "Internal error")
 		} else {
 			// We reply "privately" instead of sending a DM here
-			return await interaction.reply({embeds:[createEmbed(results.traveller,results.saganism)], ephemeral: true})
+			return await interaction.reply({embeds:[createJoinEmbed(results.traveller,results.saganism)], ephemeral: true})
 		}
 	} catch(err) {
 		logger.error(err)
