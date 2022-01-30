@@ -1,5 +1,6 @@
 const { Wizard, WizardStep } = require("./wizard.js")
 const { rolesSet } = require("../db")
+const { createAddTokenEmbed } = require("./add-token-rule/script")
 const { MessageEmbed } = require("discord.js");
 const { CosmWasmClient } = require("@cosmjs/cosmwasm-stargate");
 const TESTNET_RPC_ENDPOINT = process.env.TESTNET_RPC_ENDPOINT || 'https://rpc.uni.juno.deuslabs.fi/'
@@ -29,12 +30,7 @@ function createStep1(userId, parentWizard) {
     null,
     async({ interaction }, ...extra) => {
       const msg = await interaction.reply(
-        { embeds: [
-            new MessageEmbed()
-              .setColor('#FDC2A0')
-              .setTitle('Tell us about your token')
-              .setDescription('🌠 Choose a token\n✨ I need to make a token\n☯️ I want (or have) a DAO with a token')
-          ],
+        { embeds: [ createAddTokenEmbed('promptForTokenInfo') ],
           fetchReply: true
         }
       )
@@ -175,10 +171,7 @@ function createStep1(userId, parentWizard) {
     parentWizard.currentStep.beginFn({ interaction: null })
   }
 
-  let promptForCW20 = new MessageEmbed()
-    .setColor('#FDC2A0')
-    .setTitle('Enter your token address')
-    .setDescription('Please write your cw20 token address in Discord chat…')
+  let promptForCW20 = createAddTokenEmbed('promptForCW20')
   // add options to that step
   step.addOptionStep('hasCW20', new WizardStep(
     parentWizard,
@@ -273,11 +266,7 @@ function createStep2(userId, parentWizard) {
       const guild = await parentWizard.client.guilds.fetch(parentWizard.guildId)
       let channel = await guild.channels.fetch(parentWizard.channelId);
       await channel.send({
-        embeds: [ new MessageEmbed()
-          .setColor('#FDC2A0')
-          .setTitle('How many tokens?')
-          .setDescription('Please enter the number of tokens a user must have to get a special role.')
-          .setFooter('Note: this role will be created automatically') ]
+        embeds: [ createAddTokenEmbed('promptForTokenAmount') ]
       });
     },
     async({ interaction }, ...extra) => {
