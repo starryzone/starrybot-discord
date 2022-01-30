@@ -3,7 +3,7 @@ const TESTNET_RPC_ENDPOINT = process.env.TESTNET_RPC_ENDPOINT || 'https://rpc.un
 const MAINNET_RPC_ENDPOINT = process.env.MAINNET_RPC_ENDPOINT || 'https://rpc-juno.itastakers.com/'
 
 const { Wizard, WizardStep } = require("./wizard.js")
-const { createStep2 } = require("./add-token-rule/steps/step2");
+const { rolesSet } = require("../db");
 const { checkForCW20, checkForDAODAODAO } = require("../token");
 const { createEmbed } = require("../utils/messages");
 
@@ -15,9 +15,10 @@ function createWizardEmbed (args) {
 }
 
 const wizardSteps = [
+  // First step: getting the cw20 address
   {
     interactionType: 'reaction',
-    beginWith: {
+    beginWithMessage: {
       type: 'interaction',
       embedArgs: {
         title: 'Tell us about your token',
@@ -84,6 +85,50 @@ const wizardSteps = [
         }
       }
     ]
+  },
+  // Second step: input how many of these tokens the user needs, add to db
+  {
+    interactionType: 'text',
+    beginWithMessage: {
+      embedArgs: {
+        title: 'How many tokens?',
+        description: 'Please enter the number of tokens a user must have to get a special role.',
+        footer: 'Note: this role will be created automatically',
+      }
+    },
+    resultFn: async (parentWizard, { interaction }, ...extra) => {
+      const amountOfTokensNeeded = interaction.content
+      if (!Number.isInteger(parseInt(amountOfTokensNeeded)) || amountOfTokensNeeded <= 0 ) {
+        // Invalid reply
+        return await parentWizard.failure('Need a positive number of tokens.')
+      }
+
+      // Create role for them, but first check if it exists
+      const roleToCreate = `${parentWizard.state.tokenSymbol}-hodler`
+
+      const guild = await parentWizard.client.guilds.fetch(parentWizard.guildId)
+      const existingObjectRoles = await guild.roles.fetch();
+
+      // TODO: use filter or map or other fun JS stuff
+      let hasRole = false
+      for (let role of existingObjectRoles.values()) {
+        if (role.name === roleToCreate) {
+          hasRole = true
+          break
+        }
+      }
+
+      // Create it if it doesn't exist
+      if (!hasRole) {
+        const newRole = await guild.roles.create({name: roleToCreate, position: 0})
+        console.log('created new role with ID', newRole.id)
+      }
+
+      // Create database row
+      // TODO: remember to make the "testnet" entry here not hardcoded, waiting for DAODAO mainnet
+      await rolesSet(parentWizard.guildId, roleToCreate, 'cw20', parentWizard.state.cw20, 'testnet', true, interaction.author.id, amountOfTokensNeeded)
+      parentWizard.done(`You may now use the role ${roleToCreate} for token-gated channels.\n\nEnjoy, traveller!`)
+    }
   }
 ]
 
@@ -98,26 +143,31 @@ class WizardAddTokenRule extends Wizard {
         stepConfig.interactionType,
         stepConfig.respondToMessageId,
         async({ interaction }, ...extra) => {
-          const { beginWith } = stepConfig;
-          console.log(beginWith);
-          const { embedArgs } = beginWith;
+          const { beginFn, beginWithMessage } = stepConfig;
           let msg;
-          // First send the message representing this step.
-          // This will be either a response to a specific interaction (i.e. a command)
-          // or a general message in the channel the wizard is in
-          if (beginWith.type === 'interaction') {
-            msg = await interaction.reply(
-              {
-                embeds: [ createWizardEmbed(embedArgs) ],
-                fetchReply: true,
-              }
-            )
+          // If a begin function is passed in, use it
+          if (beginFn) {
+            beginFn(this, { interaction }, ...extra);
           } else {
-            const guild = await this.client.guilds.fetch(guildId);
-            let channel = await guild.channels.fetch(channelId);
-            msg = await channel.send({
-              embeds: [ createWizardEmbed(embedArgs) ]
-            });
+            // Otherwise, we can send an easy message instead
+            const { embedArgs } = beginWithMessage;
+            // First send the message representing this step.
+            // This will be either a response to a specific interaction (i.e. a command)
+            // or a general message in the channel the wizard is in
+            if (beginWithMessage.type === 'interaction') {
+              msg = await interaction.reply(
+                {
+                  embeds: [ createWizardEmbed(embedArgs) ],
+                  fetchReply: true,
+                }
+              )
+            } else {
+              const guild = await this.client.guilds.fetch(guildId);
+              let channel = await guild.channels.fetch(channelId);
+              msg = await channel.send({
+                embeds: [ createWizardEmbed(embedArgs) ]
+              });
+            }
           }
 
           // If there are options, also react to our own message with the
@@ -133,6 +183,11 @@ class WizardAddTokenRule extends Wizard {
           return msg;
         },
         async({ interaction }, ...extra) => {
+          // If a results function is passed in, use it
+          if (stepConfig.resultFn) {
+            stepConfig.resultFn(this, { interaction }, ...extra);
+          }
+
           // If this step had options to choose from, handle the selection
           if (stepConfig.options) {
             if (extra.length === 0) {
@@ -175,12 +230,6 @@ class WizardAddTokenRule extends Wizard {
       this.addStep(step)
     })
 
-    // Add first step (getting the cw20 address)
-    // let step = createStep1(userId, this)
-    // this.addStep(step)
-    // Add second step (input how many of these tokens the user needs, add to db)
-    step = createStep2(userId, this)
-    this.addStep(step)
     this.currentStep = this.steps[0]
     this.discordUserId = userId
     this.channelId = channelId
