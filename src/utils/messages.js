@@ -69,10 +69,17 @@ function createButton({
     return new MessageActionRow().addComponents(button);
 }
 
+function createMessage({
+    content,
+    components,
+    user,
+}) {
+    return MessagePayload.create(user, { content, components });
+}
+
 ///
 /// Specific embeds used by the bot
 ///
-
 
 function createWelcomeEmbed(desiredRolesForMessage) {
     return createEmbed({
@@ -84,10 +91,6 @@ function createWelcomeEmbed(desiredRolesForMessage) {
 
 function createWelcomeButton() {
     return createButton({ label: `I just did it`});
-}
-
-function createMissingAccessButton() {
-    return createButton({ label: `I really did it this time`});
 }
 
 ///
@@ -105,17 +108,10 @@ function createWelcomeMessage(user, desiredRolesForMessage) {
 	});
 }
 
-function createMissingAccessMessage(user) {
-    const row = createMissingAccessButton();
-
-    return MessagePayload.create(user, {
-        content: "That's funny because Discord just told me you didn't. :/\nCan we try that again? (Scroll up to see the animated GIF for instructions)",
-        components: [row]
-    });
-}
-
 module.exports = {
+    createButton,
     createEmbed,
-    createMissingAccessMessage,
+    createMessage,
+
     createWelcomeMessage,
 }

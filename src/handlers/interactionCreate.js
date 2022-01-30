@@ -3,8 +3,18 @@ const { Routes } = require('discord-api-types/v9');
 
 const { myConfig } = require("../db");
 const { checkIfCommandsEnabled, checkIfInteractionIsStarry, getCommandHandler, starryGuildCommands } = require("../utils/commands");
-const { createMissingAccessMessage } = require("../utils/messages");
+const { createButton, createMessage } = require("../utils/messages");
 const { checkInteractionWithWizard } = require("../wizard/wizard");
+
+function createMissingAccessMessage(user) {
+	return createMessage({
+		user,
+		content: "That's funny because Discord just told me you didn't. :/\nCan we try that again? (Scroll up to see the animated GIF for instructions)",
+		components: [
+			createButton({ label: `I really did it this time`})
+		]
+	});
+}
 
 ///
 /// They say they've allowed the bot to add Slash Commands,
