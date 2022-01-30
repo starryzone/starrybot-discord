@@ -2,7 +2,7 @@ const { CosmWasmClient } = require("@cosmjs/cosmwasm-stargate");
 const TESTNET_RPC_ENDPOINT = process.env.TESTNET_RPC_ENDPOINT || 'https://rpc.uni.juno.deuslabs.fi/'
 const MAINNET_RPC_ENDPOINT = process.env.MAINNET_RPC_ENDPOINT || 'https://rpc-juno.itastakers.com/'
 
-const { WizardStep } = require("../../wizard.js")
+const { WizardStep } = require("../../wizard")
 const { createAddTokenEmbed } = require("../script")
 
 function createStep1(userId, parentWizard) {
