@@ -1,10 +1,11 @@
 const { WizardAddTokenRule } = require("../wizard/add-token-rule");
+const { globalUserWizards } = require("../wizard/wizard");
 
 ///
 /// Add
 ///
 
-async function starryCommandTokenAdd(interaction, client, globalUserWizards) {
+async function starryCommandTokenAdd(interaction, client) {
 
 	const userId = interaction.user.id
 

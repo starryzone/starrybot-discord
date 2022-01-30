@@ -4,14 +4,13 @@ const { Client, Intents } = require('discord.js')
 
 const db = require("./db")
 const logger = require("./logger")
-
-const { globalUserWizards } = require("./wizard/wizard.js")
 const {
     guildCreate,
     interactionCreate,
     messageCreate,
     messageReactionAdd,
 } = require("./handlers")
+
 const intents = new Intents([ Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILD_MEMBERS, Intents.FLAGS.GUILD_INTEGRATIONS, Intents.FLAGS.GUILD_MESSAGE_REACTIONS ]);
 const client = new Client({intents: intents })
 
@@ -32,7 +31,7 @@ client.on("guildCreate", guild => guildCreate(guild, client) );
 
 // Handler for discord bot messages being directly interacted with
 // (e.g. button press, commands used, replies to wizard steps)
-client.on('interactionCreate', interaction => interactionCreate(interaction, client, globalUserWizards) );
+client.on('interactionCreate', interaction => interactionCreate(interaction, client) );
 
 // Handler for messages that may be responses to the wizard steps
 client.on('messageCreate', messageCreate);
