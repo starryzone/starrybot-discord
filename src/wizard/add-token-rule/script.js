@@ -40,6 +40,22 @@ const addTokenRuleScript = {
         ],
         footer: "🎗️ When you're finished creating your cw20 token, please type the address in this channel."
     },
+    explainDAODAO: {
+        title: 'Check out DAODAO',
+        description: "If you haven't set up a DAO, visit the link above to create a DAO with a governance token.",
+        fields: [
+          {
+            name: '🧑‍🤝‍🧑', // a big space
+            value: '☯',
+            inline: false,
+          },
+          {
+            name: "Paste your DAODAO URL and we'll take care of the rest!",
+            value: "(For example, it'll look something like https://daodao.zone/dao/juno129spsp500mjpx7eut9p08s0jla9wmsen2g8nnjk3wmvwgc83srqq85awld)",
+          }
+        ],
+        url: 'https://daodao.zone'
+    }
 }
 
 function createAddTokenEmbed (sceneName) {
@@ -51,6 +67,7 @@ function createAddTokenEmbed (sceneName) {
             description: scene.description,
             fields: scene.fields,
             footer: scene.footer,
+            url: scene.url,
         });
     }
 }

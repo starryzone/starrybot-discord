@@ -1,7 +1,6 @@
 const { Wizard, WizardStep } = require("./wizard.js")
 const { rolesSet } = require("../db")
 const { createAddTokenEmbed } = require("./add-token-rule/script")
-const { MessageEmbed } = require("discord.js");
 const { CosmWasmClient } = require("@cosmjs/cosmwasm-stargate");
 const TESTNET_RPC_ENDPOINT = process.env.TESTNET_RPC_ENDPOINT || 'https://rpc.uni.juno.deuslabs.fi/'
 const MAINNET_RPC_ENDPOINT = process.env.MAINNET_RPC_ENDPOINT || 'https://rpc-juno.itastakers.com/'
@@ -207,23 +206,7 @@ function createStep1(userId, parentWizard) {
       let guild = await step.parentWizard.client.guilds.fetch(parentWizard.guildId)
       let channel = await guild.channels.fetch(parentWizard.channelId);
       await channel.send({
-        embeds: [ new MessageEmbed()
-          .setColor('#FDC2A0')
-          .setTitle('Check out DAODAO')
-          .setURL('https://daodao.zone')
-          .setDescription("If you haven't set up a DAO, visit the link above to create a DAO with a governance token.")
-          .addFields([
-          {
-            name: '🧑‍🤝‍🧑', // a big space
-            value: '☯',
-            inline: false,
-          },
-          {
-            name: "Paste your DAODAO URL and we'll take care of the rest!",
-            value: "(For example, it'll look something like https://daodao.zone/dao/juno129spsp500mjpx7eut9p08s0jla9wmsen2g8nnjk3wmvwgc83srqq85awld)",
-          }
-        ])
-        ]
+        embeds: [ createAddTokenEmbed("explainDAODAO") ]
       });
     },
     handleCW20Entry
