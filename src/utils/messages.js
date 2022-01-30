@@ -1,7 +1,4 @@
-const db = require("../db")
 const { MessageActionRow, MessageButton, MessageEmbed, MessagePayload } = require('discord.js')
-
-let validatorURL = db.myConfig.VALIDATOR
 
 ///
 /// Helpers for consistent Discord UX in the bot
@@ -76,17 +73,6 @@ function createButton({
 /// Specific embeds used by the bot
 ///
 
-function createJoinEmbed(traveller, saganism) {
-	let url = `${validatorURL}?traveller=${traveller}`
-    return createEmbed({
-        author: [`StarryBot`, `https://i.imgur.com/AfFp7pu.png`, `https://discord.js.org`],
-        description: saganism,
-        footer: [`Put your helmet on`, `https://i.imgur.com/AfFp7pu.png`],
-        title: `Please visit ${url}`,
-        thumbnailUrl: `https://i.imgur.com/AfFp7pu.png`,
-        url,
-    });
-}
 
 function createWelcomeEmbed(desiredRolesForMessage) {
     return createEmbed({
@@ -129,7 +115,7 @@ function createMissingAccessMessage(user) {
 }
 
 module.exports = {
-    createJoinEmbed,
+    createEmbed,
     createMissingAccessMessage,
     createWelcomeMessage,
 }

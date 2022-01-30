@@ -1,7 +1,21 @@
+const db = require("../db")
 const logger = require("../logger")
 const logic = require("../logic")
 
-const { createJoinEmbed } = require("../utils/messages");
+const { createEmbed } = require("../utils/messages");
+
+let validatorURL = db.myConfig.VALIDATOR
+function createJoinEmbed(traveller, saganism) {
+	let url = `${validatorURL}?traveller=${traveller}`
+    return createEmbed({
+        author: [`StarryBot`, `https://i.imgur.com/AfFp7pu.png`, `https://discord.js.org`],
+        description: saganism,
+        footer: [`Put your helmet on`, `https://i.imgur.com/AfFp7pu.png`],
+        title: `Please visit ${url}`,
+        thumbnailUrl: `https://i.imgur.com/AfFp7pu.png`,
+        url,
+    });
+}
 
 async function starryCommandJoin(interaction) {
 	try {
