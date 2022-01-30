@@ -135,7 +135,7 @@ const wizardSteps = [
 
 class WizardAddTokenRule extends Wizard {
   constructor(guildId, channelId, userId, client) {
-    super();
+    super(guildId, channelId, userId, client);
 
     let step;
     wizardSteps.forEach(stepConfig => {
@@ -232,10 +232,6 @@ class WizardAddTokenRule extends Wizard {
     })
 
     this.currentStep = this.steps[0]
-    this.discordUserId = userId
-    this.channelId = channelId
-    this.guildId = guildId
-    this.client = client
   }
 }
 

@@ -8,17 +8,21 @@ const { WizardStep } = require("./wizardStep");
 let globalUserWizards = new Map()
 
 class Wizard {
-  client;
-  discordUserId; // There will also be a key for this, but we'll have it here as well
   channelId;
-  guildId;
-  steps = []; // sequential Wizard Step objects
-  currentStep; // step object
+  client;
   createdAt;
+  currentStep; // step object
+  discordUserId; // There will also be a key for this, but we'll have it here as well
+  guildId;
   state = {}; // save useful state info
+  steps = []; // sequential Wizard Step objects
 
-  constructor() {
+  constructor(guildId, channelId, userId, client) {
+    this.discordUserId = userId
+    this.channelId = channelId
+    this.client = client
     this.createdAt = Date.now()
+    this.guildId = guildId
   }
 
   addStep(wizardStep) {
