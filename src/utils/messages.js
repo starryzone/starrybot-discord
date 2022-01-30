@@ -1,7 +1,4 @@
-const db = require("../db")
 const { MessageActionRow, MessageButton, MessageEmbed, MessagePayload } = require('discord.js')
-
-let validatorURL = db.myConfig.VALIDATOR
 
 ///
 /// Helpers for consistent Discord UX in the bot
@@ -11,6 +8,7 @@ function createEmbed({
     color = '#0099ff',
     description,
     imageUrl,
+    fields,
     footer,
     setTimestamp,
     title,
@@ -32,6 +30,9 @@ function createEmbed({
     }
     if (imageUrl) {
         embed.setImage(imageUrl);
+    }
+    if (fields) {
+        embed.addFields(fields);
     }
     if (footer) {
         // Can be [footer.text, footer.thumbnailUrl]
@@ -72,64 +73,17 @@ function createButton({
     return new MessageActionRow().addComponents(button);
 }
 
-///
-/// Specific embeds used by the bot
-///
-
-function createJoinEmbed(traveller, saganism) {
-	let url = `${validatorURL}?traveller=${traveller}`
-    return createEmbed({
-        author: [`StarryBot`, `https://i.imgur.com/AfFp7pu.png`, `https://discord.js.org`],
-        description: saganism,
-        footer: [`Put your helmet on`, `https://i.imgur.com/AfFp7pu.png`],
-        title: `Please visit ${url}`,
-        thumbnailUrl: `https://i.imgur.com/AfFp7pu.png`,
-        url,
-    });
-}
-
-function createWelcomeEmbed(desiredRolesForMessage) {
-    return createEmbed({
-        title: `Enable secure slash commands`,
-        description: `StarryBot just joined, and FYI there are some roles:\n- ${desiredRolesForMessage}`,
-        imageUrl: `https://starrybot.xyz/starrybot-slash-commands2.gif`,
-    });
-}
-
-function createWelcomeButton() {
-    return createButton({ label: `I just did it`});
-}
-
-function createMissingAccessButton() {
-    return createButton({ label: `I really did it this time`});
-}
-
-///
-/// A helper to print the welcome message
-///
-
-function createWelcomeMessage(user, desiredRolesForMessage) {
-	const embed = createWelcomeEmbed(desiredRolesForMessage)
-	const row = createWelcomeButton();
-
-	return MessagePayload.create(user, {
-		content: 'Hello friends, one more step please.\nSee the GIF below…',
-		embeds: [embed],
-		components: [row]
-	});
-}
-
-function createMissingAccessMessage(user) {
-    const row = createMissingAccessButton();
-
-    return MessagePayload.create(user, {
-        content: "That's funny because Discord just told me you didn't. :/\nCan we try that again? (Scroll up to see the animated GIF for instructions)",
-        components: [row]
-    });
+function createMessage({
+    content,
+    components,
+    embeds,
+    user,
+}) {
+    return MessagePayload.create(user, { content, components, embeds });
 }
 
 module.exports = {
-    createJoinEmbed,
-    createMissingAccessMessage,
-    createWelcomeMessage,
+    createButton,
+    createEmbed,
+    createMessage,
 }
