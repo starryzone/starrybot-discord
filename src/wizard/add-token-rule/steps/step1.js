@@ -8,11 +8,11 @@ const { createAddTokenEmbed } = require("../script")
 function createStep1(userId, parentWizard) {
   let step = new WizardStep(
     parentWizard,
-      'reaction',
+    'reaction',
     null,
     async({ interaction }, ...extra) => {
       const msg = await interaction.reply(
-        { embeds: [ createAddTokenEmbed('promptForTokenInfo') ],
+        { embeds: [ createAddTokenEmbed('step1BeginFn') ],
           fetchReply: true
         }
       )
@@ -25,6 +25,7 @@ function createStep1(userId, parentWizard) {
       }
       return msg
     },
+    //,
     async({ interaction }, ...extra) => {
       if (extra.length === 0) {
         console.error('Expected an emojiName field in extra args');
@@ -153,47 +154,24 @@ function createStep1(userId, parentWizard) {
     parentWizard.currentStep.beginFn({ interaction: null })
   }
 
-  let promptForCW20 = createAddTokenEmbed('promptForCW20')
   // add options to that step
-  step.addOptionStep('hasCW20', new WizardStep(
-    parentWizard,
-    'text',
-    null,
-    async({ interaction }, ...extra) => {
-      let guild = await step.parentWizard.client.guilds.fetch(parentWizard.guildId)
-      let channel = await guild.channels.fetch(parentWizard.channelId);
-      await channel.send({
-        embeds: [ promptForCW20 ]
-      });
-    },
-    handleCW20Entry
-  ))
-  step.addOptionStep('needsCW20', new WizardStep(
-    parentWizard,
-    'text',
-    null,
-    async({interaction}, ...extra) => {
-      let guild = await step.parentWizard.client.guilds.fetch(parentWizard.guildId)
-      let channel = await guild.channels.fetch(parentWizard.channelId);
-      await channel.send({
-        embeds: [ createAddTokenEmbed("explainCW20") ]
-      });
-    },
-    handleCW20Entry
-  ))
-  step.addOptionStep('daoDao', new WizardStep(
-    parentWizard,
-    'text',
-    null,
-    async({interaction}, ...extra) => {
-      let guild = await step.parentWizard.client.guilds.fetch(parentWizard.guildId)
-      let channel = await guild.channels.fetch(parentWizard.channelId);
-      await channel.send({
-        embeds: [ createAddTokenEmbed("explainDAODAO") ]
-      });
-    },
-    handleCW20Entry
-  ))
+  const optionSteps = ['hasCW20', 'needsCW20', 'daoDao'];
+  optionSteps.forEach(optionName => {
+      step.addOptionStep(optionName, new WizardStep(
+        parentWizard,
+        'text',
+        null,
+        async({ interaction }, ...extra) => {
+            let guild = await step.parentWizard.client.guilds.fetch(parentWizard.guildId)
+            let channel = await guild.channels.fetch(parentWizard.channelId);
+            await channel.send({
+                embeds: [ createAddTokenEmbed(optionName) ]
+            });
+        },
+        handleCW20Entry
+      ));
+  })
+
   return step
 }
 

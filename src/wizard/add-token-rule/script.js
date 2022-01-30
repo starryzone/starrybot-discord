@@ -1,20 +1,20 @@
 const { createEmbed } = require("../../utils/messages");
 
 const addTokenRuleScript = {
-    promptForTokenInfo: {
+    step1BeginFn: {
         title: 'Tell us about your token',
         description: '🌠 Choose a token\n✨ I need to make a token\n☯️ I want (or have) a DAO with a token',
     },
-    promptForCW20: {
+    hasCW20: {
         title: 'Enter your token address',
         description: 'Please write your cw20 token address in Discord chat…',
     },
-    promptForTokenAmount: {
+    step2BeginFn: {
         title: 'How many tokens?',
         description: 'Please enter the number of tokens a user must have to get a special role.',
         footer: 'Note: this role will be created automatically',
     },
-    explainCW20: {
+    needsCW20: {
         title: 'Learning about cw20 tokens…',
         description: 'This info will help you understand your options.',
         fields: [
@@ -40,7 +40,7 @@ const addTokenRuleScript = {
         ],
         footer: "🎗️ When you're finished creating your cw20 token, please type the address in this channel."
     },
-    explainDAODAO: {
+    daoDao: {
         title: 'Check out DAODAO',
         description: "If you haven't set up a DAO, visit the link above to create a DAO with a governance token.",
         fields: [
@@ -58,16 +58,16 @@ const addTokenRuleScript = {
     }
 }
 
-function createAddTokenEmbed (sceneName) {
-    const scene = addTokenRuleScript[sceneName];
-    if (scene) {
+function createAddTokenEmbed (stepName) {
+    const step = addTokenRuleScript[stepName];
+    if (step) {
         return createEmbed({
             color: '#FDC2A0',
-            title: scene.title,
-            description: scene.description,
-            fields: scene.fields,
-            footer: scene.footer,
-            url: scene.url,
+            title: step.title,
+            description: step.description,
+            fields: step.fields,
+            footer: step.footer,
+            url: step.url,
         });
     }
 }

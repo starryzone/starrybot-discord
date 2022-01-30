@@ -11,7 +11,7 @@ function createStep2(userId, parentWizard) {
         const guild = await parentWizard.client.guilds.fetch(parentWizard.guildId)
         let channel = await guild.channels.fetch(parentWizard.channelId);
         await channel.send({
-          embeds: [ createAddTokenEmbed('promptForTokenAmount') ]
+          embeds: [ createAddTokenEmbed('step2BeginFn') ]
         });
       },
       async({ interaction }, ...extra) => {

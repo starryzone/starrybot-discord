@@ -1,4 +1,4 @@
-const { Wizard, WizardStep } = require("./wizard.js")
+const { Wizard } = require("./wizard.js")
 const { createStep1 } = require("./add-token-rule/steps/step1");
 const { createStep2 } = require("./add-token-rule/steps/step2");
 
