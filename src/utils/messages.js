@@ -8,6 +8,7 @@ function createEmbed({
     color = '#0099ff',
     description,
     imageUrl,
+    fields,
     footer,
     setTimestamp,
     title,
@@ -29,6 +30,9 @@ function createEmbed({
     }
     if (imageUrl) {
         embed.setImage(imageUrl);
+    }
+    if (fields) {
+        embed.addFields(fields);
     }
     if (footer) {
         // Can be [footer.text, footer.thumbnailUrl]
