@@ -6,6 +6,21 @@ const { WizardStep } = require("../../wizard")
 const { createAddTokenEmbed } = require("../script")
 const { checkForCW20, checkForDAODAODAO } = require("../../../token")
 
+const optionSteps = [
+  {
+    optionName: 'hasCW20',
+    emoji: '🌠',
+  },
+  {
+    optionName: 'needsCW20',
+    emoji: '✨',
+  },
+  {
+    optionName: 'daoDao',
+    emoji: '☯️',
+  }
+];
+
 function createStep1(userId, parentWizard) {
   let step = new WizardStep(
     parentWizard,
@@ -18,9 +33,7 @@ function createStep1(userId, parentWizard) {
         }
       )
       try {
-        await msg.react('🌠');
-        await msg.react('✨');
-        await msg.react('☯️');
+        await Promise.all(optionSteps.map(option => msg.react(option.emoji)));
       } catch (error) {
         console.error('One of the emojis failed to react:', error);
       }
@@ -32,24 +45,15 @@ function createStep1(userId, parentWizard) {
         console.error('Expected an emojiName field in extra args');
         return;
       }
-      const emojiName = extra[0]
+      const emojiName = extra[0];
+      const selectedOption = optionSteps.find(option => option.emoji === emojiName);
 
-      switch (emojiName) {
-        case '🌠':
-          // Set it to the new step, then execute the begin function
-          parentWizard.currentStep = parentWizard.steps[0]['optionSteps']['hasCW20']
-          parentWizard.currentStep.beginFn({ interaction: null })
-          break;
-        case '✨':
-          parentWizard.currentStep = parentWizard.steps[0]['optionSteps']['needsCW20']
-          parentWizard.currentStep.beginFn({ interaction: null })
-          break;
-        case '☯️':
-          parentWizard.currentStep = parentWizard.steps[0]['optionSteps']['daoDao']
-          parentWizard.currentStep.beginFn({ interaction: null })
-          break;
-        default:
-          console.warn('User did not pick an applicable emoji')
+      if (selectedOption) {
+        parentWizard.currentStep = parentWizard.steps[0]['optionSteps'][selectedOption.optionName]
+        parentWizard.currentStep.beginFn({ interaction: null })
+      }
+      else {
+        console.warn('User did not pick an applicable emoji')
       }
     }
   )
@@ -104,8 +108,7 @@ function createStep1(userId, parentWizard) {
   }
 
   // add options to that step
-  const optionSteps = ['hasCW20', 'needsCW20', 'daoDao'];
-  optionSteps.forEach(optionName => {
+  optionSteps.forEach(({ optionName }) => {
       step.addOptionStep(optionName, new WizardStep(
         parentWizard,
         'text',
