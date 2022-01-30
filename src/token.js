@@ -11,13 +11,13 @@ const checkForCW20 = async (cosmClient, cw20Input, gracefulExit) => {
     const chainId = await cosmClient.getChainId()
     console.error(`rror message after trying to query cw20 on ${chainId}`, e.message)
     if (e.message.includes('decoding bech32 failed')) {
-      return await parentWizard.failure('Invalid address. Remember: first you copy, then you paste.')
+      throw 'Invalid address. Remember: first you copy, then you paste.';
     } else if (e.message.includes('contract: not found')) {
       if (gracefulExit) return false
-      return await parentWizard.failure('No contract at that address. Potential black hole.')
+      throw 'No contract at that address. Potential black hole.';
     } else if (e.message.includes('Error parsing into type')) {
       if (gracefulExit) return false
-      return await parentWizard.failure('That is a valid contract, but cosmic perturbations tell us it is not a cw20.')
+      throw 'That is a valid contract, but cosmic perturbations tell us it is not a cw20.';
     }
   }
   return tokenInfo
@@ -38,13 +38,13 @@ const checkForDAODAODAO = async (cosmClient, daoDAOUrl, gracefulExit) => {
     console.error(`Error message after trying to query daodao dao on ${chainId}`, e.message)
     // TODO: reduce copy pasta
     if (e.message.includes('decoding bech32 failed')) {
-      return await parentWizard.failure('Invalid address. Remember: first you copy, then you paste.')
+      throw 'Invalid address. Remember: first you copy, then you paste.';
     } else if (e.message.includes('contract: not found')) {
       if (gracefulExit) return false
-      return await parentWizard.failure('No contract at that address. Probable black hole.')
+      throw 'No contract at that address. Probable black hole.';
     } else if (e.message.includes('Error parsing into type')) {
       if (gracefulExit) return false
-      return await parentWizard.failure('That is a valid contract, but cosmic perturbations tell us it is not a cw20.')
+      throw 'That is a valid contract, but cosmic perturbations tell us it is not a cw20.';
     }
   }
   return daoInfo
