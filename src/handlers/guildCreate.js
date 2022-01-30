@@ -1,5 +1,5 @@
 const db = require("../db")
-const { createWelcomeMessage } = require("../utils/messages");
+const { createButton, createEmbed, createMessage } = require("../utils/messages");
 
 ///
 /// Default roles (later we may not have any default roles)
@@ -21,7 +21,28 @@ const desiredRoles = [
 ];
 
 // Display name for the roles in the welcome embed
-const desiredRolesForMessage = desiredRoles.map(role=>{role.name}).join('\n- ');
+const desiredRolesForMessage = desiredRoles.map(role => role.name).join('\n- ');
+
+///
+/// A helper to print the welcome message
+///
+
+function createWelcomeMessage(user, desiredRolesForMessage) {
+	return createMessage({
+		user,
+		content: 'Hello friends, one more step please.\nSee the GIF below…',
+		embeds: [
+			createEmbed({
+				title: `Enable secure slash commands`,
+				description: `StarryBot just joined, and FYI there are some roles:\n- ${desiredRolesForMessage}`,
+				imageUrl: `https://starrybot.xyz/starrybot-slash-commands2.gif`,
+			})
+		],
+		components: [
+			createButton({ label: `I just did it`})
+		]
+	});
+}
 
 ///
 /// When StarryBot joins a new guild, let's create any default roles and say hello

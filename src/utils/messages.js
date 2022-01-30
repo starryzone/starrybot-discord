@@ -72,46 +72,14 @@ function createButton({
 function createMessage({
     content,
     components,
+    embeds,
     user,
 }) {
-    return MessagePayload.create(user, { content, components });
-}
-
-///
-/// Specific embeds used by the bot
-///
-
-function createWelcomeEmbed(desiredRolesForMessage) {
-    return createEmbed({
-        title: `Enable secure slash commands`,
-        description: `StarryBot just joined, and FYI there are some roles:\n- ${desiredRolesForMessage}`,
-        imageUrl: `https://starrybot.xyz/starrybot-slash-commands2.gif`,
-    });
-}
-
-function createWelcomeButton() {
-    return createButton({ label: `I just did it`});
-}
-
-///
-/// A helper to print the welcome message
-///
-
-function createWelcomeMessage(user, desiredRolesForMessage) {
-	const embed = createWelcomeEmbed(desiredRolesForMessage)
-	const row = createWelcomeButton();
-
-	return MessagePayload.create(user, {
-		content: 'Hello friends, one more step please.\nSee the GIF below…',
-		embeds: [embed],
-		components: [row]
-	});
+    return MessagePayload.create(user, { content, components, embeds });
 }
 
 module.exports = {
     createButton,
     createEmbed,
     createMessage,
-
-    createWelcomeMessage,
 }
