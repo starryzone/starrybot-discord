@@ -2,7 +2,7 @@
 // The key/values are:
 //   key: guildId-userId
 //   value: Wizard or class extension instantiation
-const { MessageEmbed } = require("discord.js");
+const { createEmbed } = require("../utils/messages");
 let globalUserWizards = new Map()
 
 class WizardStep {
@@ -62,10 +62,13 @@ class Wizard {
     let guild = await this.client.guilds.fetch(this.guildId)
     let channel = await guild.channels.fetch(this.channelId);
     await channel.send({
-      embeds: [ new MessageEmbed()
-        .setColor('#be75a4')
-        .setTitle('Error (star might be in retrograde)')
-        .setDescription(failureMessage) ]
+      embeds: [
+        createEmbed({
+          color: '#be75a4',
+          title: 'Error (star might be in retrograde)',
+          description: failureMessage,
+        })
+      ]
     });
     // Remove entry
     globalUserWizards.delete(`${this.guildId}-${this.discordUserId}`)
@@ -75,10 +78,13 @@ class Wizard {
     let guild = await this.client.guilds.fetch(this.guildId)
     let channel = await guild.channels.fetch(this.channelId);
     await channel.send({
-      embeds: [ new MessageEmbed()
-        .setColor('#7585FF')
-        .setTitle('Finished! 🌟')
-        .setDescription(doneMessage) ]
+      embeds: [
+        createEmbed({
+          color: '#7585FF',
+          title: 'Finished! 🌟',
+          description: doneMessage,
+        })
+      ]
     });
     // Remove entry
     globalUserWizards.delete(`${this.guildId}-${this.discordUserId}`)
