@@ -14,6 +14,7 @@ const { fromBase64, Bech32 } = require('@cosmjs/encoding')
 const { REST } = require("@discordjs/rest");
 const { Routes } = require("discord-api-types/v9");
 const { StargateClient } = require("@cosmjs/stargate");
+const { CosmWasmClient } = require("@cosmjs/cosmwasm-stargate");
 
 ///
 /// Returns a block with { memberId, saganism }
@@ -229,12 +230,16 @@ async function hoistFinalize(blob, client) {
 
 		let rolename = role.give_role
 		let rolediscord = guild.roles.cache.find(r => r.name === rolename)
+		const tokenType = role.token_type
+		const network = role.network;
 		const tokenAddress = role.token_address
 
 		let rpcClient;
 		if (tokenAddress === 'osmo') {
-			rpcClient = await StargateClient.connect('https://rpc-osmosis.keplr.app/');
-		} else if (tokenAddress === 'juno') {
+			// This currently 404's and isn't necessary for launch
+			// rpcClient = await StargateClient.connect('https://rpc-osmosis.keplr.app/');
+			continue;
+		} else if (tokenAddress.includes('juno')) {
 			rpcClient = await StargateClient.connect('https://rpc-juno.nodes.guru/');
 		} else {
 			console.warn('Unfamiliar with this token, ser.')
@@ -242,12 +247,42 @@ async function hoistFinalize(blob, client) {
 		}
 
 		let decodedAccount = Bech32.decode(keplrAccount).data;
-		let encodedAccount = Bech32.encode(tokenAddress, decodedAccount);
-		let balances = await rpcClient.getAllBalances(encodedAccount);
-		console.log(`balances ${tokenAddress}`, balances)
-		let matches = balances.filter(balances => balances.denom === `u${tokenAddress}`)
+		let encodedAccount, matches;
+		// We have an entire address instead of 'juno' or 'osmo' prefixes
+		if (tokenType === 'cw20') {
+			encodedAccount = Bech32.encode(tokenAddress.substring(0, 4), decodedAccount);
+			const TESTNET_RPC_ENDPOINT = process.env.TESTNET_RPC_ENDPOINT || 'https://rpc.uni.juno.deuslabs.fi/'
+			const MAINNET_RPC_ENDPOINT = process.env.MAINNET_RPC_ENDPOINT || 'https://rpc-juno.itastakers.com/'
+			const cosmClient = network === 'mainnet' ?
+				await CosmWasmClient.connect(MAINNET_RPC_ENDPOINT) :
+				await CosmWasmClient.connect(TESTNET_RPC_ENDPOINT);
+
+			const smartContract = await cosmClient.queryContractSmart(tokenAddress, {
+				balance: {
+					address: encodedAccount,
+				}
+			});
+			matches = [{
+				amount: smartContract.balance
+			}]
+		} else {
+			// Token type is native, so the token address is expected to be a prefix
+			encodedAccount = Bech32.encode(tokenAddress, decodedAccount);
+			let balances = await rpcClient.getAllBalances(encodedAccount);
+			console.log(`balances ${tokenAddress}`, balances)
+			matches = balances.filter(balances => balances.denom === `u${tokenAddress}`)
+		}
+
 		// If they have no balance or zero balance, continue the loop through roles
-		if (matches.length !== 1 || matches[0].amount === '0') continue
+		if (matches.length !== 1) {
+			console.log("no matches found");
+			continue
+		} else if (parseInt(matches[0].amount) < parseInt(role.has_minimum_of)) {
+			// If they don't have enough, don't add it either
+			console.log("not enough to get the role");
+			continue
+		}
+		console.log(`${parseInt(matches[0].amount)} is greater than ${parseInt(role.has_minimum_of)}`)
 
 		// At this point, we can be sure the user should be given the role
 		const systemChannelId = guild.systemChannelId;
