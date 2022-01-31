@@ -10,10 +10,6 @@
     * Scroll down to "Privileged Gateway Intents" and toggle the “Server Members Intent” on
     * (Optional) Untoggle “Public Bot” if you don’t want anyone else adding your bot to discord servers in the meantime
     * Save your changes
-* Go to the “OAuth2” tab, scroll to Default Authorization Link and select “In-App Authorization Method”
-    * Select both “bot” and “applications.commands” as scopes
-    * Select “Administrator” under Bot Permissions (under General Permissions, first checkbox)
-    * Save your changes
 
 ### Run the Bot Server
 * Make sure you have node version >= 16.6.0 installed
@@ -24,18 +20,22 @@
 
 ### Add your Bot to your Discord Server
 * Go to the "General" tab of your app in the Discord Developer Portal and copy the application ID
-* Go to `https://discord.com/oauth2/authorize?client_id=[your application ID]&scope=bot&permissions=8`
+* Go to `https://discord.com/oauth2/authorize?client_id=[your application ID]&scope=applications.commands%20bot&permissions=8`
     * Follow the steps to authorize the bot
     * You will need to kick the bot a lot for testing, so keep this URL around
 * Your bot should be successfully added to the server!
 * Follow the steps in the welcome message to re-authorize the bot to enable slash commands
+
+---
+
+## Other Runbooks
 
 ### Get Juno Testnet tokens for testing
 * Make sure you have [Keplr for Chrome](https://www.keplr.app/) installed (doesn't work on Brave)
 * Click on "Enter the app" at https://daodao.zone/
 * Hit "Connect Wallet" to add Juno Testnet to your Keplr
 * Go to the [Juno Discord server](https://discord.gg/4a8PRXNc)
-* Verify yourself in #verify-here via the instructions sent by automated DM
+* (If prompted by a bot) Verify yourself via the DMed instructions
 * Open the Keplr chrome extension (top bar)
     * Hit the dropdown that says “Cosmo”
     * Scroll down to the bottom and click on “Juno Testnet”
@@ -43,6 +43,8 @@
 * Paste `$request [your Juno Testnet address]` in #faucet
     * You don’t need to keep the ID in the response - you can always get it later and it doesn’t work the same on testnet anyways
     * You can run this command after some delay (hours/days) to get more for testing if needed
+
+---
 
 ## Overview
 
