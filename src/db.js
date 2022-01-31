@@ -27,7 +27,7 @@ const myConfig = {
 	"VALIDATOR": process.env.VALIDATOR
 }
 
-const enableSSL = myConfig.DB_HOSTIP !== 'localhost';
+const enableSSL = !['localhost', '127.0.0.1'].includes(myConfig.DB_HOSTIP);
 
 const knex = require('knex')({
 	client: 'pg',

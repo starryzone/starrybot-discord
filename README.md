@@ -75,7 +75,7 @@ The way this works is:
 - db config env vars could be cleaned up
 - rather than a db the roles could be on the blockchain
 - litter this code with try catch
-
+- migration scripts can only be run after the bot has been run successfully once (i.e. db.js has already created the tables)
 
 ## DISCORD TO IMPROVE
 
