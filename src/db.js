@@ -1,30 +1,33 @@
+// Initialize process.env with variables set in src/.env
+require('dotenv').config({ path:__dirname+'/./.env' });
+
 const logger = require("./logger")
-const defaultConfig = require("./config.json");
+
 // const defaultConfig = require("./auth-local.json");
 // const defaultConfig = require("./auth-prod.json");
 const myConfig = {
-	"DISCORD_TOKEN": process.env.DISCORD_TOKEN || "set-discord-token",
-	"PREFIX": process.env.PREFIX || defaultConfig.PREFIX || "!",
-	"DB_HOSTIP": process.env.DB_HOSTIP || defaultConfig.DB_HOSTIP || "127.0.0.1",
-	"DB_OUTGOINGIP": process.env.DB_OUTGOINGIP || defaultConfig.DB_OUTGOINGIP || "",
-	"DB_HOSTPORT": process.env.DB_HOSTPORT || defaultConfig.DB_HOSTPORT || 5432,
-	"DB_PASS": process.env.DB_PASS || defaultConfig.DB_PASS || "set DB_PASS env var",
-	"DB_USER": process.env.DB_USER || defaultConfig.DB_USER || "mike",
-	"DB_NAME": process.env.DB_NAME || defaultConfig.DB_NAME || "starrydata",
-	"DB_TABLENAME": process.env.DB_TABLENAME || defaultConfig.DB_TABLENAME || "starryfacts",
-	"DB_TABLENAME_MEMBERS": process.env.DB_TABLENAME_MEMBERS || defaultConfig.DB_TABLENAME_MEMBERS || "starry_members",
-	"DB_TABLENAME_ROLES": process.env.DB_TABLENAME_ROLES || defaultConfig.DB_TABLENAME_ROLES || "starry_roles",
-	"DB_SOCKET_PATH": process.env.DB_SOCKET_PATH || defaultConfig.DB_SOCKET_PATH || "",
-	"INSTANCE_CONNECTION_NAME": process.env.INSTANCE_CONNECTION_NAME || defaultConfig.INSTANCE_CONNECTION_NAME || "",
-	"DB_KEY": process.env.DB_KEY || defaultConfig.DB_KEY || "",
-	"DB_CERT": process.env.DB_CERT || defaultConfig.DB_CERT || "",
-	"DB_ROOT_CERT": process.env.DB_ROOT_CERT || defaultConfig.DB_ROOT_CERT || "",
-	"WINSTON": process.env.WINSTON || defaultConfig.WINSTON || false,
-	"PORT": process.env.PORT || defaultConfig.PORT || 8080,
-	"VALIDATOR": process.env.VALIDATOR || defaultConfig.VALIDATOR || 'https://verify.starrybot.xyz/'
+	"DISCORD_TOKEN": process.env.DISCORD_TOKEN,
+	"PREFIX": process.env.PREFIX,
+	"DB_HOSTIP": process.env.DB_HOSTIP,
+	"DB_OUTGOINGIP": process.env.DB_OUTGOINGIP,
+	"DB_HOSTPORT": process.env.DB_HOSTPORT,
+	"DB_PASS": process.env.DB_PASS,
+	"DB_USER": process.env.DB_USER,
+	"DB_NAME": process.env.DB_NAME,
+	"DB_TABLENAME": process.env.DB_TABLENAME,
+	"DB_TABLENAME_MEMBERS": process.env.DB_TABLENAME_MEMBERS,
+	"DB_TABLENAME_ROLES": process.env.DB_TABLENAME_ROLES,
+	"DB_SOCKET_PATH": process.env.DB_SOCKET_PATH,
+	"INSTANCE_CONNECTION_NAME": process.env.INSTANCE_CONNECTION_NAME,
+	"DB_KEY": process.env.DB_KEY,
+	"DB_CERT": process.env.DB_CERT,
+	"DB_ROOT_CERT": process.env.DB_ROOT_CERT,
+	"WINSTON": process.env.WINSTON,
+	"PORT": process.env.PORT,
+	"VALIDATOR": process.env.VALIDATOR
 }
 
-const enableSSL = myConfig.DB_HOSTIP !== 'localhost';
+const enableSSL = !['localhost', '127.0.0.1'].includes(myConfig.DB_HOSTIP);
 
 const knex = require('knex')({
 	client: 'pg',

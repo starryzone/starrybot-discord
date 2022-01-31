@@ -12,11 +12,11 @@
     * Save your changes
 
 ### Run the Bot Server
-* Make sure you have node version >= 16.6.0 installed
+* Run `nvm use`, or otherwise make sure you have node >= 16.6.0
 * Run `yarn install` in the root directory
-* _// TO-DO: Config.json currently needs to be changed in order for Knex to work_
-* Go to “Bot” tab and copy the token
-* Run `DISCORD_TOKEN=[your bot token] yarn start`
+* Run `cp .env.template .env` to make your own copy of environment variables
+* Set `DISCORD_TOKEN` in `.env` to the token in the "Bot" tab
+* Run `yarn start`
 
 ### Add your Bot to your Discord Server
 * Go to the "General" tab of your app in the Discord Developer Portal and copy the application ID
@@ -77,7 +77,7 @@ The way this works is:
 - db config env vars could be cleaned up
 - rather than a db the roles could be on the blockchain
 - litter this code with try catch
-
+- migration scripts can only be run after the bot has been run successfully once (i.e. db.js has already created the tables)
 
 ## DISCORD TO IMPROVE
 
@@ -93,7 +93,7 @@ The way this works is:
 **Answer**: Bot intents aren’t set in the dev portal correctly
 
 **Problem**: Server is showing error messages about Knex schema migration  
-**Answer**: Config.json needs to be changed
+**Answer**: Need to set-up PostGres locally and add the environment variables to your .env
 
 **Problem**: Can’t see "Add to Server" button after clicking on the bot in the Discord Server users list  
 **Answer**: You have an older version of Discord, upgrade and try again
