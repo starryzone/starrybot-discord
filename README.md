@@ -1,10 +1,10 @@
-# Starrybot
+# StarryBot
 
 ## Getting Started
 
 ### Discord Set-up
 * Choose an existing Discord Server or make a new Discord Server for local dev
-    * You must be an admin of this server, and Starrybot must not be in there already
+    * You must be an admin of this server, and StarryBot must not be in there already
 * Click on “New Application” in the [Discord Developer Portal](https://discord.com/developers/applications)
 * Go to the “Bot” tab and add a bot
     * Scroll down to "Privileged Gateway Intents" and toggle the “Server Members Intent” on
@@ -36,7 +36,7 @@
 * Hit "Connect Wallet" to add Juno Testnet to your Keplr
 * Go to the [Juno Discord server](https://discord.gg/4a8PRXNc)
 * Verify yourself in #verify-here via the instructions sent by automated DM
-* Open the Keplr chrome extension (top bar)
+* Open the Keplr Chrome extension (top bar)
     * Hit the dropdown that says “Cosmo”
     * Scroll down to the bottom and click on “Juno Testnet”
 * Click on the `junoxyz...` string under your Keplr wallet name to copy the Juno Testnet address
@@ -54,7 +54,7 @@ The way this works is:
 
 1. discord.js registers with discord in general once, and watches for events.
 
-2. discord.js watches for "guildCreate" messages which means that a person running a discord room would like to add starrybot to their room. We go ahead and add starrybot to the room on request. That interaction is a bit complex: it prints a button to the discord channel, and when the administrator clicks on the button it goes ahead and builds some roles and registers some slash commands and also starts tracking those roles in our database.
+2. discord.js watches for "guildCreate" messages which means that a person running a discord room would like to add StarryBot to their room. We go ahead and add StarryBot to the room on request. That interaction is a bit complex: it prints a button to the discord channel, and when the administrator clicks on the button it goes ahead and builds some roles and registers some slash commands and also starts tracking those roles in our database.
 
 3. discord.js now watches for user commands and does a few fun things, it lets users elevate their perms, by sending those users to a wallet verification webpage where they validate their wallet.
 
@@ -65,6 +65,10 @@ The way this works is:
 ## Useful links:
 
 - [Adding the Discord bot](https://discord.com/oauth2/authorize?client_id=911363833925349456&scope=bot&permissions=8)
+
+## Props
+
+Props to Todd Wallar for the fun project https://github.com/omniverse/saganipsum.
 
 ## TODO
 
@@ -80,7 +84,7 @@ The way this works is:
 ## DISCORD TO IMPROVE
 
 - private messages should emojis
-- close down command for when the starrybot is kicked so we can delete roles
+- close down command for when the StarryBot is kicked so we can delete roles
 - having to add the bot twice could be improved
 - it would be nicer to know if we knew if a person was an admin or not, this would make it easier for us
 
@@ -91,7 +95,7 @@ The way this works is:
 **Answer**: Bot intents aren’t set in the dev portal correctly
 
 **Problem**: Server is showing error messages about Knex schema migration  
-**Answer**: Need to set-up PostGres locally and add the environment variables to your .env
+**Answer**: Need to set up Postgres locally and add the environment variables to your .env
 
 **Problem**: Can’t see "Add to Server" button after clicking on the bot in the Discord Server users list  
 **Answer**: You have an older version of Discord, upgrade and try again
