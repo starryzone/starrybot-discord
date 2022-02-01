@@ -3,9 +3,18 @@
 	"version": "1.0.1",
 	"private": false,
 	"license": "MIT",
-	"description": "Starrybot helps users join membership-enabled Discord rooms",
+	"description": "StarryBot helps users join membership-enabled Discord rooms",
 	"main": "server.js",
-	"author": "@anselm",
+	"contributors": [{
+		"name": "@anselm"
+	},
+	{
+		"name": "@mikedotexe"
+	},
+	{
+		"name": "@sudovickili"
+	}
+	],
 	"repository": "https://github.com/starryzone/starrybot-discord.git",
 	"engines": {
 		"node": ">=14.0.0"
