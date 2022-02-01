@@ -1,5 +1,5 @@
 // Initialize process.env with variables set in src/.env
-require('dotenv').config({ path:__dirname+'/./.env' });
+require('dotenv').config({ path:__dirname+'/../.env' });
 
 const logger = require("./logger")
 
