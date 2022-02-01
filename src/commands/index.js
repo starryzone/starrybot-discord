@@ -1,5 +1,6 @@
 const { starryCommandFarewell } = require('./farewell');
 const { starryCommandJoin } = require('./join');
+const { starryCommandRoleList } = require('./roleList');
 const { starryCommandTokenAdd } = require('./tokenAdd');
 // TODO: we'll add this in later
 // const { starryCommandTokenEdit } = require('./tokenEdit');
@@ -31,6 +32,11 @@ const starryCommands = [
         name: 'join',
         description: "Get link to verify your account with Keplr",
         handler: starryCommandJoin,
+    },
+    {
+        name: 'role-list',
+        description: 'See all roles available for this guild',
+        handler: starryCommandRoleList,
     },
     {
         name: 'farewell',
