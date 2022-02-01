@@ -298,6 +298,7 @@ async function hoistFinalize(blob, client) {
 				);
 			} catch (e) {
 				console.error('Error trying to add role', e)
+				systemChannel.send("StarryBot was unable to give someone their role :(\nPlease make sure my permission is higher in the list than " + rolediscord.name);
 				return;
 			}
 
