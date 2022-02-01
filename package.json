@@ -3,9 +3,18 @@
 	"version": "1.0.1",
 	"private": false,
 	"license": "MIT",
-	"description": "Starrybot helps users join membership-enabled Discord rooms",
+	"description": "StarryBot helps users join membership-enabled Discord rooms",
 	"main": "server.js",
-	"author": "@anselm",
+	"contributors": [{
+		"name": "@anselm"
+	},
+	{
+		"name": "@mikedotexe"
+	},
+	{
+		"name": "@sudovickili"
+	}
+	],
 	"repository": "https://github.com/starryzone/starrybot-discord.git",
 	"engines": {
 		"node": ">=14.0.0"
@@ -22,6 +31,7 @@
 		"cors": "^2.8.5",
 		"discord-api-types": "^0.25.2",
 		"discord.js": "^13.3.1",
+		"dotenv": "^14.3.2",
 		"express": "^4.17.1",
 		"knex": "^0.95.14",
 		"pg": "^8.7.1",
@@ -29,6 +39,7 @@
 		"winston": "^3.1.0"
 	},
 	"scripts": {
-		"start": "node src/server.js"
+		"start": "node src/server.js",
+		"migrate:latest": "npx knex migrate:latest"
 	}
 }

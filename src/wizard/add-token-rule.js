@@ -1,6 +1,6 @@
 const { CosmWasmClient } = require("@cosmjs/cosmwasm-stargate");
-const TESTNET_RPC_ENDPOINT = process.env.TESTNET_RPC_ENDPOINT || 'https://rpc.uni.juno.deuslabs.fi/'
-const MAINNET_RPC_ENDPOINT = process.env.MAINNET_RPC_ENDPOINT || 'https://rpc-juno.itastakers.com/'
+const TESTNET_RPC_ENDPOINT = process.env.TESTNET_RPC_ENDPOINT
+const MAINNET_RPC_ENDPOINT = process.env.MAINNET_RPC_ENDPOINT
 
 const { rolesSet } = require("../db");
 const { checkForCW20, checkForDAODAODAO } = require("../token");
