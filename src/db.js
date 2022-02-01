@@ -151,6 +151,17 @@ const rolesSet = async (guildId, role, tokenType, tokenAddress, network, removeI
 	console.log('results', results)
 }
 
+const rolesUpdate = async (guildId, role, update) => {
+
+	await ensureDatabaseInitialized()
+	try {
+		await knex(myConfig.DB_TABLENAME_ROLES).where( { discord_guild_id: guildId, give_role: role })
+			.update(update);
+	} catch (e) {
+		console.warn('Error updating row', e);
+	}
+}
+
 const rolesDelete = async (guildId,role) => {
 
  	await ensureDatabaseInitialized()
@@ -245,4 +256,17 @@ const memberDelete = async ({authorId, guildId}) => {
 	}
 }
 
-module.exports = { membersAll, memberExists, memberBySessionToken, memberByIdAndGuild, memberAdd, memberDelete, myConfig, rolesGet, rolesSet, rolesDelete, rolesDeleteGuildAll }
+module.exports = {
+	membersAll,
+	memberExists,
+	memberBySessionToken,
+	memberByIdAndGuild,
+	memberAdd,
+	memberDelete,
+	myConfig,
+	rolesGet,
+	rolesSet,
+	rolesDelete,
+	rolesDeleteGuildAll,
+	rolesUpdate
+}

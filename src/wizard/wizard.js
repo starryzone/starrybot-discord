@@ -70,8 +70,8 @@ class Wizard {
           let msg;
           // If a begin function is passed in, use it
           if (beginFn) {
-            beginFn(this, { interaction }, ...extra);
-          } else {
+            msg = await beginFn(this, { interaction }, ...extra);
+          } else if (beginWithMessage) {
             // Otherwise, we can send an easy message instead
             const { embedArgs } = beginWithMessage;
             // First send the message representing this step.
@@ -99,6 +99,8 @@ class Wizard {
             try {
               await Promise.all(stepConfig.options.map(option => msg.react(option.emoji)));
             } catch (error) {
+              console.log(msg.react);
+              console.log(msg);
               console.error('One of the emojis failed to react:', error);
             }
           }
