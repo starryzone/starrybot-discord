@@ -15,5 +15,9 @@ async function starryCommandTokenRemove(interaction) {
 }
 
 module.exports = {
-    starryCommandTokenRemove,
+  starryCommandTokenRemove: {
+    name: 'remove',
+    description: 'Remove token rule',
+    execute: starryCommandTokenRemove,
+  }
 }

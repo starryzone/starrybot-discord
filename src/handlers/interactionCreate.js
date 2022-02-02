@@ -1,4 +1,3 @@
-const { checkIfInteractionIsStarry, getCommandHandler } = require("../utils/commands");
 const { checkInteractionWithWizard, globalUserWizards } = require("../wizard/wizard");
 const {Routes} = require("discord-api-types/v9");
 const db = require("../db");
@@ -45,18 +44,16 @@ async function farewellRejection(interaction, client) {
 /// A user has a command for us - resolve
 ///
 async function handleGuildCommands(interaction, client) {
-	// only observe "/starry *" commands
-	if (!checkIfInteractionIsStarry(interaction)) {
-		return
-	}
-	let group = interaction.options['_group'] || "";
-	let subcommand = interaction.options['_subcommand'];
-	let path = `${group} ${subcommand}`.trim();
-	let handler = getCommandHandler(path);
-	if (!handler) {
+	const command = client.commands.get(interaction.commandName);
+
+	if (!command) {
 		await interaction.channel.send("Cannot find the command you asked for")
-	} else {
-		await handler(interaction, client)
+	};
+
+	try {
+		await command.execute(interaction, client);
+	} catch (e) {
+		await interaction.reply({ content: 'There was an error while executing this command!', ephemeral: true });
 	}
 }
 

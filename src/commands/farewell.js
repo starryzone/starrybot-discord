@@ -34,5 +34,9 @@ async function starryCommandFarewell(interaction) {
 }
 
 module.exports = {
-    starryCommandFarewell,
+	starryCommandFarewell: {
+		name: 'farewell',
+		description: 'Kick starrybot itself from your guild',
+		execute: starryCommandFarewell,
+	}
 }
