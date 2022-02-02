@@ -248,29 +248,49 @@ async function hoistFinalize(blob, client) {
 
 		let decodedAccount = Bech32.decode(keplrAccount).data;
 		let encodedAccount, matches;
+
 		// We have an entire address instead of 'juno' or 'osmo' prefixes
 		if (tokenType === 'cw20') {
 			encodedAccount = Bech32.encode(tokenAddress.substring(0, 4), decodedAccount);
-			const TESTNET_RPC_ENDPOINT = process.env.TESTNET_RPC_ENDPOINT || 'https://rpc.uni.juno.deuslabs.fi/'
-			const MAINNET_RPC_ENDPOINT = process.env.MAINNET_RPC_ENDPOINT || 'https://rpc-juno.itastakers.com/'
-			const cosmClient = network === 'mainnet' ?
-				await CosmWasmClient.connect(MAINNET_RPC_ENDPOINT) :
-				await CosmWasmClient.connect(TESTNET_RPC_ENDPOINT);
+			let smartContract;
+			try {
+				// Attempt to connect in a try catch, as it's possible for testnet to be down
+				const TESTNET_RPC_ENDPOINT = process.env.TESTNET_RPC_ENDPOINT || 'https://rpc.uni.juno.deuslabs.fi/'
+				const MAINNET_RPC_ENDPOINT = process.env.MAINNET_RPC_ENDPOINT || 'https://rpc-juno.itastakers.com/'
+				const cosmClient = network === 'mainnet' ?
+					await CosmWasmClient.connect(MAINNET_RPC_ENDPOINT) :
+					await CosmWasmClient.connect(TESTNET_RPC_ENDPOINT);
 
-			const smartContract = await cosmClient.queryContractSmart(tokenAddress, {
-				balance: {
-					address: encodedAccount,
-				}
-			});
+					smartContract = await cosmClient.queryContractSmart(tokenAddress, {
+					cw20_balances: {
+						address: encodedAccount,
+					}
+				});
+			} catch (e) {
+				console.warn(e);
+				// even if this role fails, see if we can add any others
+				continue;
+			}
 			matches = [{
 				amount: smartContract.balance
 			}]
-		} else {
+		} else if (rpcClient) {
 			// Token type is native, so the token address is expected to be a prefix
 			encodedAccount = Bech32.encode(tokenAddress, decodedAccount);
-			let balances = await rpcClient.getAllBalances(encodedAccount);
-			console.log(`balances ${tokenAddress}`, balances)
-			matches = balances.filter(balances => balances.denom === `u${tokenAddress}`)
+			let balances;
+			try {
+				balances = await rpcClient.getAllBalances(encodedAccount);
+				console.log(`balances ${tokenAddress}`, balances)
+				matches = balances.filter(balances => balances.denom === `u${tokenAddress}`)
+			} catch (e) {
+				console.warn(e);
+				// Even if this role fails, see if we can add any others
+				continue;
+			}
+		} else {
+			// We don't know what to do, just skip
+			console.warn("No client was ever created to check");
+			continue;
 		}
 
 		// If they have no balance or zero balance, continue the loop through roles
