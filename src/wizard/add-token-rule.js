@@ -167,7 +167,8 @@ async function handleCW20Entry (parentWizard, {interaction}, ...extra) {
       }
     }
   } catch (e) {
-    return await parentWizard.failure(e);
+    console.warn(e);
+    return await parentWizard.failure(`Sorry, something went wrong. Please try again.`);
   }
 
 
