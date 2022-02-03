@@ -10,12 +10,12 @@ const { createEmbed } = require("../utils/messages");
 ///
 
 const desiredRoles = [
-	{
-		name:'osmo-hodler',
-		type:"native",
-		address:"osmo",
-		net:"mainnet",
-	},
+	// {
+	// 	name:'osmo-hodler',
+	// 	type:"native",
+	// 	address:"osmo",
+	// 	net:"mainnet",
+	// },
 	{
 		name:'juno-hodler',
 		type:"native",
