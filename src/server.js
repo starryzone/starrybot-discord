@@ -44,6 +44,10 @@ app.post('/keplr-signed', async (req, res) => {
 	}
 })
 
+app.get('/health-check', async (req, res) => {
+	res.status(200).send()
+})
+
 // TODO arguably config could be separate from db so that db would not need to be included here
 const PORT = db.myConfig.PORT || process.env.PORT || 80;
 const server = app.listen(PORT, () => {
