@@ -171,11 +171,12 @@ async function handleCW20Entry (parentWizard, {interaction}, ...extra) {
     return await parentWizard.failure(`Sorry, something went wrong. Please try again.`);
   }
 
+  if (tokenInfo === false) {
+    // Error happened
+    return await parentWizard.failure('Unable to find info on that token.\nCould not find on mainnet or testnet, sorry :/')
+  }
 
-  // If there were an error it would have returned a failure.
   // At this point we have the network and token info
-  console.log('tokenInfo for user input', tokenInfo)
-
   parentWizard.state.cw20 = cw20Input
   parentWizard.state.network = network
   parentWizard.state.tokenSymbol = tokenInfo.symbol
