@@ -149,7 +149,7 @@ async function handleCW20Entry (parentWizard, {interaction}, ...extra) {
 
       // If there isn't a governance token associated with this DAO, fail with message
       if (!daoInfo || !daoInfo.hasOwnProperty('gov_token')) {
-        throw "We couldn't find any governance token associated with your DAO :/\nPerhaps destroyed in a supernova?";
+        return await parentWizard.failure("We couldn't find any governance token associated with your DAO :/\nPerhaps destroyed in a supernova?");
       }
       cw20Input = daoInfo['gov_token']
       // Now that we have the cw20 token address and network, get the info we want
