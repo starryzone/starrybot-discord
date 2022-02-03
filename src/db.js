@@ -109,6 +109,15 @@ const rolesGet = async (guildId) => {
 	return roles
 }
 
+const rolesGetForCleanUp = async (guildId) => {
+	await ensureDatabaseInitialized()
+	const roles = await knex(myConfig.DB_TABLENAME_ROLES)
+		.where({'discord_guild_id': guildId, 'remove_in_cleanup': true})
+		.select('give_role')
+
+	return roles
+}
+
 const rolesSet = async (guildId, role, tokenType, tokenAddress, network, removeInCleanup, createdByDiscordId, hasMinimumOf) => {
 	await ensureDatabaseInitialized()
 
@@ -164,7 +173,6 @@ const rolesDelete = async (guildId,role) => {
 }
 
 const rolesDeleteGuildAll = async (guildId) => {
-
  	await ensureDatabaseInitialized()
 	try {
 		await knex(myConfig.DB_TABLENAME_ROLES).where( { discord_guild_id: guildId })
@@ -245,4 +253,4 @@ const memberDelete = async ({authorId, guildId}) => {
 	}
 }
 
-module.exports = { membersAll, memberExists, memberBySessionToken, memberByIdAndGuild, memberAdd, memberDelete, myConfig, rolesGet, rolesSet, rolesDelete, rolesDeleteGuildAll }
+module.exports = { membersAll, memberExists, memberBySessionToken, memberByIdAndGuild, memberAdd, memberDelete, myConfig, rolesGet, rolesSet, rolesDelete, rolesDeleteGuildAll, rolesGetForCleanUp }
