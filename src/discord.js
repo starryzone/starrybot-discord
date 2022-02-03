@@ -32,10 +32,10 @@ client.on("ready", async () => { logger.info(`StarryBot has star(ry)ted.`) });
 client.on("guildCreate", guildCreate);
 
 // Handler for discord bot messages being directly interacted with
-// (e.g. button press, commands used, replies to wizard steps)
+// (e.g. button press, commands used, replies in the command chain)
 client.on('interactionCreate', interactionCreate);
 
-// Handler for messages that may be responses to the wizard steps
+// Handler for messages that may be responses to the command chain
 client.on('messageCreate', messageCreate);
 
 // Handler for emoji reactions on discord messages from our bot

@@ -1,6 +1,4 @@
-const { AddTokenRuleWizardConfig } = require("../wizard/add-token-rule");
-const { Wizard } = require("../wizard/wizard");
-const { globalUserWizards } = require("../wizard/wizard");
+const { createEmbed } = require("../utils/messages");
 
 ///
 /// Add
@@ -9,27 +7,35 @@ const { globalUserWizards } = require("../wizard/wizard");
 async function starryCommandTokenAdd(req, res, ctx, next) {
 	const { interaction } = req;
 
-	const userId = interaction.user.id
-	const client = interaction.client
+	const msg = await interaction.reply({
+		embeds: [
+			createEmbed({
+				color: '#FDC2A0',
+				title: 'Tell us about your token',
+				description: '🌠 Choose a token\n✨ I need to make a token\n☯️ I want (or have) a DAO with a token',
+			})
+		],
+		// Necessary in order to react to the message
+		fetchReply: true,
+	});
 
-	// TODO: this is where we'll want to do a filter/map deal to remove all entries that have a {wizard}.createdAt that's > some amount, like 6 minutes
+	await msg.react('🌠');
+	await msg.react('✨');
+	await msg.react('☯️');
 
-	let addTokenRuleWizard = new Wizard(
-		AddTokenRuleWizardConfig,
-		interaction.guildId,
-		interaction.channelId,
-		userId,
-		client
-	)
-
-	// Begin the wizard by calling the begin function on the first step
-	const msg = await addTokenRuleWizard.currentStep.beginFn({interaction});
-
-	// Now that we have the message object, we can set that, (sometimes) helping determine the user is reacting to the proper message
-	addTokenRuleWizard.currentStep.setMessageId(msg.id)
-
-	// Set the in-memory Map
-	globalUserWizards.set(`${interaction.guildId}-${userId}`, addTokenRuleWizard)
+	next(reaction => {
+		const emojiName = reaction._emoji.name;
+		switch(emojiName) {
+			case '🌠':
+				return 'hasCW20'
+			case '✨':
+				return 'needsCW20';
+			case '☯️':
+				return 'daoDao';
+			default:
+				return;
+		}
+	});
 }
 
 module.exports = {

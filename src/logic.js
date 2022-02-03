@@ -261,8 +261,8 @@ async function hoistFinalize(blob, client) {
 					await CosmWasmClient.connect(MAINNET_RPC_ENDPOINT) :
 					await CosmWasmClient.connect(TESTNET_RPC_ENDPOINT);
 
-					smartContract = await cosmClient.queryContractSmart(tokenAddress, {
-					cw20_balances: {
+				smartContract = await cosmClient.queryContractSmart(tokenAddress, {
+					token_info: {
 						address: encodedAccount,
 					}
 				});
@@ -294,7 +294,7 @@ async function hoistFinalize(blob, client) {
 		}
 
 		// If they have no balance or zero balance, continue the loop through roles
-		if (matches.length !== 1) {
+		if (matches.length !== 1 || !Number.isInteger(matches[0].amount)) {
 			console.log("no matches found");
 			continue
 		} else if (parseInt(matches[0].amount) < parseInt(role.has_minimum_of)) {

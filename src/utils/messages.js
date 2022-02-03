@@ -70,7 +70,15 @@ function createButton({
     if (label) {
         button.setLabel(label);
     }
-    return new MessageActionRow().addComponents(button);
+    return button;
+}
+
+function createMessageActionRow({
+    components,
+}) {
+    const row = new MessageActionRow();
+    components.forEach(component => row.addComponents(component));
+    return row;
 }
 
 function createMessage({
@@ -86,4 +94,5 @@ module.exports = {
     createButton,
     createEmbed,
     createMessage,
+    createMessageActionRow,
 }
