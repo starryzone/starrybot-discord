@@ -9,7 +9,8 @@ const { myConfig } = require("../db");
 /// Farewell
 ///
 
-async function starryCommandFarewell(interaction) {
+async function starryCommandFarewell(req, res, ctx, next) {
+	const { interaction } = req;
 
 	let appId = interaction.applicationId
 	let guildId = interaction.guildId

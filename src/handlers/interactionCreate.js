@@ -54,6 +54,7 @@ async function handleGuildCommands(interaction) {
 	try {
 		await command.execute(interaction);
 	} catch (e) {
+		console.warn(e);
 		await interaction.reply({ content: 'There was an error while executing this command!', ephemeral: true });
 	}
 }

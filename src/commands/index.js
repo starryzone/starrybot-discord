@@ -17,8 +17,8 @@ const definedCommands = [
       starryCommandTokenRemove
     ]
   },
-  starryCommandFarewell,
   starryCommandJoin,
+  starryCommandFarewell,
 ];
 
 const flattenedCommandMap = {};
@@ -55,15 +55,52 @@ function buildCommandData() {
   return mainCommand;
 }
 
+async function initiateCommandChain(firstCommandName, interaction) {
+  // Information about this initiated chain and how it's going
+  const req = {
+    currentIndex: 0,
+    interaction,
+    steps: [firstCommandName],
+  };
+  // Functions for resolving the chain
+  const res = {
+    done: () => {
+      // Send a message saying we're done!
+    },
+    error: (consoleError, channelError) => {
+      // Send a message saying something's gone wrong
+      console.warn(consoleError)
+      req.interaction.channel.send(channelError || consoleError);
+    },
+  };
+  // A state that can be edited by any step in this chain
+  const ctx = {};
+  const runner = async (commandName) => {
+    const command = flattenedCommandMap[commandName]
+
+    req.currentIndex += 1;
+    req.steps.push(commandName);
+
+    if (command) {
+      await command(req, res, ctx, commandName => {
+        return runner(commandName);
+      })
+    }
+  }
+
+  // Pretend this is like a middleware :D
+  await runner(firstCommandName);
+}
+
 module.exports = {
   starryCommand: {
     data: commandData,
     async execute (interaction) {
-      const subcommand = interaction.options.getSubcommand();
-      if (flattenedCommandMap[subcommand]) {
-        return flattenedCommandMap[subcommand](interaction);
+      const subcommandName = interaction.options.getSubcommand();
+      if (flattenedCommandMap[subcommandName]) {
+        await initiateCommandChain(subcommandName, interaction);
       } else {
-        interaction.reply('Starrybot does not understand this command.');
+        await interaction.reply('Starrybot does not understand this command.');
       }
     }
   },

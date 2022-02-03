@@ -1,17 +1,21 @@
 const { createEmbed } = require("../utils/messages");
 
-async function starryCommandTokenRemove(interaction) {
-    if (interaction) {
-        return await interaction.reply({
-            embeds: [
-              createEmbed({
-                  title: 'This feature is a few light years away',
-                  description: 'Please come back later!'
-              })
-            ],
-            ephemeral: true
+async function starryCommandTokenRemove(req, res, ctx, next) {
+  const { interaction } = req;
+
+  if (interaction) {
+    await interaction.reply({
+      embeds: [
+        createEmbed({
+          title: 'This feature is a few light years away',
+          description: 'Please come back later!'
         })
-    }
+      ],
+      ephemeral: true
+    });
+  }
+
+  res.done();
 }
 
 module.exports = {

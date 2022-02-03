@@ -1,4 +1,6 @@
-async function starryCommandTokenEdit(interaction) {
+async function starryCommandTokenEdit(req, res, ctx, next) {
+	const { interaction } = req;
+  res.done();
 }
 
 module.exports = {

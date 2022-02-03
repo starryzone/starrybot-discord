@@ -1,5 +1,4 @@
 const db = require("../db")
-const logger = require("../logger")
 const logic = require("../logic")
 
 const { createEmbed } = require("../utils/messages");
@@ -17,18 +16,20 @@ function createJoinEmbed(traveller, saganism) {
     });
 }
 
-async function starryCommandJoin(interaction) {
+async function starryCommandJoin(req, res, ctx, next) {
+const { interaction } = req;
+
 	try {
 		let results = await logic.hoistRequest({guildId: interaction.guildId, authorId: interaction.member.user.id})
 		if (results.error || !results.traveller || !results.saganism) {
-			interaction.channel.send(results.error || "Internal error")
+			res.error(results.error || "Internal error");
 		} else {
 			// We reply "privately" instead of sending a DM here
-			return await interaction.reply({embeds:[createJoinEmbed(results.traveller,results.saganism)], ephemeral: true})
+			await interaction.reply({embeds:[createJoinEmbed(results.traveller,results.saganism)], ephemeral: true})
+			res.done();
 		}
 	} catch(err) {
-		logger.error(err)
-		await interaction.channel.send("Internal error adding you")
+		res.error(err, "Internal error adding you")
 	}
 }
 

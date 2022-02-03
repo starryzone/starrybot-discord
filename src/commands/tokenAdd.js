@@ -6,7 +6,8 @@ const { globalUserWizards } = require("../wizard/wizard");
 /// Add
 ///
 
-async function starryCommandTokenAdd(interaction) {
+async function starryCommandTokenAdd(req, res, ctx, next) {
+	const { interaction } = req;
 
 	const userId = interaction.user.id
 	const client = interaction.client
