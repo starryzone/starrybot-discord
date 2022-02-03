@@ -10,12 +10,12 @@ const { createEmbed } = require("../utils/messages");
 ///
 
 const desiredRoles = [
-	{
-		name:'osmo-hodler',
-		type:"native",
-		address:"osmo",
-		net:"mainnet",
-	},
+	// {
+	// 	name:'osmo-hodler',
+	// 	type:"native",
+	// 	address:"osmo",
+	// 	net:"mainnet",
+	// },
 	{
 		name:'juno-hodler',
 		type:"native",
@@ -50,11 +50,9 @@ async function registerGuildCommands(appId, guildId, user) {
 	// Note: discordjs doesn't have abstractions for subcommand groups and subcommands like I expected. Used logic from:
 	// https://discord.com/developers/docs/interactions/application-commands#example-walkthrough
 	let postResult = await rest.post( Routes.applicationGuildCommands(appId,guildId), { body: starryGuildCommands } );
-	console.log('postResult', postResult)
 
 	// Slash command are added successfully, double-check then tell the channel it's ready
 	let enabledGuildCommands = await rest.get( Routes.applicationGuildCommands(appId, guildId) );
-	console.log('enabledGuildCommands', enabledGuildCommands)
 
 	if (!checkIfCommandsEnabled(enabledGuildCommands)) {
 		throw 'commands not enabled';
