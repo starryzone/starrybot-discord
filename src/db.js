@@ -157,7 +157,6 @@ const rolesSet = async (guildId, role, tokenType, tokenAddress, network, removeI
 			remove_in_cleanup: removeInCleanup
 		})
 	}
-	console.log('results', results)
 }
 
 const rolesDelete = async (guildId,role) => {
