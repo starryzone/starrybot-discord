@@ -6,13 +6,13 @@ const { globalUserWizards } = require("../wizard/wizard");
 /// Add
 ///
 
-async function starryCommandTokenAdd(interaction, client) {
+async function starryCommandTokenAdd(interaction) {
 
 	const userId = interaction.user.id
+	const client = interaction.client
 
 	// TODO: this is where we'll want to do a filter/map deal to remove all entries that have a {wizard}.createdAt that's > some amount, like 6 minutes
 
-	// let addTokenRuleWizard = new WizardAddTokenRule(interaction.guildId, interaction.channelId, userId, client)
 	let addTokenRuleWizard = new Wizard(
 		AddTokenRuleWizardConfig,
 		interaction.guildId,

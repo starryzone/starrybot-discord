@@ -27,8 +27,9 @@ const desiredRoles = [
 // Display name for the roles in the welcome embed
 const desiredRolesForMessage = desiredRoles.map(role => role.name).join('\n- ');
 
-async function initializeDefaultRoles(guild, client) {
+async function initializeDefaultRoles(guild) {
 	let existingRoles =	await guild.roles.fetch();
+	const { client } = guild;
 	for(let i = 0; i < desiredRoles.length;i++) {
 		let role = desiredRoles[i]
 		// See if we can find an existing role with the same name.
@@ -68,8 +69,9 @@ async function registerGuildCommands(appId, guildId) {
 /// When StarryBot joins a new guild, let's create any default roles and say hello
 ///
 
-async function guildCreate(guild, client) {
+async function guildCreate(guild) {
 	const systemChannelId = guild.systemChannelId;
+	const { client } = guild;
 	let systemChannel = await client.channels.fetch(systemChannelId);
 	try {
 		await registerGuildCommands(client.application.id, guild.id);
@@ -90,7 +92,7 @@ async function guildCreate(guild, client) {
 	}
 
 	try {
-		await initializeDefaultRoles(guild, client);
+		await initializeDefaultRoles(guild);
 	} catch (e) {
 		if (e) {
 			console.warn(e);

@@ -58,10 +58,10 @@ function buildCommandData() {
 module.exports = {
   starryCommand: {
     data: commandData,
-    async execute (interaction, client) {
+    async execute (interaction) {
       const subcommand = interaction.options.getSubcommand();
       if (flattenedCommandMap[subcommand]) {
-        return flattenedCommandMap[subcommand](interaction, client);
+        return flattenedCommandMap[subcommand](interaction);
       } else {
         interaction.reply('Starrybot does not understand this command.');
       }

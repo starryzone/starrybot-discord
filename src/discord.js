@@ -29,11 +29,11 @@ client.commands.set(starryCommand.data.name, starryCommand);
 client.on("ready", async () => { logger.info(`StarryBot has star(ry)ted.`) });
 
 // Handler for discord bot joining a server
-client.on("guildCreate", guild => guildCreate(guild, client) );
+client.on("guildCreate", guildCreate);
 
 // Handler for discord bot messages being directly interacted with
 // (e.g. button press, commands used, replies to wizard steps)
-client.on('interactionCreate', interaction => interactionCreate(interaction, client) );
+client.on('interactionCreate', interactionCreate);
 
 // Handler for messages that may be responses to the wizard steps
 client.on('messageCreate', messageCreate);

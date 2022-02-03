@@ -43,15 +43,16 @@ async function farewellRejection(interaction, client) {
 ///
 /// A user has a command for us - resolve
 ///
-async function handleGuildCommands(interaction, client) {
-	const command = client.commands.get(interaction.commandName);
+async function handleGuildCommands(interaction) {
+	const { client, channel, commandName } = interaction;
+	const command = client.commands.get(commandName);
 
 	if (!command) {
-		await interaction.channel.send("Cannot find the command you asked for")
+		await channel.send("Cannot find the command you asked for")
 	};
 
 	try {
-		await command.execute(interaction, client);
+		await command.execute(interaction);
 	} catch (e) {
 		await interaction.reply({ content: 'There was an error while executing this command!', ephemeral: true });
 	}
@@ -61,7 +62,7 @@ async function handleGuildCommands(interaction, client) {
 /// A glorious user interaction has arrived - bask in its glow
 ///
 
-async function interactionCreate(interaction, client) {
+async function interactionCreate(interaction) {
 	if (interaction.isButton()) {
 		switch (interaction.customId) {
 			case 'farewell-confirm':
@@ -72,7 +73,7 @@ async function interactionCreate(interaction, client) {
 				break;
 		}
 	} else if (interaction.isCommand()) {
-		return handleGuildCommands(interaction, client)
+		return handleGuildCommands(interaction)
 	} else {
 		await checkInteractionWithWizard(interaction)
 		console.error('Interaction is NOT understood!')
