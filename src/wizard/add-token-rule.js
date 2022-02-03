@@ -122,7 +122,7 @@ const AddTokenRuleWizardConfig = {
 
         // Create database row
         // TODO: remember to make the "testnet" entry here not hardcoded, waiting for DAODAO mainnet
-        await rolesSet(parentWizard.guildId, roleToCreate, 'cw20', parentWizard.state.cw20, 'testnet', true, interaction.author.id, amountOfTokensNeeded)
+        await rolesSet(parentWizard.guildId, roleToCreate, 'cw20', parentWizard.state.cw20, parentWizard.state.network, true, interaction.author.id, amountOfTokensNeeded)
         parentWizard.done(`You may now use the role ${roleToCreate} for token-gated channels.\n\nEnjoy, traveller!`)
       }
     }
