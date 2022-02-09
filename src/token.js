@@ -9,7 +9,8 @@ const checkForCW20 = async (cosmClient, cw20Input, gracefulExit) => {
     })
   } catch (e) {
     const chainId = await cosmClient.getChainId()
-    console.error(`rror message after trying to query cw20 on ${chainId}`, e.message)
+    tokenInfo = false
+    console.error(`Error message after trying to query cw20 on ${chainId}`, e.message)
     if (e.message.includes('decoding bech32 failed')) {
       throw 'Invalid address. Remember: first you copy, then you paste.';
     } else if (e.message.includes('contract: not found')) {

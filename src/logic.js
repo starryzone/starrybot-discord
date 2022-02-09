@@ -196,21 +196,21 @@ async function hoistFinalize(blob, client) {
 	// get all possible roles
 	let roles = await db.rolesGet(member.discord_guild_id)
 	if (!roles || !roles.length) {
-		return {error:"Admin needs to setup roles to give out"}
+		return { error: "Admin needs to setup roles to give out"}
 	}
 
 	// get guild
 	const guild = await client.guilds.fetch(member.discord_guild_id)
 	if (!guild) {
 		logger.error("discord::hoist - cannot find guild");
-		return {error:"cannot find guild"}
+		return { error: "cannot find guild"}
 	}
 
 	// get user
 	const author = await client.users.fetch(member.discord_account_id)
 	if (!author) {
 		logger.error("discord::hoist - cannot find participant")
-		return {error:"cannot find party"}
+		return { error: "cannot find party"}
 	}
 	console.log('author', author)
 
@@ -228,8 +228,8 @@ async function hoistFinalize(blob, client) {
 		// For now, we know the roles are for Juno and Osmosis, set up RPC and calls
 		const keplrAccount = account.address;
 
-		let rolename = role.give_role
-		let rolediscord = guild.roles.cache.find(r => r.name === rolename)
+		let roleName = role.give_role
+		let roleDiscord = guild.roles.cache.find(r => r.name === roleName)
 		const tokenType = role.token_type
 		const network = role.network;
 		const tokenAddress = role.token_address
@@ -261,11 +261,11 @@ async function hoistFinalize(blob, client) {
 					await CosmWasmClient.connect(MAINNET_RPC_ENDPOINT) :
 					await CosmWasmClient.connect(TESTNET_RPC_ENDPOINT);
 
-				smartContract = await cosmClient.queryContractSmart(tokenAddress, {
-					token_info: {
-						address: encodedAccount,
-					}
-				});
+					smartContract = await cosmClient.queryContractSmart(tokenAddress, {
+						balance: {
+							address: encodedAccount,
+						}
+					});
 			} catch (e) {
 				console.warn(e);
 				// even if this role fails, see if we can add any others
@@ -294,7 +294,7 @@ async function hoistFinalize(blob, client) {
 		}
 
 		// If they have no balance or zero balance, continue the loop through roles
-		if (matches.length !== 1 || !Number.isInteger(matches[0].amount)) {
+		if (matches.length !== 1 || !Number.isInteger(parseInt(matches[0].amount))) {
 			console.log("no matches found");
 			continue
 		} else if (parseInt(matches[0].amount) < parseInt(role.has_minimum_of)) {
@@ -307,18 +307,18 @@ async function hoistFinalize(blob, client) {
 		// At this point, we can be sure the user should be given the role
 		const systemChannelId = guild.systemChannelId;
 		let systemChannel = await client.channels.fetch(systemChannelId);
-		if (!rolediscord) {
-			systemChannel.send("Hmm, StarryBot cannot find role " + rolename)
+		if (!roleDiscord) {
+			systemChannel.send("Hmm, StarryBot cannot find role " + roleName)
 		} else {
-			logger.log("Adding user to role " + rolename)
+			logger.log("Adding user to role " + roleName)
 			const rest = new REST().setToken(process.env.DISCORD_TOKEN);
 			try {
 				await rest.put(
-					Routes.guildMemberRole(guild.id, author.id, rolediscord.id)
+					Routes.guildMemberRole(guild.id, author.id, roleDiscord.id)
 				);
 			} catch (e) {
 				console.error('Error trying to add role', e)
-				systemChannel.send("StarryBot was unable to give someone their role :(\nPlease make sure my permission is higher in the list than " + rolediscord.name);
+				systemChannel.send("StarryBot was unable to give someone their role :(\nPlease make sure my permission is higher in the list than " + roleDiscord.name);
 				return;
 			}
 
