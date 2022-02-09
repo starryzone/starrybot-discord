@@ -140,11 +140,11 @@ async function handleCW20Entry (parentWizard, {interaction}, ...extra) {
   try {
     if (interaction.content.startsWith('https://daodao.zone')) {
       cosmClient = await CosmWasmClient.connect(MAINNET_RPC_ENDPOINT)
-      daoInfo = await checkForDAODAODAO(cosmClient, interaction.content, true)
+      daoInfo = await checkForDAODAODAO(parentWizard, cosmClient, interaction.content, true)
       if (daoInfo === false) {
         network = 'testnet'
         cosmClient = await CosmWasmClient.connect(TESTNET_RPC_ENDPOINT)
-        daoInfo = await checkForDAODAODAO(cosmClient, interaction.content, false)
+        daoInfo = await checkForDAODAODAO(parentWizard, cosmClient, interaction.content, false)
       }
 
       // If there isn't a governance token associated with this DAO, fail with message
@@ -153,17 +153,17 @@ async function handleCW20Entry (parentWizard, {interaction}, ...extra) {
       }
       cw20Input = daoInfo['gov_token']
       // Now that we have the cw20 token address and network, get the info we want
-      tokenInfo = await checkForCW20(cosmClient, cw20Input, false)
+      tokenInfo = await checkForCW20(parentWizard, cosmClient, cw20Input, false)
     } else {
       // Check user's cw20 token for existence on mainnet then testnet
       cw20Input = interaction.content;
       cosmClient = await CosmWasmClient.connect(MAINNET_RPC_ENDPOINT)
-      tokenInfo = await checkForCW20(cosmClient, cw20Input, true)
+      tokenInfo = await checkForCW20(parentWizard, cosmClient, cw20Input, true)
       if (tokenInfo === false) {
         // Nothing was found on mainnet, try testnet
         network = 'testnet'
         cosmClient = await CosmWasmClient.connect(TESTNET_RPC_ENDPOINT)
-        tokenInfo = await checkForCW20(cosmClient, cw20Input, false)
+        tokenInfo = await checkForCW20(parentWizard, cosmClient, cw20Input, false)
       }
     }
   } catch (e) {
@@ -171,9 +171,10 @@ async function handleCW20Entry (parentWizard, {interaction}, ...extra) {
     return await parentWizard.failure(`Sorry, something went wrong. Please try again.`);
   }
 
-  if (tokenInfo === false) {
-    // Error happened
-    return await parentWizard.failure('Unable to find info on that token.\nCould not find on mainnet or testnet, sorry :/')
+  if (!tokenInfo) {
+    // Error happened, but wizard failure message already occurred
+    //   as well as cleanup. Simply return.
+    return;
   }
 
   // At this point we have the network and token info

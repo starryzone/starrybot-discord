@@ -49,6 +49,7 @@ async function registerGuildCommands(appId, guildId, user) {
 	// add guild commands
 	// Note: discordjs doesn't have abstractions for subcommand groups and subcommands like I expected. Used logic from:
 	// https://discord.com/developers/docs/interactions/application-commands#example-walkthrough
+	// TODO: try catch, error message to user
 	let postResult = await rest.post( Routes.applicationGuildCommands(appId,guildId), { body: starryGuildCommands } );
 
 	// Slash command are added successfully, double-check then tell the channel it's ready
