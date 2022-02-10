@@ -130,8 +130,6 @@ const AddTokenRuleWizardConfig = {
 }
 
 async function handleCW20Entry (parentWizard, {interaction}, ...extra) {
-  console.log('aloha interaction', interaction)
-  console.log('aloha interaction.content', interaction.content)
   // We may modify this, but for now we're just dealing with text inputs
   if (parentWizard.currentStep.interactionType !== 'text') return;
 
