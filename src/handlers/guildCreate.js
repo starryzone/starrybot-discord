@@ -3,7 +3,7 @@ const { Routes } = require('discord-api-types/v9');
 
 const db = require("../db");
 const { myConfig } = db;
-const { checkIfCommandsEnabled, starryGuildCommands } = require("../utils/commands");
+const { starryCommand } = require("../commands");
 const { createEmbed } = require("../utils/messages");
 ///
 /// Default roles (later we may not have any default roles)
@@ -43,19 +43,23 @@ async function initializeDefaultRoles(guild, client) {
 /// have the authorization to add commands already.
 /// Let's try it and warn if this isn't the case.
 ///
-async function registerGuildCommands(appId, guildId, user) {
+async function registerGuildCommands(appId, guildId) {
 	const rest = new REST().setToken(myConfig.DISCORD_TOKEN);
 
-	// add guild commands
-	// Note: discordjs doesn't have abstractions for subcommand groups and subcommands like I expected. Used logic from:
+	// Add guild commands via abstractions extrapolated from following sources:
+	// https://discordjs.guide/creating-your-bot/command-handling.html
 	// https://discord.com/developers/docs/interactions/application-commands#example-walkthrough
-	// TODO: try catch, error message to user
-	let postResult = await rest.post( Routes.applicationGuildCommands(appId,guildId), { body: starryGuildCommands } );
+	let putResult = await rest.put(
+		Routes.applicationGuildCommands(appId, guildId),
+		{ body: [starryCommand.data.toJSON()] }
+	);
+	console.log('putResult', putResult)
 
 	// Slash command are added successfully, double-check then tell the channel it's ready
-	let enabledGuildCommands = await rest.get( Routes.applicationGuildCommands(appId, guildId) );
-
-	if (!checkIfCommandsEnabled(enabledGuildCommands)) {
+	try {
+		let enabledGuildCommands = await rest.get( Routes.applicationGuildCommands(appId, guildId) );
+		console.log('enabledGuildCommands', enabledGuildCommands)
+	} catch (e) {
 		throw 'commands not enabled';
 	}
 }
@@ -68,7 +72,7 @@ async function guildCreate(guild, client) {
 	const systemChannelId = guild.systemChannelId;
 	let systemChannel = await client.channels.fetch(systemChannelId);
 	try {
-		await registerGuildCommands(client.application.id, guild.id, client.user);
+		await registerGuildCommands(client.application.id, guild.id);
 		systemChannel.send({
 			embeds: [
 				createEmbed({
@@ -80,6 +84,7 @@ async function guildCreate(guild, client) {
 		})
 	} catch (e) {
 		if (e) {
+			console.warn(e);
 			systemChannel.send('Commands could not be added :(\n Please try kicking and reinstalling StarryBot again: https://starrybot.xyz/');
 		}
 	}
@@ -88,6 +93,7 @@ async function guildCreate(guild, client) {
 		await initializeDefaultRoles(guild, client);
 	} catch (e) {
 		if (e) {
+			console.warn(e);
 			systemChannel.send('Default roles could not be added :(\n Please try kicking and reinstalling StarryBot again: https://starrybot.xyz/');
 		}
 	}

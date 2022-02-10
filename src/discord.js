@@ -1,6 +1,6 @@
 'use strict';
 
-const { Client, Intents } = require('discord.js')
+const { Client, Collection, Intents } = require('discord.js')
 
 const db = require("./db")
 const logger = require("./logger")
@@ -10,14 +10,16 @@ const {
     messageCreate,
     messageReactionAdd,
 } = require("./handlers")
+const { starryCommand } = require('./commands');
 
 const intents = new Intents([ Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILD_MEMBERS, Intents.FLAGS.GUILD_INTEGRATIONS, Intents.FLAGS.GUILD_MESSAGE_REACTIONS ]);
 const client = new Client({intents: intents })
 
-// @todo find mainnet RPC endpoint we can use
-// const MAINNET_RPC_ENDPOINT = process.env.MAINNET_RPC_ENDPOINT || 'https://…halp…'
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////
+/// Install commands
+client.commands = new Collection();
+/// Install /starry command, which includes the actual commands for this bot
+// as subcommands and subcommand groups, as configured in src/commands/index.js
+client.commands.set(starryCommand.data.name, starryCommand);
 
 ///
 /// Handle inbound events from discord

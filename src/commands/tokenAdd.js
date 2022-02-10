@@ -32,5 +32,9 @@ async function starryCommandTokenAdd(interaction, client) {
 }
 
 module.exports = {
-    starryCommandTokenAdd,
+  starryCommandTokenAdd: {
+    name: 'add',
+    description: 'Add a new token rule',
+    execute: starryCommandTokenAdd,
+  }
 }

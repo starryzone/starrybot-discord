@@ -1,7 +1,10 @@
-
 async function starryCommandTokenEdit(interaction) {
 }
 
 module.exports = {
-    starryCommandTokenEdit
+  starryCommandTokenEdit: {
+    name: 'edit',
+    description: 'Edit token rule',
+    execute: starryCommandTokenEdit,
+  }
 }

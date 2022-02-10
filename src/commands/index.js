@@ -1,3 +1,5 @@
+const { SlashCommandBuilder } = require('@discordjs/builders');
+
 const { starryCommandFarewell } = require('./farewell');
 const { starryCommandJoin } = require('./join');
 const { starryCommandTokenAdd } = require('./tokenAdd');
@@ -5,40 +7,64 @@ const { starryCommandTokenAdd } = require('./tokenAdd');
 // const { starryCommandTokenEdit } = require('./tokenEdit');
 const { starryCommandTokenRemove } = require('./tokenRemove');
 
-const starryCommands = [
-    {
-        name: 'token-rule',
-        description: "cw20 or cw721 token and Discord role",
-        options: [
-            {
-                name: 'add',
-                description: 'Add a new token rule',
-                handler: starryCommandTokenAdd
-            },
-            // {
-            //     name: 'edit',
-            //     description: 'Edit token rule',
-            //     handler: starryCommandTokenEdit,
-            // },
-            {
-                name: 'remove',
-                description: 'Remove token rule',
-                handler: starryCommandTokenRemove,
-            }
-        ]
-    },
-    {
-        name: 'join',
-        description: "Get link to verify your account with Keplr",
-        handler: starryCommandJoin,
-    },
-    {
-        name: 'farewell',
-        description: "Kick starrybot itself from your guild",
-        handler: starryCommandFarewell,
-    }
-]
+const definedCommands = [
+  {
+    name: 'token-rule',
+    description: 'cw20 or cw721 token and Discord role',
+    options: [
+      starryCommandTokenAdd,
+      // starryCommandTokenEdit,
+      starryCommandTokenRemove
+    ]
+  },
+  starryCommandFarewell,
+  starryCommandJoin,
+];
+
+const flattenedCommandMap = {};
+const commandData = buildCommandData();
+
+function registerSubcommand(mainCommand, subcommand) {
+  const { name, description, execute } = subcommand;
+  mainCommand.addSubcommand(sub => sub.setName(name).setDescription(description));
+  flattenedCommandMap[name] = execute;
+}
+
+function registerSubcommandGroup(mainCommand, subcommandGroup) {
+const { name, description, options } = subcommandGroup;
+  mainCommand.addSubcommandGroup(subgroup => {
+    const subGroup = subgroup.setName(name).setDescription(description);
+    options.forEach(opt => registerSubcommand(subGroup, opt));
+    return subGroup;
+  });
+}
+
+function registerCommand(mainCommand, command) {
+  if (command.options) {
+    registerSubcommandGroup(mainCommand, command);
+  } else {
+    registerSubcommand(mainCommand, command);
+  }
+}
+
+function buildCommandData() {
+  const mainCommand = new SlashCommandBuilder()
+    .setName('starry')
+    .setDescription('Use StarryBot (starrybot.xyz)');
+  definedCommands.forEach(command => registerCommand(mainCommand, command));
+  return mainCommand;
+}
 
 module.exports = {
-    starryCommands,
+  starryCommand: {
+    data: commandData,
+    async execute (interaction, client) {
+      const subcommand = interaction.options.getSubcommand();
+      if (flattenedCommandMap[subcommand]) {
+        return flattenedCommandMap[subcommand](interaction, client);
+      } else {
+        interaction.reply('Starrybot does not understand this command.');
+      }
+    }
+  },
 }
