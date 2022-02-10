@@ -16,6 +16,8 @@ const { Routes } = require("discord-api-types/v9");
 const { StargateClient } = require("@cosmjs/stargate");
 const { CosmWasmClient } = require("@cosmjs/cosmwasm-stargate");
 
+const MAINNET_RPC_ENDPOINT = process.env.MAINNET_RPC_ENDPOINT
+
 ///
 /// Returns a block with { memberId, saganism }
 ///
@@ -240,7 +242,7 @@ async function hoistFinalize(blob, client) {
 			// rpcClient = await StargateClient.connect('https://rpc-osmosis.keplr.app/');
 			continue;
 		} else if (tokenAddress.includes('juno')) {
-			rpcClient = await StargateClient.connect('https://rpc-juno.nodes.guru/');
+			rpcClient = await StargateClient.connect(MAINNET_RPC_ENDPOINT);
 		} else {
 			console.warn('Unfamiliar with this token, ser.')
 			return;
