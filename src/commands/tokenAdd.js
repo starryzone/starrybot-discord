@@ -27,7 +27,7 @@ async function starryCommandTokenAdd(req, res, ctx, next) {
 	msg.edit({ embeds: [
 		createEmbed({
 			color: '#FDC2A0',
-			title: 'Tell us about your tokenzzz',
+			title: 'Tell us about your token',
 			description: '🌠 Choose a token\n✨ I need to make a token\n☯️ I want (or have) a DAO with a token',
 		})
 	] });
