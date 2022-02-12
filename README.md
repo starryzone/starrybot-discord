@@ -102,3 +102,5 @@ Props to Todd Wallar for the fun project https://github.com/omniverse/saganipsum
 
 **Problem**: Can’t see "Add to Server" button after clicking on the bot in the Discord Server users list  
 **Answer**: You have an older version of Discord, upgrade and try again
+
+
