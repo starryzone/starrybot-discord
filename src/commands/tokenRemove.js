@@ -22,7 +22,7 @@ module.exports = {
   starryCommandTokenRemove: {
     adminOnly: true,
     name: 'remove',
-    description: 'Remove token rule',
+    description: '(Admin Only) Remove token rule',
     execute: starryCommandTokenRemove,
   }
 }
