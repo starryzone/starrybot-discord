@@ -16,13 +16,8 @@ async function messageReactionAdd(reaction, user) {
 			console.log(fetched);
 		} catch (error) {
 			console.error('Something went wrong when fetching the message:', error);
-			// Return as `reaction.message.author` may be undefined/null
-			return;
 		}
 	}
-
-	// The reaction is now also fully available and the properties will be reflected accurately:
-	console.log(`${reaction.count} user(s) have given the same reaction to this message!`);
 }
 
 module.exports = {

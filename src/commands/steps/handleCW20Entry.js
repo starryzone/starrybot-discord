@@ -1,6 +1,7 @@
 const { CosmWasmClient } = require("@cosmjs/cosmwasm-stargate");
-const TESTNET_RPC_ENDPOINT = process.env.TESTNET_RPC_ENDPOINT
-const MAINNET_RPC_ENDPOINT = process.env.MAINNET_RPC_ENDPOINT
+const { networkInfo } = require('../../logic')
+const JUNO_TESTNET_RPC_ENDPOINT = networkInfo.juno.testnet
+const JUNO_MAINNET_RPC_ENDPOINT = networkInfo.juno.mainnet
 
 const { checkForCW20, checkForDAODAODAO } = require("../../token");
 const { createEmbed } = require("../../utils/messages");
@@ -17,12 +18,13 @@ async function handleCW20Entry(req, res, ctx, next) {
   if (!interaction.content) return;
 
   try {
+    // TODO: add another check for https://testnet.daodao.zone to determine network
     if (interaction.content.startsWith('https://daodao.zone')) {
-      cosmClient = await CosmWasmClient.connect(MAINNET_RPC_ENDPOINT)
+      cosmClient = await CosmWasmClient.connect(JUNO_MAINNET_RPC_ENDPOINT)
       daoInfo = await checkForDAODAODAO(cosmClient, interaction.content, true)
       if (daoInfo === false) {
         network = 'testnet'
-        cosmClient = await CosmWasmClient.connect(TESTNET_RPC_ENDPOINT)
+        cosmClient = await CosmWasmClient.connect(JUNO_TESTNET_RPC_ENDPOINT)
         daoInfo = await checkForDAODAODAO(cosmClient, interaction.content, false)
       }
 
@@ -36,12 +38,12 @@ async function handleCW20Entry(req, res, ctx, next) {
     } else {
       // Check user's cw20 token for existence on mainnet then testnet
       cw20Input = interaction.content;
-      cosmClient = await CosmWasmClient.connect(MAINNET_RPC_ENDPOINT)
+      cosmClient = await CosmWasmClient.connect(JUNO_MAINNET_RPC_ENDPOINT)
       tokenInfo = await checkForCW20(res, cosmClient, cw20Input, true)
       if (tokenInfo === false) {
         // Nothing was found on mainnet, try testnet
         network = 'testnet'
-        cosmClient = await CosmWasmClient.connect(TESTNET_RPC_ENDPOINT)
+        cosmClient = await CosmWasmClient.connect(JUNO_TESTNET_RPC_ENDPOINT)
         tokenInfo = await checkForCW20(res, cosmClient, cw20Input, false)
       }
     }

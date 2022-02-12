@@ -70,6 +70,8 @@ function buildCommandData() {
 }
 
 async function initiateCommandChain(firstCommandName, interaction) {
+  // Unique key for our globalCommandChain map so that discord users
+  // can only have one active chain at a time per guild
   const uniqueCommandChainKey = `${interaction.guildId}-${interaction.user.id}`;
   // Information about this initiated chain and how it's going
   const req = {
@@ -118,6 +120,9 @@ async function initiateCommandChain(firstCommandName, interaction) {
   };
   // A state that can be edited by any step in this chain
   const ctx = {};
+  // The pattern is from (places like) here:
+  // https://muniftanjim.dev/blog/basic-middleware-pattern-in-javascript/
+  // We'll never call runner directly
   const runner = async (commandName) => {
     const command = flattenedCommandMap[commandName]
 
@@ -126,9 +131,16 @@ async function initiateCommandChain(firstCommandName, interaction) {
 
     let cancelTimeout;
     if (command) {
-      return await command(req, res, ctx, getCommandName => {
+      // getCommandName should be a function that takes
+      // an interaction object and returns the name of the
+      // subcommand that's next in this chain
+      const next = getCommandName => {
+        // Tell the globalCommandChain how to find the
+        // next command/step to run when the user interacts
+        // with us again
         globalCommandChains.set(
           uniqueCommandChainKey,
+          // Call this function when the user next interacts
           async interaction => {
             req.interaction = interaction;
 
@@ -142,20 +154,24 @@ async function initiateCommandChain(firstCommandName, interaction) {
 
         // Timeout if it's taking too long
         cancelTimeout = setTimeout(res.timeout, TIMEOUT_DURATION);
-      });
+      }
+
+      // Actually executing the command/step functionality
+      return await command(req, res, ctx, next);
     } else {
       await res.error('Could not find a matching command');
     }
   }
 
   // Pretend this is like a middleware :D
+  // ^ i love you, boo
   await runner(firstCommandName);
 }
 
 module.exports = {
   starryCommand: {
     data: commandData,
-    async execute (interaction) {
+    async execute(interaction) {
       const subcommandName = interaction.options.getSubcommand();
       if (flattenedCommandMap[subcommandName]) {
         await initiateCommandChain(subcommandName, interaction);
@@ -166,9 +182,12 @@ module.exports = {
   },
 
   continueCommandChain: async (sourceAction) => {
+    // If no one has a wizard, don't worry about it
     if (globalCommandChains.size === 0) return;
 
     let interactionKey, channel;
+    // Based on the type of action this was,
+    // get the interactionKey and channel info
     if (sourceAction._emoji) {
       const { guildId, interaction } = sourceAction.message;
       // Check to make sure this isn't an emoji reaction when a text input was expected

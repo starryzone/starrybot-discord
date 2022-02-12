@@ -19,6 +19,8 @@ const client = new Client({intents: intents })
 client.commands = new Collection();
 /// Install /starry command, which includes the actual commands for this bot
 // as subcommands and subcommand groups, as configured in src/commands/index.js
+// starryCommand.data.name is "starry"
+// starryCommand has the execute function
 client.commands.set(starryCommand.data.name, starryCommand);
 
 ///
@@ -61,7 +63,7 @@ const login = async () => {
 login().then((res) => {
 	if (res) {
 		logger.log('Connected to Discord')
-		client.user.setActivity('ya. starrybot.xyz', { type: 'LISTENING' });
+		client.user.setActivity('ya. starrybot.xyz', { type: 'LISTENING' })
 	} else {
 		logger.log('Issue connecting to Discord')
 	}

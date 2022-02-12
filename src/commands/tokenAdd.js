@@ -23,7 +23,10 @@ async function starryCommandTokenAdd(req, res, ctx, next) {
 	await msg.react('✨');
 	await msg.react('☯️');
 
-	next(reaction => {
+	// Tell the command chain handler
+	// what the next step is based on
+	// which emoji they reacted with
+	const getCommandName = reaction => {
 		const emojiName = reaction._emoji.name;
 		switch(emojiName) {
 			case '🌠':
@@ -35,7 +38,10 @@ async function starryCommandTokenAdd(req, res, ctx, next) {
 			default:
 				return;
 		}
-	});
+	}
+
+	// Passing in an event handler for the user's interactions into next
+	next(getCommandName);
 }
 
 module.exports = {
