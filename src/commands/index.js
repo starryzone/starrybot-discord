@@ -31,7 +31,10 @@ const flattenedCommandMap = starrySteps.reduce(
   (commandMap, step) => {
     return {
       ...commandMap,
-      [step.name]: step,
+      [step.name]: {
+        name: step.name,
+        execute: step
+      },
     }
   },
   {}
@@ -39,9 +42,9 @@ const flattenedCommandMap = starrySteps.reduce(
 const commandData = buildCommandData();
 
 function registerSubcommand(mainCommand, subcommand) {
-  const { name, description, execute } = subcommand;
+  const { name, description } = subcommand;
   mainCommand.addSubcommand(sub => sub.setName(name).setDescription(description));
-  flattenedCommandMap[name] = execute;
+  flattenedCommandMap[name] = subcommand;
 }
 
 function registerSubcommandGroup(mainCommand, subcommandGroup) {
@@ -126,7 +129,7 @@ async function initiateCommandChain(firstCommandName, interaction) {
 
     let cancelTimeout;
     if (command) {
-      return await command(req, res, ctx, getCommandName => {
+      return await command.execute(req, res, ctx, getCommandName => {
         globalCommandChains.set(
           uniqueCommandChainKey,
           async interaction => {
