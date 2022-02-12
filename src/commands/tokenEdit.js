@@ -5,6 +5,7 @@ async function starryCommandTokenEdit(req, res, ctx, next) {
 
 module.exports = {
   starryCommandTokenEdit: {
+    adminOnly: true,
     name: 'edit',
     description: 'Edit token rule',
     execute: starryCommandTokenEdit,

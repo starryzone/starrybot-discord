@@ -8,6 +8,7 @@ const { starryCommandTokenAdd } = require('./tokenAdd');
 const { starryCommandTokenRemove } = require('./tokenRemove');
 const { starrySteps } = require('./steps');
 
+const { memberHasRole, memberHasPermissions } = require('../utils/auth');
 const { createEmbed } = require("../utils/messages");
 
 const globalCommandChains = new Map();
@@ -129,6 +130,21 @@ async function initiateCommandChain(firstCommandName, interaction) {
 
     let cancelTimeout;
     if (command) {
+      // Verify if the user is allowed to use this step.
+      // We'd ordinarily prefer the built-in Discord Permissioning
+      // system, but it's a work in progress. See for more info:
+      // https://github.com/discord/discord-api-docs/issues/2315
+      const allowed = command.adminOnly ?
+        await memberHasRole(interaction.member, 'admin') :
+        true;
+
+      if (!allowed) {
+        return await res.error(
+          'Canceling a command chain from insufficient permissions',
+          'Sorry, you must be an admin to use this command :('
+        );
+      }
+
       return await command.execute(req, res, ctx, getCommandName => {
         globalCommandChains.set(
           uniqueCommandChainKey,

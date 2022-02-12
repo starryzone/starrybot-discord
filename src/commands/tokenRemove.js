@@ -20,6 +20,7 @@ async function starryCommandTokenRemove(req, res, ctx, next) {
 
 module.exports = {
   starryCommandTokenRemove: {
+    adminOnly: true,
     name: 'remove',
     description: 'Remove token rule',
     execute: starryCommandTokenRemove,
