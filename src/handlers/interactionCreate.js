@@ -9,7 +9,7 @@ async function handleGuildCommands(interaction) {
 
 	if (!command) {
 		await channel.send("Cannot find the command you asked for")
-	};
+	}
 
 	try {
 		await command.execute(interaction);

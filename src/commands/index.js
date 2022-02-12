@@ -45,7 +45,7 @@ function registerSubcommand(mainCommand, subcommand) {
 }
 
 function registerSubcommandGroup(mainCommand, subcommandGroup) {
-const { name, description, options } = subcommandGroup;
+  const { name, description, options } = subcommandGroup;
   mainCommand.addSubcommandGroup(subgroup => {
     const subGroup = subgroup.setName(name).setDescription(description);
     options.forEach(opt => registerSubcommand(subGroup, opt));
@@ -64,7 +64,7 @@ function registerCommand(mainCommand, command) {
 function buildCommandData() {
   const mainCommand = new SlashCommandBuilder()
     .setName('starry')
-    .setDescription('Use StarryBot (starrybot.xyz)');
+    .setDescription('Use starrybot (starrybot.xyz)');
   definedCommands.forEach(command => registerCommand(mainCommand, command));
   return mainCommand;
 }
@@ -79,9 +79,9 @@ async function initiateCommandChain(firstCommandName, interaction) {
   };
   // Functions for resolving the chain
   const res = {
-    done: doneMessage => {
+    done: async doneMessage => {
       if (doneMessage) {
-        interaction.channel.send({
+        await interaction.channel.send({
           embeds: [
             createEmbed({
               color: '#7585FF',
@@ -94,12 +94,12 @@ async function initiateCommandChain(firstCommandName, interaction) {
 
       globalCommandChains.delete(uniqueCommandChainKey);
     },
-    error: (consoleError, channelError) => {
+    error: async (consoleError, channelError) => {
       console.warn(consoleError);
       globalCommandChains.delete(uniqueCommandChainKey);
 
       // Send a message saying something's gone wrong
-      req.interaction.channel.send({
+      await req.interaction.channel.send({
         embeds: [
           createEmbed({
             color: '#be75a4',
@@ -144,7 +144,7 @@ async function initiateCommandChain(firstCommandName, interaction) {
         cancelTimeout = setTimeout(res.timeout, TIMEOUT_DURATION);
       });
     } else {
-      res.error('Could not find a matching command');
+      await res.error('Could not find a matching command');
     }
   }
 
@@ -160,7 +160,7 @@ module.exports = {
       if (flattenedCommandMap[subcommandName]) {
         await initiateCommandChain(subcommandName, interaction);
       } else {
-        await interaction.reply('Starrybot does not understand this command.');
+        await interaction.reply('starrybot does not understand this command.');
       }
     }
   },
@@ -170,7 +170,10 @@ module.exports = {
 
     let interactionKey, channel;
     if (sourceAction._emoji) {
-      const { guildId, interaction: { user } } = sourceAction.message;
+      const { guildId, interaction } = sourceAction.message;
+      // Check to make sure this isn't an emoji reaction when a text input was expected
+      if (!interaction) return;
+      const user = interaction.user;
       interactionKey = `${guildId}-${user.id}`;
       channel = sourceAction.message.channel;
     } else {

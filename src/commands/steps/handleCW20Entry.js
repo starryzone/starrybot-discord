@@ -12,6 +12,10 @@ async function handleCW20Entry(req, res, ctx, next) {
   // https://daodao.zone/dao/juno129spsp500mjpx7eut9p08s0jla9wmsen2g8nnjk3wmvwgc83srqq85awld
   let network = 'mainnet'
   let cw20Input, tokenInfo, cosmClient, daoInfo
+
+  // If user has done something else (like emoji reaction) do nothing
+  if (!interaction.content) return;
+
   try {
     if (interaction.content.startsWith('https://daodao.zone')) {
       cosmClient = await CosmWasmClient.connect(MAINNET_RPC_ENDPOINT)
@@ -24,29 +28,31 @@ async function handleCW20Entry(req, res, ctx, next) {
 
       // If there isn't a governance token associated with this DAO, fail with message
       if (!daoInfo || !daoInfo.hasOwnProperty('gov_token')) {
-        throw "We couldn't find any governance token associated with your DAO :/\nPerhaps destroyed in a supernova?";
+        return await res.error("We couldn't find any governance token associated with your DAO :/\nPerhaps destroyed in a supernova?");
       }
       cw20Input = daoInfo['gov_token']
       // Now that we have the cw20 token address and network, get the info we want
-      tokenInfo = await checkForCW20(cosmClient, cw20Input, false)
+      tokenInfo = await checkForCW20(res, cosmClient, cw20Input, false)
     } else {
       // Check user's cw20 token for existence on mainnet then testnet
       cw20Input = interaction.content;
       cosmClient = await CosmWasmClient.connect(MAINNET_RPC_ENDPOINT)
-      tokenInfo = await checkForCW20(cosmClient, cw20Input, true)
+      tokenInfo = await checkForCW20(res, cosmClient, cw20Input, true)
       if (tokenInfo === false) {
         // Nothing was found on mainnet, try testnet
         network = 'testnet'
         cosmClient = await CosmWasmClient.connect(TESTNET_RPC_ENDPOINT)
-        tokenInfo = await checkForCW20(cosmClient, cw20Input, false)
+        tokenInfo = await checkForCW20(res, cosmClient, cw20Input, false)
       }
     }
   } catch (e) {
-    return res.error(e, `Sorry, something went wrong. Please try again.`);
+    return await res.error(e, `Sorry, something went wrong. Please try again.`);
   }
 
   ctx.cw20 = cw20Input;
   ctx.network = network;
+  // Guard against odd cases where reactions are given where not expected
+  if (!tokenInfo) return;
   ctx.tokenSymbol = tokenInfo.symbol;
 
   await interaction.reply({

@@ -1,7 +1,7 @@
 const { createEmbed } = require("../../utils/messages");
 
 async function daoDao(req, res, ctx, next) {
-	const { interaction: { message: { channel } } } = req;
+  const { interaction: { message: { channel } } } = req;
   await channel.send({
     embeds: [
       createEmbed({

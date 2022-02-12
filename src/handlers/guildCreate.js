@@ -30,7 +30,7 @@ const desiredRolesForMessage = desiredRoles.map(role => role.name).join('\n- ');
 async function initializeDefaultRoles(guild) {
 	let existingRoles =	await guild.roles.fetch();
 	const { client } = guild;
-	for(let i = 0; i < desiredRoles.length;i++) {
+	for (let i = 0; i < desiredRoles.length; i++) {
 		let role = desiredRoles[i]
 		// See if we can find an existing role with the same name.
 		if(!existingRoles.find(existingRole => existingRole.name === role.name)) {
