@@ -7,13 +7,14 @@ const { createEmbed } = require("../utils/messages");
 async function starryCommandTokenAdd(req, res, ctx, next) {
 	const { interaction } = req;
 
+	const msgEmbed = createEmbed({
+		color: '#FDC2A0',
+		title: 'One moment…',
+		description: 'Loading choices, fren',
+	})
 	const msg = await interaction.reply({
 		embeds: [
-			createEmbed({
-				color: '#FDC2A0',
-				title: 'Tell us about your token',
-				description: '🌠 Choose a token\n✨ I need to make a token\n☯️ I want (or have) a DAO with a token',
-			})
+			msgEmbed
 		],
 		// Necessary in order to react to the message
 		fetchReply: true,
@@ -22,6 +23,14 @@ async function starryCommandTokenAdd(req, res, ctx, next) {
 	await msg.react('🌠');
 	await msg.react('✨');
 	await msg.react('☯️');
+
+	msg.edit({ embeds: [
+			createEmbed({
+				color: '#FDC2A0',
+				title: 'Tell us about your token',
+				description: '🌠 Choose a token\n✨ I need to make a token\n☯️ I want (or have) a DAO with a token',
+			})
+	] });
 
 	// Tell the command chain handler
 	// what the next step is based on
