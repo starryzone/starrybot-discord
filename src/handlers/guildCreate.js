@@ -66,7 +66,7 @@ async function registerGuildCommands(appId, guildId) {
 }
 
 ///
-/// When StarryBot joins a new guild, let's create any default roles and say hello
+/// When starrybot joins a new guild, let's create any default roles and say hello
 ///
 
 async function guildCreate(guild) {
@@ -79,7 +79,7 @@ async function guildCreate(guild) {
 			embeds: [
 				createEmbed({
 					title: 'Hello friends!',
-					description: `StarryBot just joined, and FYI there are some roles:\n- ${desiredRolesForMessage}`,
+					description: `starrybot just joined, and FYI there are some roles:\n- ${desiredRolesForMessage}`,
 					footer: 'Feel free to use the /starry join command.'
 				})
 			]
@@ -87,7 +87,7 @@ async function guildCreate(guild) {
 	} catch (e) {
 		if (e) {
 			console.warn(e);
-			systemChannel.send('Commands could not be added :(\n Please try kicking and reinstalling StarryBot again: https://starrybot.xyz/');
+			systemChannel.send('Commands could not be added :(\n Please try kicking and reinstalling starrybot again: https://starrybot.xyz/');
 		}
 	}
 
@@ -96,7 +96,7 @@ async function guildCreate(guild) {
 	} catch (e) {
 		if (e) {
 			console.warn(e);
-			systemChannel.send('Default roles could not be added :(\n Please try kicking and reinstalling StarryBot again: https://starrybot.xyz/');
+			systemChannel.send('Default roles could not be added :(\n Please try kicking and reinstalling starrybot again: https://starrybot.xyz/');
 		}
 	}
 }

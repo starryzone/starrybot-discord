@@ -19,7 +19,7 @@ async function farewellConfirmation(req, res, ctx, next) {
     }
   }
 
-  // delete all the roles
+  // delete all the roles from the database
   await rolesDeleteGuildAll(guildId)
 
   // confirm

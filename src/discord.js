@@ -26,7 +26,7 @@ client.commands.set(starryCommand.data.name, starryCommand);
 ///
 
 // Handler for discord bot server starting
-client.on("ready", async () => { logger.info(`StarryBot has star(ry)ted.`) });
+client.on("ready", async () => { logger.info(`starrybot has star(ry)ted.`) });
 
 // Handler for discord bot joining a server
 client.on("guildCreate", guildCreate);

@@ -308,7 +308,7 @@ async function hoistFinalize(blob, client) {
 		const systemChannelId = guild.systemChannelId;
 		let systemChannel = await client.channels.fetch(systemChannelId);
 		if (!roleDiscord) {
-			systemChannel.send("Hmm, StarryBot cannot find role " + roleName)
+			systemChannel.send("Hmm, starrybot cannot find role " + roleName)
 		} else {
 			logger.log("Adding user to role " + roleName)
 			const rest = new REST().setToken(process.env.DISCORD_TOKEN);
@@ -318,7 +318,7 @@ async function hoistFinalize(blob, client) {
 				);
 			} catch (e) {
 				console.error('Error trying to add role', e)
-				systemChannel.send("StarryBot was unable to give someone their role :(\nPlease make sure my permission is higher in the list than " + roleDiscord.name);
+				systemChannel.send("starrybot was unable to give someone their role :(\nPlease make sure my permission is higher in the list than " + roleDiscord.name);
 				return;
 			}
 

@@ -16,7 +16,7 @@ const { promptTokenAmount } = require('./promptTokenAmount');
  *
  * This function is responsible for doing whatever you want the
  * step to do, e.g. send a message, react with emojis, etc.
- * This function is also responsible for determing what to do
+ * This function is also responsible for determining what to do
  * next with the chain:
  *
  * - If there's an error, use res.error(error message, optional error message override)
