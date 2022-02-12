@@ -1,10 +1,10 @@
-# StarryBot
+# starrybot
 
 ## Getting Started
 
 ### Discord Set-up
 * Choose an existing Discord Server or make a new Discord Server for local dev
-    * You must be an admin of this server, and StarryBot must not be in there already
+    * You must be an admin of this server, and starrybot must not be in there already
 * Click on “New Application” in the [Discord Developer Portal](https://discord.com/developers/applications)
 * Go to the “Bot” tab and add a bot
     * Scroll down to "Privileged Gateway Intents" and toggle the “Server Members Intent” on
@@ -57,7 +57,7 @@ The way this works is:
 
 1. discord.js registers with discord in general once, and watches for events.
 
-2. discord.js watches for "guildCreate" messages which means that a person running a discord room would like to add StarryBot to their room. We go ahead and add StarryBot to the room on request. That interaction is a bit complex: it prints a button to the discord channel, and when the administrator clicks on the button it goes ahead and builds some roles and registers some slash commands and also starts tracking those roles in our database.
+2. discord.js watches for "guildCreate" messages which means that a person running a discord room would like to add starrybot to their room. We go ahead and add starrybot to the room on request. That interaction is a bit complex: it prints a button to the discord channel, and when the administrator clicks on the button it goes ahead and builds some roles and registers some slash commands and also starts tracking those roles in our database.
 
 3. discord.js now watches for user commands and does a few fun things, it lets users elevate their perms, by sending those users to a wallet verification webpage where they validate their wallet.
 
@@ -87,7 +87,7 @@ Props to Todd Wallar for the fun project https://github.com/omniverse/saganipsum
 ## DISCORD TO IMPROVE
 
 - private messages should emojis
-- close down command for when the StarryBot is kicked so we can delete roles
+- close down command for when the starrybot is kicked so we can delete roles
 - having to add the bot twice could be improved
 - it would be nicer to know if we knew if a person was an admin or not, this would make it easier for us
 

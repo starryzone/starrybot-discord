@@ -1,6 +1,6 @@
 'use strict';
 
-const { Client, Intents } = require('discord.js')
+const { Client, Collection, Intents } = require('discord.js')
 
 const db = require("./db")
 const logger = require("./logger")
@@ -10,30 +10,32 @@ const {
     messageCreate,
     messageReactionAdd,
 } = require("./handlers")
+const { starryCommand } = require('./commands');
 
 const intents = new Intents([ Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILD_MEMBERS, Intents.FLAGS.GUILD_INTEGRATIONS, Intents.FLAGS.GUILD_MESSAGE_REACTIONS ]);
 const client = new Client({intents: intents })
 
-// @todo find mainnet RPC endpoint we can use
-// const MAINNET_RPC_ENDPOINT = process.env.MAINNET_RPC_ENDPOINT || 'https://…halp…'
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////
+/// Install commands
+client.commands = new Collection();
+/// Install /starry command, which includes the actual commands for this bot
+// as subcommands and subcommand groups, as configured in src/commands/index.js
+client.commands.set(starryCommand.data.name, starryCommand);
 
 ///
 /// Handle inbound events from discord
 ///
 
 // Handler for discord bot server starting
-client.on("ready", async () => { logger.info(`StarryBot has star(ry)ted.`) });
+client.on("ready", async () => { logger.info(`starrybot has star(ry)ted.`) });
 
 // Handler for discord bot joining a server
-client.on("guildCreate", guild => guildCreate(guild, client) );
+client.on("guildCreate", guildCreate);
 
 // Handler for discord bot messages being directly interacted with
-// (e.g. button press, commands used, replies to wizard steps)
-client.on('interactionCreate', interaction => interactionCreate(interaction, client) );
+// (e.g. button press, commands used, replies in the command chain)
+client.on('interactionCreate', interactionCreate);
 
-// Handler for messages that may be responses to the wizard steps
+// Handler for messages that may be responses to the command chain
 client.on('messageCreate', messageCreate);
 
 // Handler for emoji reactions on discord messages from our bot

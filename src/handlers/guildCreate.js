@@ -3,7 +3,7 @@ const { Routes } = require('discord-api-types/v9');
 
 const db = require("../db");
 const { myConfig } = db;
-const { checkIfCommandsEnabled, starryGuildCommands } = require("../utils/commands");
+const { starryCommand } = require("../commands");
 const { createEmbed } = require("../utils/messages");
 ///
 /// Default roles (later we may not have any default roles)
@@ -27,9 +27,10 @@ const desiredRoles = [
 // Display name for the roles in the welcome embed
 const desiredRolesForMessage = desiredRoles.map(role => role.name).join('\n- ');
 
-async function initializeDefaultRoles(guild, client) {
+async function initializeDefaultRoles(guild) {
 	let existingRoles =	await guild.roles.fetch();
-	for(let i = 0; i < desiredRoles.length;i++) {
+	const { client } = guild;
+	for (let i = 0; i < desiredRoles.length; i++) {
 		let role = desiredRoles[i]
 		// See if we can find an existing role with the same name.
 		if(!existingRoles.find(existingRole => existingRole.name === role.name)) {
@@ -43,52 +44,59 @@ async function initializeDefaultRoles(guild, client) {
 /// have the authorization to add commands already.
 /// Let's try it and warn if this isn't the case.
 ///
-async function registerGuildCommands(appId, guildId, user) {
+async function registerGuildCommands(appId, guildId) {
 	const rest = new REST().setToken(myConfig.DISCORD_TOKEN);
 
-	// add guild commands
-	// Note: discordjs doesn't have abstractions for subcommand groups and subcommands like I expected. Used logic from:
+	// Add guild commands via abstractions extrapolated from following sources:
+	// https://discordjs.guide/creating-your-bot/command-handling.html
 	// https://discord.com/developers/docs/interactions/application-commands#example-walkthrough
-	// TODO: try catch, error message to user
-	let postResult = await rest.post( Routes.applicationGuildCommands(appId,guildId), { body: starryGuildCommands } );
+	let putResult = await rest.put(
+		Routes.applicationGuildCommands(appId, guildId),
+		{ body: [starryCommand.data.toJSON()] }
+	);
+	console.log('putResult', putResult)
 
 	// Slash command are added successfully, double-check then tell the channel it's ready
-	let enabledGuildCommands = await rest.get( Routes.applicationGuildCommands(appId, guildId) );
-
-	if (!checkIfCommandsEnabled(enabledGuildCommands)) {
+	try {
+		let enabledGuildCommands = await rest.get( Routes.applicationGuildCommands(appId, guildId) );
+		console.log('enabledGuildCommands', enabledGuildCommands)
+	} catch (e) {
 		throw 'commands not enabled';
 	}
 }
 
 ///
-/// When StarryBot joins a new guild, let's create any default roles and say hello
+/// When starrybot joins a new guild, let's create any default roles and say hello
 ///
 
-async function guildCreate(guild, client) {
+async function guildCreate(guild) {
 	const systemChannelId = guild.systemChannelId;
+	const { client } = guild;
 	let systemChannel = await client.channels.fetch(systemChannelId);
 	try {
-		await registerGuildCommands(client.application.id, guild.id, client.user);
+		await registerGuildCommands(client.application.id, guild.id);
 		systemChannel.send({
 			embeds: [
 				createEmbed({
 					title: 'Hello friends!',
-					description: `StarryBot just joined, and FYI there are some roles:\n- ${desiredRolesForMessage}`,
+					description: `starrybot just joined, and FYI there are some roles:\n- ${desiredRolesForMessage}`,
 					footer: 'Feel free to use the /starry join command.'
 				})
 			]
 		})
 	} catch (e) {
 		if (e) {
-			systemChannel.send('Commands could not be added :(\n Please try kicking and reinstalling StarryBot again: https://starrybot.xyz/');
+			console.warn(e);
+			systemChannel.send('Commands could not be added :(\n Please try kicking and reinstalling starrybot again: https://starrybot.xyz/');
 		}
 	}
 
 	try {
-		await initializeDefaultRoles(guild, client);
+		await initializeDefaultRoles(guild);
 	} catch (e) {
 		if (e) {
-			systemChannel.send('Default roles could not be added :(\n Please try kicking and reinstalling StarryBot again: https://starrybot.xyz/');
+			console.warn(e);
+			systemChannel.send('Default roles could not be added :(\n Please try kicking and reinstalling starrybot again: https://starrybot.xyz/');
 		}
 	}
 }

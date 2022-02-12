@@ -1,38 +1,41 @@
-const { REST } = require('@discordjs/rest');
-const { Routes } = require('discord-api-types/v9');
-const { MessageActionRow, MessageButton } = require('discord.js')
-
 const db = require("../db")
-const { myConfig } = require("../db");
+const { myConfig } = db;
+const { createButton, createMessageActionRow } = require("../utils/messages");
 
 ///
 /// Farewell
 ///
 
-async function starryCommandFarewell(interaction) {
+async function starryCommandFarewell(req, res, ctx, next) {
+	const { interaction } = req;
 
-	let appId = interaction.applicationId
-	let guildId = interaction.guildId
-	const rest = new REST().setToken(myConfig.DISCORD_TOKEN);
-
-	const row = new MessageActionRow()
-		.addComponents(
-			new MessageButton()
-				.setCustomId('farewell-confirm')
-				.setLabel('I understand')
-				.setStyle('PRIMARY'),
-			new MessageButton()
-				.setCustomId('farewell-reject')
-				.setLabel('Cancel')
-				.setStyle('SECONDARY'),
-		)
+	const row = createMessageActionRow({
+		components: [
+			createButton({
+				customId: 'farewellConfirmation',
+				label: 'I understand',
+				style: 'PRIMARY',
+			}),
+			createButton({
+				customId: 'farewellRejection',
+				label: 'Cancel',
+				style: 'SECONDARY',
+			}),
+		]
+	});
 
 	await interaction.reply({
 		content: 'This will delete roles created by starrybot.',
 		components: [row]
 	});
+
+	next(interaction => interaction.customId);
 }
 
 module.exports = {
-    starryCommandFarewell,
+	starryCommandFarewell: {
+		name: 'farewell',
+		description: 'Kick starrybot itself from your guild',
+		execute: starryCommandFarewell,
+	}
 }

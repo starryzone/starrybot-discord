@@ -1,8 +1,8 @@
-const { checkInteractionWithWizard } = require("../wizard/wizard.js")
+const { continueCommandChain } = require("../commands/index.js");
 
 async function messageCreate (interaction) {
 	if (interaction.author.bot) return;
-	await checkInteractionWithWizard(interaction)
+	await continueCommandChain(interaction);
 }
 
 module.exports = {
