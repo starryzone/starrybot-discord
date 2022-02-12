@@ -103,14 +103,15 @@ async function initiateCommandChain(firstCommandName, interaction) {
       globalCommandChains.delete(uniqueCommandChainKey);
 
       // Send a message saying something's gone wrong
-      await req.interaction.channel.send({
+      await req.interaction.reply({
         embeds: [
           createEmbed({
             color: '#be75a4',
             title: 'Error (star might be in retrograde)',
             description: channelError || consoleError,
           })
-        ]
+        ],
+        ephemeral: true,
       });
     },
     timeout: () => {
