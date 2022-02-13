@@ -8,6 +8,7 @@ const { starryCommandTokenAdd } = require('./tokenAdd');
 const { starryCommandTokenRemove } = require('./tokenRemove');
 const { starrySteps } = require('./steps');
 
+const { memberHasRole, memberHasPermissions } = require('../utils/auth');
 const { createEmbed } = require("../utils/messages");
 
 const globalCommandChains = new Map();
@@ -31,7 +32,10 @@ const flattenedCommandMap = starrySteps.reduce(
   (commandMap, step) => {
     return {
       ...commandMap,
-      [step.name]: step,
+      [step.name]: {
+        name: step.name,
+        execute: step
+      },
     }
   },
   {}
@@ -39,9 +43,9 @@ const flattenedCommandMap = starrySteps.reduce(
 const commandData = buildCommandData();
 
 function registerSubcommand(mainCommand, subcommand) {
-  const { name, description, execute } = subcommand;
+  const { name, description } = subcommand;
   mainCommand.addSubcommand(sub => sub.setName(name).setDescription(description));
-  flattenedCommandMap[name] = execute;
+  flattenedCommandMap[name] = subcommand;
 }
 
 function registerSubcommandGroup(mainCommand, subcommandGroup) {
@@ -99,14 +103,15 @@ async function initiateCommandChain(firstCommandName, interaction) {
       globalCommandChains.delete(uniqueCommandChainKey);
 
       // Send a message saying something's gone wrong
-      await req.interaction.channel.send({
+      await req.interaction.reply({
         embeds: [
           createEmbed({
             color: '#be75a4',
             title: 'Error (star might be in retrograde)',
             description: channelError || consoleError,
           })
-        ]
+        ],
+        ephemeral: true,
       });
     },
     timeout: () => {
@@ -126,7 +131,22 @@ async function initiateCommandChain(firstCommandName, interaction) {
 
     let cancelTimeout;
     if (command) {
-      return await command(req, res, ctx, getCommandName => {
+      // Verify if the user is allowed to use this step.
+      // We'd ordinarily prefer the built-in Discord Permissioning
+      // system, but it's a work in progress. See for more info:
+      // https://github.com/discord/discord-api-docs/issues/2315
+      const allowed = command.adminOnly ?
+        await memberHasRole(interaction.member, 'admin') :
+        true;
+
+      if (!allowed) {
+        return await res.error(
+          'Canceling a command chain from insufficient permissions',
+          'Sorry, you must be an admin to use this command :/'
+        );
+      }
+
+      return await command.execute(req, res, ctx, getCommandName => {
         globalCommandChains.set(
           uniqueCommandChainKey,
           async interaction => {

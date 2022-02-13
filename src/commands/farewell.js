@@ -34,8 +34,9 @@ async function starryCommandFarewell(req, res, ctx, next) {
 
 module.exports = {
 	starryCommandFarewell: {
+		adminOnly: true,
 		name: 'farewell',
-		description: 'Kick starrybot itself from your guild',
+		description: '(Admin only) Kick starrybot itself from your guild',
 		execute: starryCommandFarewell,
 	}
 }
