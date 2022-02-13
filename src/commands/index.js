@@ -85,7 +85,7 @@ async function initiateCommandChain(firstCommandName, interaction) {
   const res = {
     done: async doneMessage => {
       if (doneMessage) {
-        await interaction.channel.send({
+        await req.interaction.reply({
           embeds: [
             createEmbed({
               color: '#7585FF',
