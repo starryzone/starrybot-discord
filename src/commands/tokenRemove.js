@@ -11,7 +11,7 @@ async function starryCommandTokenRemove(req, res, ctx, next) {
       embeds: [
         createEmbed({
           title: 'No token rules found',
-          description: 'Nothing for Starrybot to delete this time ☀️',
+          description: 'Nothing for starrybot to delete this time ☀️',
         }),
       ],
       ephemeral: true
