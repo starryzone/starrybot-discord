@@ -142,7 +142,7 @@ async function initiateCommandChain(firstCommandName, interaction) {
       if (!allowed) {
         return await res.error(
           'Canceling a command chain from insufficient permissions',
-          'Sorry, you must be an admin to use this command :('
+          'Sorry, you must be an admin to use this command :/'
         );
       }
 
