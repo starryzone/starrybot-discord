@@ -7,7 +7,7 @@ module.exports = {
   starryCommandTokenEdit: {
     adminOnly: true,
     name: 'edit',
-    description: '(Admin Only) Edit token rule',
+    description: '(Admin only) Edit token rule',
     execute: starryCommandTokenEdit,
   }
 }
