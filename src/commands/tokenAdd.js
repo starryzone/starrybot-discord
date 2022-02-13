@@ -51,7 +51,7 @@ module.exports = {
 	starryCommandTokenAdd: {
 		adminOnly: true,
 		name: 'add',
-		description: '(Admin Only) Add a new token rule',
+		description: '(Admin only) Add a new token rule',
 		execute: starryCommandTokenAdd,
 	}
 }
