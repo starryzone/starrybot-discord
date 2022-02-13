@@ -25,14 +25,17 @@ async function starryCommandTokenAdd(req, res, ctx, next) {
 	await msg.react('☯️');
 
 	msg.edit({ embeds: [
-		createEmbed({
-			color: '#FDC2A0',
-			title: 'Tell us about your token',
-			description: '🌠 Choose a token\n✨ I need to make a token\n☯️ I want (or have) a DAO with a token',
-		})
+			createEmbed({
+				color: '#FDC2A0',
+				title: 'Tell us about your token',
+				description: '🌠 Choose a token\n✨ I need to make a token\n☯️ I want (or have) a DAO with a token',
+			})
 	] });
 
-	next(reaction => {
+	// Tell the command chain handler
+	// what the next step is based on
+	// which emoji they reacted with
+	const getCommandName = reaction => {
 		const emojiName = reaction._emoji.name;
 		switch(emojiName) {
 			case '🌠':
@@ -44,7 +47,10 @@ async function starryCommandTokenAdd(req, res, ctx, next) {
 			default:
 				return;
 		}
-	});
+	}
+
+	// Passing in an event handler for the user's interactions into next
+	next(getCommandName);
 }
 
 module.exports = {

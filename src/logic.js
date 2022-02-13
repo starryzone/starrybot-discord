@@ -1,12 +1,8 @@
-
 'use strict';
 
 const db = require("./db")
 const logger = require("./logger")
 const Sagan = require("./sagan.js")
-
-const { Client, Intents, MessageEmbed, Permissions, MessageActionRow, MessageButton, MessagePayload} = require('discord.js')
-const intents = new Intents([ Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILD_MESSAGE_REACTIONS ]);
 
 const { serializeSignDoc } = require('@cosmjs/amino')
 const { Secp256k1, Secp256k1Signature, sha256 } = require('@cosmjs/crypto')
@@ -16,7 +12,16 @@ const { Routes } = require("discord-api-types/v9");
 const { StargateClient } = require("@cosmjs/stargate");
 const { CosmWasmClient } = require("@cosmjs/cosmwasm-stargate");
 
-const MAINNET_RPC_ENDPOINT = process.env.MAINNET_RPC_ENDPOINT
+// See getNetworkInfo where this is taken from env vars
+let networkInfo;
+try {
+	networkInfo = JSON.parse(process.env.COSMOS_NETWORKS)
+} catch (e) {
+	console.error('Cannot parse COSMOS_NETWORKS environment variable, please ensure that it is set.')
+}
+
+const JUNO_TESTNET_RPC_ENDPOINT = networkInfo.juno.testnet
+const JUNO_MAINNET_RPC_ENDPOINT = networkInfo.juno.mainnet
 
 ///
 /// Returns a block with { memberId, saganism }
@@ -25,7 +30,6 @@ const MAINNET_RPC_ENDPOINT = process.env.MAINNET_RPC_ENDPOINT
 ///
 
 async function hoistRequest(args) {
-
 	logger.log("hoistRequest");
 	logger.log(args)
 
@@ -57,19 +61,16 @@ async function hoistRequest(args) {
 ///
 
 async function hoistInquire(traveller) {
-
 	logger.log("hoistInquire " + traveller)
 
 	// If they didn't send the proper parameter
 	if (!traveller) {
 		throw "No traveller sent"
-		return
 	}
 
 	let member = await db.memberBySessionToken(traveller)
 	if (!member) {
 		throw "No record found"
-		return
 	}
 
 	const createdAt = member.created_at
@@ -103,7 +104,6 @@ async function hoistDrop(args) {
 const isValidSignature = async (signed, signature, publicKey) => {
 	let valid = false;
 	try {
-		// let binaryHashSigned = new Uint8Array(Object.values(hashSigned));
 		let binaryHashSigned = sha256(serializeSignDoc(signed));
 		let binaryPublicKey = new Uint8Array(Object.values(publicKey));
 
@@ -148,11 +148,6 @@ const isCorrectSaganism = async (traveller, signed) => {
 ///
 
 async function hoistFinalize(blob, client) {
-	logger.log("hoistFinalize");
-	logger.log("**********")
-	logger.log('blob', blob)
-	logger.log('blob.signed.msgs', blob.signed.msgs)
-
 	const {traveller, signed, signature, account} = blob;
 	const publicKey = account.pubkey
 
@@ -242,7 +237,7 @@ async function hoistFinalize(blob, client) {
 			// rpcClient = await StargateClient.connect('https://rpc-osmosis.keplr.app/');
 			continue;
 		} else if (tokenAddress.includes('juno')) {
-			rpcClient = await StargateClient.connect(MAINNET_RPC_ENDPOINT);
+			rpcClient = await StargateClient.connect(JUNO_MAINNET_RPC_ENDPOINT);
 		} else {
 			console.warn('Unfamiliar with this token, ser.')
 			return;
@@ -257,11 +252,9 @@ async function hoistFinalize(blob, client) {
 			let smartContract;
 			try {
 				// Attempt to connect in a try catch, as it's possible for testnet to be down
-				const TESTNET_RPC_ENDPOINT = process.env.TESTNET_RPC_ENDPOINT || 'https://rpc.uni.juno.deuslabs.fi/'
-				const MAINNET_RPC_ENDPOINT = process.env.MAINNET_RPC_ENDPOINT || 'https://rpc-juno.itastakers.com/'
 				const cosmClient = network === 'mainnet' ?
-					await CosmWasmClient.connect(MAINNET_RPC_ENDPOINT) :
-					await CosmWasmClient.connect(TESTNET_RPC_ENDPOINT);
+					await CosmWasmClient.connect(JUNO_MAINNET_RPC_ENDPOINT) :
+					await CosmWasmClient.connect(JUNO_TESTNET_RPC_ENDPOINT);
 
 					smartContract = await cosmClient.queryContractSmart(tokenAddress, {
 						balance: {
@@ -341,5 +334,4 @@ async function hoistFinalize(blob, client) {
 	return { success:"done" }
 }
 
-module.exports = { hoistRequest, hoistInquire, hoistDrop, hoistFinalize }
-
+module.exports = { hoistRequest, hoistInquire, hoistDrop, hoistFinalize, networkInfo }

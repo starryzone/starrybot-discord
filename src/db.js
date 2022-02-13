@@ -160,7 +160,6 @@ const rolesSet = async (guildId, role, tokenType, tokenAddress, network, removeI
 }
 
 const rolesDelete = async (guildId,role) => {
-
  	await ensureDatabaseInitialized()
 	try {
 		await knex(myConfig.DB_TABLENAME_ROLES).where( { discord_guild_id: guildId, give_role: role })
