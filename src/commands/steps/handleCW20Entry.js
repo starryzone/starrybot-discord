@@ -21,7 +21,7 @@ async function handleCW20Entry(req, res, ctx, next) {
     // TODO: add another check for https://testnet.daodao.zone to determine network
     if (interaction.content.startsWith('https://daodao.zone')) {
       cosmClient = await CosmWasmClient.connect(JUNO_MAINNET_RPC_ENDPOINT)
-      daoInfo = await checkForDAODAODAO(cosmClient, interaction.content, true)
+      daoInfo = await checkForDAODAODAO(res, cosmClient, interaction.content, true)
       if (daoInfo === false) {
         network = 'testnet'
         cosmClient = await CosmWasmClient.connect(JUNO_TESTNET_RPC_ENDPOINT)
