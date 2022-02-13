@@ -29,7 +29,7 @@ async function registerGuildCommands(appId, guildId) {
 	}
 }
 
-// When starrybot joins a new guild, let's create any default roles and say hello
+// When starrybot joins a new guild, let's say hello and let them know they can use /starry now
 async function guildCreate(guild) {
 	const systemChannelId = guild.systemChannelId;
 	const { client } = guild;
