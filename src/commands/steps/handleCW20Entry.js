@@ -25,7 +25,7 @@ async function handleCW20Entry(req, res, ctx, next) {
       if (daoInfo === false) {
         network = 'testnet'
         cosmClient = await CosmWasmClient.connect(JUNO_TESTNET_RPC_ENDPOINT)
-        daoInfo = await checkForDAODAODAO(cosmClient, interaction.content, false)
+        daoInfo = await checkForDAODAODAO(res, cosmClient, interaction.content, false)
       }
 
       // If there isn't a governance token associated with this DAO, fail with message
