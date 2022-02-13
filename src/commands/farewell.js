@@ -36,7 +36,7 @@ module.exports = {
 	starryCommandFarewell: {
 		adminOnly: true,
 		name: 'farewell',
-		description: '(Admin Only) Kick starrybot itself from your guild',
+		description: '(Admin only) Kick starrybot itself from your guild',
 		execute: starryCommandFarewell,
 	}
 }
