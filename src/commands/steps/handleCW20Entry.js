@@ -21,11 +21,11 @@ async function handleCW20Entry(req, res, ctx, next) {
     // TODO: add another check for https://testnet.daodao.zone to determine network
     if (interaction.content.startsWith('https://daodao.zone')) {
       cosmClient = await CosmWasmClient.connect(JUNO_MAINNET_RPC_ENDPOINT)
-      daoInfo = await checkForDAODAODAO(cosmClient, interaction.content, true)
+      daoInfo = await checkForDAODAODAO(res, cosmClient, interaction.content, true)
       if (daoInfo === false) {
         network = 'testnet'
         cosmClient = await CosmWasmClient.connect(JUNO_TESTNET_RPC_ENDPOINT)
-        daoInfo = await checkForDAODAODAO(cosmClient, interaction.content, false)
+        daoInfo = await checkForDAODAODAO(res, cosmClient, interaction.content, false)
       }
 
       // If there isn't a governance token associated with this DAO, fail with message
@@ -48,11 +48,12 @@ async function handleCW20Entry(req, res, ctx, next) {
       }
     }
   } catch (e) {
-    return await res.error(e, `Sorry, something went wrong. Please try again.`);
+    return await res.error(e, 'Sorry, something went wrong. Please try again.');
   }
 
   ctx.cw20 = cw20Input;
   ctx.network = network;
+  ctx.tokenType = 'cw20'
   // Guard against odd cases where reactions are given where not expected
   if (!tokenInfo) return;
   ctx.tokenSymbol = tokenInfo.symbol;
@@ -60,7 +61,7 @@ async function handleCW20Entry(req, res, ctx, next) {
   await interaction.reply({
     embeds: [
       createEmbed({
-        title: 'How many tokens?',
+        title: 'How many cw20 tokens?',
         description: 'Please enter the number of tokens a user must have to get a special role.',
         footer: 'Note: this role will be created automatically',
       }),

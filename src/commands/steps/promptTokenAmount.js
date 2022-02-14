@@ -15,7 +15,7 @@ async function promptTokenAmount(req, res, ctx, next) {
     !Number.isInteger(parseInt(amountOfTokensNeeded)) ||
     amountOfTokensNeeded <= 0
   ) {
-  // Invalid reply
+    // Invalid reply
     return await res.error('Need a positive number of tokens.');
   }
 
@@ -32,8 +32,13 @@ async function promptTokenAmount(req, res, ctx, next) {
   }
   console.log(roleToCreate);
   // Create database row
-  // TODO: remember to make the "testnet" entry here not hardcoded, waiting for DAODAO mainnet
-  await rolesSet(guildId, roleToCreate, 'cw20', ctx.cw20, ctx.network, true, author.id, amountOfTokensNeeded)
+  if (ctx.tokenType === 'cw20') {
+    await rolesSet(guildId, roleToCreate, ctx.tokenType, ctx.cw20, ctx.network, true, author.id, amountOfTokensNeeded)
+  } else if (ctx.tokenType === 'native') {
+    await rolesSet(guildId, roleToCreate, ctx.tokenType, ctx.tokenSymbol, ctx.network, true, author.id, amountOfTokensNeeded)
+  } else {
+    console.error('Unexpected tokenType', ctx.tokenType)
+  }
 
   res.done(`You may now use the role ${roleToCreate} for token-gated channels.\n\nEnjoy, traveller!`);
 }

@@ -1,12 +1,9 @@
 const { continueCommandChain } = require("../commands");
 
-///
-/// A user may have sent an emoji - we are very interested in these
-///
-
+// A user may have sent an emoji - we are very interested in these
 async function messageReactionAdd(reaction, user) {
 	if (user.bot) return; // don't care about bot's emoji reactions
-	await continueCommandChain(reaction);
+	await continueCommandChain({sourceAction: reaction, user});
 
 	// When a reaction is received, check if the structure is partial
 	if (reaction.partial) {
