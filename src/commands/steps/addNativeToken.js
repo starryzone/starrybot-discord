@@ -30,13 +30,14 @@ async function addNativeToken(req, res, ctx, next) {
   });
 
   ctx.tokenType = 'native'
+  // According to Meow, all native tokens have 6 decimals
+  ctx.decimals = 6
 
   const getCommandName = interaction => {
     return interaction.customId
   }
 
   next(getCommandName);
-  // next(interaction => interaction.customId);
 }
 
 module.exports = {

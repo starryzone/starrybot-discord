@@ -266,6 +266,7 @@ async function hoistFinalize(blob, client) {
 				// even if this role fails, see if we can add any others
 				continue;
 			}
+			console.log('cw20 holding info', smartContract)
 			matches = [{
 				amount: smartContract.balance
 			}]
@@ -318,16 +319,7 @@ async function hoistFinalize(blob, client) {
 			}
 
 			// TODO must ALSO set is_member in database
-
-			// It makes sense to ALSO send them an invite code?
-			//try {
-			//	const invite = await channel.createInvite({maxUses: 1 });
-			//	let url = `https://discord.gg/${invite.code}`
-			//	await message.author.send(url)
-			//} catch(e) {
-			//	logger.error(e)
-			//}
-			//logger.log("invite sent")
+			// TODO: make sure we remove this row
 		}
 	}
 

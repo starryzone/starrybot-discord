@@ -50,6 +50,7 @@ async function handleCW20Entry(req, res, ctx, next) {
   } catch (e) {
     return await res.error(e, 'Sorry, something went wrong. Please try again.');
   }
+  console.log('tokenInfo', tokenInfo)
 
   ctx.cw20 = cw20Input;
   ctx.network = network;
@@ -57,6 +58,7 @@ async function handleCW20Entry(req, res, ctx, next) {
   // Guard against odd cases where reactions are given where not expected
   if (!tokenInfo) return;
   ctx.tokenSymbol = tokenInfo.symbol;
+  ctx.decimals = tokenInfo.decimals;
 
   await interaction.reply({
     embeds: [
