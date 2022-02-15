@@ -40,9 +40,9 @@ async function promptTokenAmount(req, res, ctx, next) {
   console.log(roleToCreate);
   // Create database row
   if (ctx.tokenType === 'cw20') {
-    await rolesSet(guildId, roleToCreate, ctx.tokenType, ctx.cw20, ctx.network, true, author.id, amountOfTokensNeeded)
+    await rolesSet(guildId, roleToCreate, ctx.tokenType, ctx.cw20, ctx.network, true, author.id, amountOfTokensNeeded, ctx.decimals)
   } else if (ctx.tokenType === 'native') {
-    await rolesSet(guildId, roleToCreate, ctx.tokenType, ctx.tokenSymbol, ctx.network, true, author.id, amountOfTokensNeeded)
+    await rolesSet(guildId, roleToCreate, ctx.tokenType, ctx.tokenSymbol, ctx.network, true, author.id, amountOfTokensNeeded, ctx.decimals)
   } else {
     console.error('Unexpected tokenType', ctx.tokenType)
   }
