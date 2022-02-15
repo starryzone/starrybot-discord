@@ -104,7 +104,7 @@ const rolesGet = async (guildId) => {
 
 	const roles = await knex(myConfig.DB_TABLENAME_ROLES)
 		.where('discord_guild_id', guildId)
-		.select('discord_guild_id','token_address','has_minimum_of','created_at','created_by_discord_id','give_role', 'network', 'token_type')
+		.select('discord_guild_id','token_address','has_minimum_of','created_at','created_by_discord_id','give_role', 'network', 'token_type', 'decimals')
 
 	return roles
 }
@@ -117,7 +117,7 @@ const roleGet = async (guildId, roleName) => {
 		'discord_guild_id': guildId,
 		'give_role': roleName,
 	})
-	.select('discord_guild_id','token_address','has_minimum_of','created_at','created_by_discord_id','give_role', 'network', 'token_type')
+	.select('discord_guild_id','token_address','has_minimum_of','created_at','created_by_discord_id','give_role', 'network', 'token_type', 'decimals')
 
 	return role[0];
 }
