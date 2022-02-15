@@ -36,7 +36,9 @@ async function starryCommandTokenAdd(req, res, ctx, next) {
 	// what the next step is based on
 	// which emoji they reacted with
 	const getCommandName = reaction => {
-		const emojiName = reaction._emoji.name;
+		// reaction._emoji will be undefined if
+		// the user typed something instead
+		const emojiName = reaction._emoji?.name;
 		switch(emojiName) {
 			case '🌠':
 				return 'hasCW20'

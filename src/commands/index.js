@@ -87,7 +87,10 @@ async function initiateCommandChain(firstCommandName, interaction) {
   const res = {
     done: async doneMessage => {
       if (doneMessage) {
-        await interaction.channel.send({
+        const replyTarget = req.interaction._emoji ?
+          req.interaction.message :
+          req.interaction;
+        await replyTarget.reply({
           embeds: [
             createEmbed({
               color: '#7585FF',
@@ -104,8 +107,11 @@ async function initiateCommandChain(firstCommandName, interaction) {
       console.warn(consoleError);
       globalCommandChains.delete(uniqueCommandChainKey);
 
-      // Send a message saying something's gone wrong
-      await req.interaction.reply({
+      // Reply saying something's gone wrong
+      const replyTarget = req.interaction._emoji ?
+        req.interaction.message :
+        req.interaction;
+      await replyTarget.reply({
         embeds: [
           createEmbed({
             color: '#be75a4',

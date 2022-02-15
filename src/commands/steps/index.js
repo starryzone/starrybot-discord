@@ -5,6 +5,9 @@ const { handleCW20Entry } = require('./handleCW20Entry');
 const { hasCW20 } = require('./hasCW20');
 const { needsCW20 } = require('./needsCW20');
 const { promptTokenAmount } = require('./promptTokenAmount');
+const { removeConfirmation } = require('./removeConfirmation');
+const { removeVerify } = require('./removeVerify');
+const { removeRejection } = require('./removeRejection');
 
 /*
  * Every step included here should have export a function, e.g.
@@ -38,5 +41,8 @@ module.exports = {
     hasCW20,
     needsCW20,
     promptTokenAmount,
+    removeConfirmation,
+    removeRejection,
+    removeVerify,
   ],
 }
