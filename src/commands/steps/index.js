@@ -11,6 +11,9 @@ const { explainTokenTypes } = require('./explainTokenTypes');
 const { nativeTokenSuggestion } = require('./nativeTokenSuggestion');
 const { nativeTokenJUNO } = require('./nativeTokenJUNO');
 const { nativeTokenSTARS } = require('./nativeTokenSTARS');
+const { removeConfirmation } = require('./removeConfirmation');
+const { removeVerify } = require('./removeVerify');
+const { removeRejection } = require('./removeRejection');
 
 /*
  * Every step included here should have export a function, e.g.
@@ -50,5 +53,8 @@ module.exports = {
     nativeTokenSuggestion,
     nativeTokenJUNO,
     nativeTokenSTARS,
+    removeConfirmation,
+    removeRejection,
+    removeVerify,
   ],
 }
