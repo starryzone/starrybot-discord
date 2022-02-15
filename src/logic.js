@@ -221,14 +221,14 @@ async function hoistFinalize(blob, client) {
 		const networkPrefixes = Object.keys(networkInfo)
 		if (networkPrefixes.includes(tokenAddress)) {
 			// This is a native token starrybot supports
-			rpcClient = await getRPCfromPrefix(tokenAddress, process.env.TESTNET_ONLY ? 'testnet' : 'mainnet')
+			rpcClient = await getRPCfromPrefix(tokenAddress, network)
 		} else {
 			// Get prefix of token address
 			let decodedAccount = Bech32.decode(tokenAddress);
 			if (decodedAccount && decodedAccount.prefix) {
 				const prefix = decodedAccount.prefix
 				if (networkPrefixes.includes(prefix)) {
-					rpcClient = await getRPCfromPrefix(prefix, process.env.TESTNET_ONLY ? 'testnet' : 'mainnet')
+					rpcClient = await getRPCfromPrefix(prefix, network)
 				} else {
 					console.error('Could not find prefix somehow', prefix)
 					return
