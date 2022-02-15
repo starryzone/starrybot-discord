@@ -131,7 +131,7 @@ const rolesGetForCleanUp = async (guildId) => {
 	return roles
 }
 
-const rolesSet = async (guildId, role, tokenType, tokenAddress, network, removeInCleanup, createdByDiscordId, hasMinimumOf) => {
+const rolesSet = async (guildId, role, tokenType, tokenAddress, network, removeInCleanup, createdByDiscordId, hasMinimumOf, decimals) => {
 	await ensureDatabaseInitialized()
 
 	let discord_guild_id = guildId;
@@ -150,6 +150,7 @@ const rolesSet = async (guildId, role, tokenType, tokenAddress, network, removeI
 	if (existingRows.length) {
 		results = await knex(myConfig.DB_TABLENAME_ROLES).update({
 			discord_guild_id,
+			decimals,
 			token_address,
 			token_type,
 			has_minimum_of,
@@ -161,6 +162,7 @@ const rolesSet = async (guildId, role, tokenType, tokenAddress, network, removeI
 	} else {
 		results = await knex(myConfig.DB_TABLENAME_ROLES).insert({
 			discord_guild_id,
+			decimals,
 			token_address,
 			token_type,
 			has_minimum_of,
