@@ -1,6 +1,7 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
 
 const { starryCommandFarewell } = require('./farewell');
+const { starryCommandHealth } = require('./health');
 const { starryCommandJoin } = require('./join');
 const { starryCommandTokenAdd } = require('./tokenAdd');
 const { starryCommandTokenList } = require('./tokenList');
@@ -26,6 +27,7 @@ const definedCommands = [
       starryCommandTokenRemove
     ]
   },
+  starryCommandHealth,
   starryCommandJoin,
   starryCommandFarewell,
 ];
