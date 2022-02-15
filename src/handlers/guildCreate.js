@@ -22,8 +22,7 @@ async function registerGuildCommands(appId, guildId) {
 
 	// Slash command are added successfully, double-check then tell the channel it's ready
 	try {
-		let enabledGuildCommands = await rest.get( Routes.applicationGuildCommands(appId, guildId) );
-		console.log('enabledGuildCommands', enabledGuildCommands)
+		await rest.get( Routes.applicationGuildCommands(appId, guildId) );
 	} catch (e) {
 		throw 'commands not enabled';
 	}

@@ -33,7 +33,7 @@ async function interactionCreate(interaction) {
 		return handleGuildCommands(interaction);
 	} else {
 		// text input, emoji reactions, or something else
-		await continueCommandChain(interaction);
+		await continueCommandChain({sourceAction: interaction});
 	}
 }
 

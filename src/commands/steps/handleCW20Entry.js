@@ -55,9 +55,11 @@ async function handleCW20Entry(req, res, ctx, next) {
 
   ctx.cw20 = cw20Input;
   ctx.network = network;
+  ctx.tokenType = 'cw20';
   // Guard against odd cases where reactions are given where not expected
   if (!tokenInfo) return;
   ctx.tokenSymbol = tokenInfo.symbol;
+  ctx.decimals = tokenInfo.decimals;
 
   await interaction.reply({
     embeds: [

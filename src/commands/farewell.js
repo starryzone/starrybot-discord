@@ -1,11 +1,6 @@
-const db = require("../db")
-const { myConfig } = db;
 const { createButton, createMessageActionRow } = require("../utils/messages");
 
-///
-/// Farewell
-///
-
+// Farewell
 async function starryCommandFarewell(req, res, ctx, next) {
 	const { interaction } = req;
 

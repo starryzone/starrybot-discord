@@ -23,12 +23,14 @@ try {
 const JUNO_TESTNET_RPC_ENDPOINT = networkInfo.juno.testnet
 const JUNO_MAINNET_RPC_ENDPOINT = networkInfo.juno.mainnet
 
-///
-/// Returns a block with { memberId, saganism }
-///
-/// Or on error either throws an error or returns { error }
-///
+async function getRPCfromPrefix(prefix, network) {
+	if (!networkInfo.hasOwnProperty(prefix)) return false
+	console.log(`Connecting to RPC ${prefix} for ${network}`)
+	return await StargateClient.connect(networkInfo[prefix][network])
+}
 
+// Returns a block with { memberId, saganism }
+// or on error either throws an error or returns { error }
 async function hoistRequest(args) {
 	logger.log("hoistRequest");
 	logger.log(args)
@@ -56,13 +58,8 @@ async function hoistRequest(args) {
 	return {traveller , saganism }
 }
 
-///
-/// Allow a remote caller to inquire about a member
-///
-
+// Allow a remote caller to inquire about a member
 async function hoistInquire(traveller) {
-	logger.log("hoistInquire " + traveller)
-
 	// If they didn't send the proper parameter
 	if (!traveller) {
 		throw "No traveller sent"
@@ -82,10 +79,7 @@ async function hoistInquire(traveller) {
 	return {saganism, createdAt}
 }
 
-///
-/// And drop a user
-///
-
+// And drop a user
 async function hoistDrop(args) {
 	logger.log("hoistDrop")
 	logger.log(args)
@@ -96,11 +90,8 @@ async function hoistDrop(args) {
 	// TODO actually remove users
 }
 
-///
-/// Signing
-/// Returns boolean whether the signature is valid or not
-///
-
+// Signing
+// Returns boolean whether the signature is valid or not
 const isValidSignature = async (signed, signature, publicKey) => {
 	let valid = false;
 	try {
@@ -119,10 +110,7 @@ const isValidSignature = async (signed, signature, publicKey) => {
 	}
 }
 
-///
-/// Returns boolean whether the user signed the right thing
-///
-
+// Returns boolean whether the user signed the right thing
 const isCorrectSaganism = async (traveller, signed) => {
 	let isCorrect = false;
 	try {
@@ -143,10 +131,7 @@ const isCorrectSaganism = async (traveller, signed) => {
 	}
 }
 
-///
-/// Finalize hoist
-///
-
+// Finalize hoist
 async function hoistFinalize(blob, client) {
 	const {traveller, signed, signature, account} = blob;
 	const publicKey = account.pubkey
@@ -222,7 +207,6 @@ async function hoistFinalize(blob, client) {
 	//
 
 	for (let role of roles) {
-		// For now, we know the roles are for Juno and Osmosis, set up RPC and calls
 		const keplrAccount = account.address;
 
 		let roleName = role.give_role
@@ -232,21 +216,37 @@ async function hoistFinalize(blob, client) {
 		const tokenAddress = role.token_address
 
 		let rpcClient;
-		if (tokenAddress === 'osmo') {
-			// This currently 404's and isn't necessary for launch
-			// rpcClient = await StargateClient.connect('https://rpc-osmosis.keplr.app/');
-			continue;
-		} else if (tokenAddress.includes('juno')) {
-			rpcClient = await StargateClient.connect(JUNO_MAINNET_RPC_ENDPOINT);
+		// The token address is either going to be a prefix "juno"
+		// or an address with the prefix "juno123abc…"
+		const networkPrefixes = Object.keys(networkInfo)
+		if (networkPrefixes.includes(tokenAddress)) {
+			// This is a native token starrybot supports
+			rpcClient = await getRPCfromPrefix(tokenAddress, network)
 		} else {
-			console.warn('Unfamiliar with this token, ser.')
-			return;
+			// Get prefix of token address
+			let decodedAccount = Bech32.decode(tokenAddress);
+			if (decodedAccount && decodedAccount.prefix) {
+				const prefix = decodedAccount.prefix
+				if (networkPrefixes.includes(prefix)) {
+					rpcClient = await getRPCfromPrefix(prefix, network)
+				} else {
+					console.error('Could not find prefix somehow', prefix)
+					return
+				}
+			} else {
+				console.error('Unexpected results when trying to decode the token address', tokenAddress)
+				return
+			}
+		}
+		if (!rpcClient) {
+			console.error('Issue getting RPC client for', tokenAddress)
+			return
 		}
 
 		let decodedAccount = Bech32.decode(keplrAccount).data;
 		let encodedAccount, matches;
 
-		// We have an entire address instead of 'juno' or 'osmo' prefixes
+		// We have an entire address instead of 'juno' or 'stars' prefixes
 		if (tokenType === 'cw20') {
 			encodedAccount = Bech32.encode(tokenAddress.substring(0, 4), decodedAccount);
 			let smartContract;
@@ -266,6 +266,7 @@ async function hoistFinalize(blob, client) {
 				// even if this role fails, see if we can add any others
 				continue;
 			}
+			console.log('cw20 holding info', smartContract)
 			matches = [{
 				amount: smartContract.balance
 			}]
@@ -318,16 +319,7 @@ async function hoistFinalize(blob, client) {
 			}
 
 			// TODO must ALSO set is_member in database
-
-			// It makes sense to ALSO send them an invite code?
-			//try {
-			//	const invite = await channel.createInvite({maxUses: 1 });
-			//	let url = `https://discord.gg/${invite.code}`
-			//	await message.author.send(url)
-			//} catch(e) {
-			//	logger.error(e)
-			//}
-			//logger.log("invite sent")
+			// TODO: make sure we remove this row
 		}
 	}
 

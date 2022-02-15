@@ -142,7 +142,7 @@ async function initiateCommandChain(firstCommandName, interaction) {
     let cancelTimeout;
     if (command) {
       // Verify if the user is allowed to use this step.
-      // We'd ordinarily prefer the built-in Discord Permissioning
+      // We'd ordinarily prefer the built-in Discord permission
       // system, but it's a work in progress. See for more info:
       // https://github.com/discord/discord-api-docs/issues/2315
       const allowed = command.adminOnly ?
@@ -195,15 +195,21 @@ module.exports = {
     }
   },
 
-  continueCommandChain: async (sourceAction) => {
+  continueCommandChain: async ({sourceAction, user}) => {
     if (globalCommandChains.size === 0) return;
 
     let interactionKey, channel;
     if (sourceAction._emoji) {
       const { guildId, interaction } = sourceAction.message;
-      // Check to make sure this isn't an emoji reaction when a text input was expected
-      if (!interaction) return;
-      const user = interaction.user;
+
+      if (!user) {
+        // Check to make sure this isn't an emoji reaction when a text input was expected
+        if (!interaction) {
+          console.error('Could not determine user for that interaction or reaction.')
+          return;
+        }
+        user = interaction.user
+      }
       interactionKey = `${guildId}-${user.id}`;
       channel = sourceAction.message.channel;
     } else {

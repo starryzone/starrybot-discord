@@ -16,7 +16,7 @@ async function daoDao(req, res, ctx, next) {
           },
           {
             name: "Paste your DAODAO URL and we'll take care of the rest!",
-            value: "(For example, it'll look something like https://daodao.zone/dao/juno129spsp500mjpx7eut9p08s0jla9wmsen2g8nnjk3wmvwgc83srqq85awld)",
+            value: "(For example, it'll look something like https://daodao.zone/dao/juno156vlvprfxc4yyu26ute4hu6tjq96pxgt5qqmm0zlt4y0khjetvhqdhmgdm)",
           }
         ],
         url: 'https://daodao.zone'

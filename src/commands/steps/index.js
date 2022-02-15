@@ -5,6 +5,12 @@ const { handleCW20Entry } = require('./handleCW20Entry');
 const { hasCW20 } = require('./hasCW20');
 const { needsCW20 } = require('./needsCW20');
 const { promptTokenAmount } = require('./promptTokenAmount');
+const { addCW20 } = require('./addCW20');
+const { addNativeToken } = require('./addNativeToken');
+const { explainTokenTypes } = require('./explainTokenTypes');
+const { nativeTokenSuggestion } = require('./nativeTokenSuggestion');
+const { nativeTokenJUNO } = require('./nativeTokenJUNO');
+const { nativeTokenSTARS } = require('./nativeTokenSTARS');
 const { removeConfirmation } = require('./removeConfirmation');
 const { removeVerify } = require('./removeVerify');
 const { removeRejection } = require('./removeRejection');
@@ -41,6 +47,12 @@ module.exports = {
     hasCW20,
     needsCW20,
     promptTokenAmount,
+    addCW20,
+    addNativeToken,
+    explainTokenTypes,
+    nativeTokenSuggestion,
+    nativeTokenJUNO,
+    nativeTokenSTARS,
     removeConfirmation,
     removeRejection,
     removeVerify,
