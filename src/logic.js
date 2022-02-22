@@ -4,6 +4,7 @@ const { networkInfo, networkPrefixes, getConnectionFromPrefix, getConnectionFrom
 const db = require("./db")
 const logger = require("./logger")
 const Sagan = require("./sagan.js")
+const fetch = require("node-fetch");
 
 const { serializeSignDoc } = require('@cosmjs/amino')
 const { Secp256k1, Secp256k1Signature, sha256 } = require('@cosmjs/crypto')
@@ -122,6 +123,19 @@ const isCorrectSaganism = async (traveller, signed) => {
 	} finally {
 		return isCorrect;
 	}
+}
+
+async function sumDelegationsForAccount(address) {
+	const lcdUrl = getConnectionFromToken(address, 'lcd', 'mainnet')
+	const delegationRes = await fetch(`${lcdUrl}/staking/delegators/${address}/delegations`)
+	const body = await delegationRes.json();
+	const sum = body.result.reduce(
+		(prevVal, currentVal) => prevVal + parseInt(currentVal.balance.amount),
+		0
+	);
+
+	console.log('Sum of delegations', sum)
+	return sum
 }
 
 // Finalize hoist
@@ -276,6 +290,12 @@ async function hoistFinalize(blob, client) {
 				balances = await rpcClient.getAllBalances(encodedAccount);
 				console.log(`balances ${tokenAddress}`, balances)
 				matches = balances.filter(balances => balances.denom === `u${tokenAddress}`)
+
+				// Now check for delegation amounts if mainnet
+				if (network === 'mainnet') {
+					const delegationTotal = await sumDelegationsForAccount(encodedAccount)
+					matches[0].amount = parseInt(matches[0].amount) + delegationTotal
+				}
 			} catch (e) {
 				console.warn(e);
 				// Even if this role fails, see if we can add any others
