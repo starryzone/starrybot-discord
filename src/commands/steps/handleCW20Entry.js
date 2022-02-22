@@ -1,9 +1,6 @@
 const { CosmWasmClient } = require("@cosmjs/cosmwasm-stargate");
-const { networkInfo } = require('../../logic')
-const JUNO_TESTNET_RPC_ENDPOINT = networkInfo.juno.testnet
-const JUNO_MAINNET_RPC_ENDPOINT = networkInfo.juno.mainnet
-
-const { checkForCW20, checkForDAODAODAO } = require("../../token");
+const { getConnectionFromToken } = require('../../utils/networks')
+const { checkForCW20, checkForDAODAODAO, getDAOAddressFromDAODAOUrl} = require("../../token");
 const { createEmbed } = require("../../utils/messages");
 
 async function handleCW20Entry(req, res, ctx, next) {
@@ -12,7 +9,7 @@ async function handleCW20Entry(req, res, ctx, next) {
   // Check to see if they pasted a DAODAO URL like this:
   // https://daodao.zone/dao/juno129spsp500mjpx7eut9p08s0jla9wmsen2g8nnjk3wmvwgc83srqq85awld
   let network = 'mainnet'
-  let cw20Input, tokenInfo, cosmClient, daoInfo
+  let cw20Input, tokenInfo, cosmClient, daoInfo, rpcEndpoint
 
   const userInput = interaction.content;
   // If user has done something else (like emoji reaction) do nothing
@@ -22,9 +19,12 @@ async function handleCW20Entry(req, res, ctx, next) {
     const daodaoRegex = /^https:\/\/(testnet\.)?daodao.zone/;
     if (userInput.match(daodaoRegex)) {
       network = userInput.includes('testnet') ? 'testnet' : 'mainnet';
-      cosmClient = network === 'mainnet' ?
-        await CosmWasmClient.connect(JUNO_MAINNET_RPC_ENDPOINT) :
-        await CosmWasmClient.connect(JUNO_TESTNET_RPC_ENDPOINT);
+
+      // Let's determine the RPC to connect to
+      // based on the dao address
+      const daoAddress = getDAOAddressFromDAODAOUrl(userInput)
+      rpcEndpoint = getConnectionFromToken(daoAddress, 'rpc', network)
+      cosmClient = await CosmWasmClient.connect(rpcEndpoint)
       // Exit a failed state more gracefully on mainnet
       const gracefulExit = network === 'mainnet';
       daoInfo = await checkForDAODAODAO(cosmClient, userInput, gracefulExit);
@@ -39,12 +39,14 @@ async function handleCW20Entry(req, res, ctx, next) {
     } else {
       // Check user's cw20 token for existence on mainnet then testnet
       cw20Input = userInput;
-      cosmClient = await CosmWasmClient.connect(JUNO_MAINNET_RPC_ENDPOINT)
+      rpcEndpoint = getConnectionFromToken(userInput, 'rpc', 'mainnet')
+      cosmClient = await CosmWasmClient.connect(rpcEndpoint)
       tokenInfo = await checkForCW20(cosmClient, cw20Input, true)
       if (tokenInfo === false) {
         // Nothing was found on mainnet, try testnet
         network = 'testnet'
-        cosmClient = await CosmWasmClient.connect(JUNO_TESTNET_RPC_ENDPOINT)
+        rpcEndpoint = getConnectionFromToken(userInput, 'rpc', network)
+        cosmClient = await CosmWasmClient.connect(rpcEndpoint)
         tokenInfo = await checkForCW20(cosmClient, cw20Input, false)
       }
     }

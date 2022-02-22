@@ -118,7 +118,7 @@ async function initiateCommandChain(firstCommandName, interaction) {
           createEmbed({
             color: '#be75a4',
             title: 'Error (star might be in retrograde)',
-            description: channelError || consoleError,
+            description: channelError ? channelError.toString() : consoleError.toString(),
           })
         ],
         ephemeral: true,

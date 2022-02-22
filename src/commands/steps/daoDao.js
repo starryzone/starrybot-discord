@@ -7,7 +7,7 @@ async function daoDao(req, res, ctx, next) {
       createEmbed({
         color: '#FDC2A0',
         title: 'Check out DAODAO',
-        description: "If you haven't set up a DAO, visit the link above to create a DAO with a governance token.",
+        description: 'If you have not set up a DAO, visit the link above to create a DAO with a governance token.',
         fields: [
           {
             name: '🧑‍🤝‍🧑', // a big space
