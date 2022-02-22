@@ -44,6 +44,7 @@ async function hoistRequest(args) {
 
 // Allow a remote caller to inquire about a member
 async function hoistInquire(traveller) {
+	let ret
 	// If they didn't send the proper parameter
 	if (!traveller) {
 		throw "No traveller sent"
@@ -60,7 +61,15 @@ async function hoistInquire(traveller) {
 
 	const saganism = member.saganism
 
-	return {saganism, createdAt}
+	ret = { saganism, createdAt }
+	// See if we can determine a preferred native token, informing which
+	// chain ID the frontend should try to connect
+	const preferredPrefix = await db.inferPreferredNativeToken(member.discord_guild_id)
+	if (preferredPrefix) {
+		ret.nativeToken = preferredPrefix
+	}
+
+	return ret
 }
 
 // And drop a user
