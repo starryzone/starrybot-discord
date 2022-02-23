@@ -291,10 +291,19 @@ async function hoistFinalize(blob, client) {
 				console.log(`balances ${tokenAddress}`, balances)
 				matches = balances.filter(balances => balances.denom === `u${tokenAddress}`)
 
+				// A user can potentially have no liquid stars, account for that
+				if (matches.length === 0) {
+					matches = [{
+						amount: 0
+					}]
+				}
+				console.log('Liquid native tokens', matches[0].amount)
+
 				// Now check for delegation amounts if mainnet
 				if (network === 'mainnet') {
 					const delegationTotal = await sumDelegationsForAccount(encodedAccount)
 					matches[0].amount = parseInt(matches[0].amount) + delegationTotal
+					console.log('Sum of liquid and staked', matches[0].amount)
 				}
 			} catch (e) {
 				console.warn(e);

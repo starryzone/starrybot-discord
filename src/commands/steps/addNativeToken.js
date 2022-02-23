@@ -12,9 +12,7 @@ async function addNativeToken(req, res, ctx, next) {
   } catch (e) {
     console.error('Cannot parse COSMOS_NETWORKS environment variable, please ensure that it is set.')
   }
-  console.log('networkInfo', networkInfo)
-  console.log('networkPrefixes', networkPrefixes)
-  
+
   const { interaction } = req;
 
   let components = []
