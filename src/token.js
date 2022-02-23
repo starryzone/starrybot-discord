@@ -30,13 +30,17 @@ const checkForCW20 = async (cosmClient, cw20Input, gracefulExit) => {
   return tokenInfo
 }
 
+const getDAOAddressFromDAODAOUrl = daoDAOUrl => {
+  const daoAddressRegex = /^https:\/\/(testnet\.)?daodao.zone\/dao\/(\w*)/;
+  const regexMatches = daoAddressRegex.exec(daoDAOUrl);
+  // [0] is the string itself, [1] is the (testnet\.) capture group, [2] is the (\w*) capture group
+  return regexMatches[2];
+}
+
 const checkForDAODAODAO = async (cosmClient, daoDAOUrl, gracefulExit) => {
   let daoInfo
   try {
-    const daoAddressRegex = /^https:\/\/(testnet\.)?daodao.zone\/dao\/(\w*)/;
-    const regexMatches = daoAddressRegex.exec(daoDAOUrl);
-    // [0] is the string itself, [1] is the (testnet\.) capture group, [2] is the (\w*) capture group
-    const daoAddress = regexMatches[2];
+    const daoAddress = getDAOAddressFromDAODAOUrl(daoDAOUrl)
     daoInfo = await cosmClient.queryContractSmart(daoAddress, {
       get_config: { },
     })
@@ -66,5 +70,6 @@ const checkForDAODAODAO = async (cosmClient, daoDAOUrl, gracefulExit) => {
 
 module.exports = {
     checkForCW20,
+    getDAOAddressFromDAODAOUrl,
     checkForDAODAODAO,
 }

@@ -1,5 +1,6 @@
 'use strict';
 
+const { networkInfo, networkPrefixes, getConnectionFromPrefix, getConnectionFromToken, getPrefixFromToken } = require("./utils/networks")
 const db = require("./db")
 const logger = require("./logger")
 const Sagan = require("./sagan.js")
@@ -9,25 +10,8 @@ const { Secp256k1, Secp256k1Signature, sha256 } = require('@cosmjs/crypto')
 const { fromBase64, Bech32 } = require('@cosmjs/encoding')
 const { REST } = require("@discordjs/rest");
 const { Routes } = require("discord-api-types/v9");
-const { StargateClient } = require("@cosmjs/stargate");
 const { CosmWasmClient } = require("@cosmjs/cosmwasm-stargate");
-
-// See getNetworkInfo where this is taken from env vars
-let networkInfo;
-try {
-	networkInfo = JSON.parse(process.env.COSMOS_NETWORKS)
-} catch (e) {
-	console.error('Cannot parse COSMOS_NETWORKS environment variable, please ensure that it is set.')
-}
-
-const JUNO_TESTNET_RPC_ENDPOINT = networkInfo.juno.testnet
-const JUNO_MAINNET_RPC_ENDPOINT = networkInfo.juno.mainnet
-
-async function getRPCfromPrefix(prefix, network) {
-	if (!networkInfo.hasOwnProperty(prefix)) return false
-	console.log(`Connecting to RPC ${prefix} for ${network}`)
-	return await StargateClient.connect(networkInfo[prefix][network])
-}
+const { StargateClient } = require("@cosmjs/stargate");
 
 // Returns a block with { memberId, saganism }
 // or on error either throws an error or returns { error }
@@ -86,7 +70,7 @@ async function hoistDrop(args) {
 	let authorId = args.authorId
 	let guildId = args.guildId
 	await db.memberDelete({authorId,guildId})
-	return {message:"You've been removed"}
+	return { message:"You've been removed" }
 	// TODO actually remove users
 }
 
@@ -215,46 +199,51 @@ async function hoistFinalize(blob, client) {
 		const network = role.network;
 		const tokenAddress = role.token_address
 
-		let rpcClient;
+		let rpcEndpoint, rpcClient;
 		// The token address is either going to be a prefix "juno"
 		// or an address with the prefix "juno123abc…"
-		const networkPrefixes = Object.keys(networkInfo)
+
 		if (networkPrefixes.includes(tokenAddress)) {
 			// This is a native token starrybot supports
-			rpcClient = await getRPCfromPrefix(tokenAddress, network)
+			try {
+				rpcEndpoint = await getConnectionFromPrefix(tokenAddress, 'rpc', network)
+			} catch (e) {
+				console.error(`Error with native token ${tokenAddress}`, e)
+				continue
+			}
 		} else {
-			// Get prefix of token address
-			let decodedAccount = Bech32.decode(tokenAddress);
-			if (decodedAccount && decodedAccount.prefix) {
-				const prefix = decodedAccount.prefix
-				if (networkPrefixes.includes(prefix)) {
-					rpcClient = await getRPCfromPrefix(prefix, network)
-				} else {
-					console.error('Could not find prefix somehow', prefix)
-					return
-				}
-			} else {
-				console.error('Unexpected results when trying to decode the token address', tokenAddress)
-				return
+			// A cw20 address
+			try {
+				rpcEndpoint = await getConnectionFromToken(tokenAddress, 'rpc', network)
+			} catch (e) {
+				console.error(`Error with fungible token ${tokenAddress}`, e)
+				continue
 			}
 		}
-		if (!rpcClient) {
-			console.error('Issue getting RPC client for', tokenAddress)
+		if (!rpcEndpoint) {
+			console.error('Issue getting RPC endpoint for', tokenAddress)
 			return
 		}
 
+		rpcClient = await StargateClient.connect(rpcEndpoint)
 		let decodedAccount = Bech32.decode(keplrAccount).data;
 		let encodedAccount, matches;
 
 		// We have an entire address instead of 'juno' or 'stars' prefixes
 		if (tokenType === 'cw20') {
-			encodedAccount = Bech32.encode(tokenAddress.substring(0, 4), decodedAccount);
+			const prefix = getPrefixFromToken(tokenAddress);
+			// Unlikely, but if something has gone wrong, continue
+			if (!prefix) {
+				console.error('Could not determine prefix')
+				continue
+			}
+
+			encodedAccount = Bech32.encode(prefix, decodedAccount);
 			let smartContract;
 			try {
 				// Attempt to connect in a try catch, as it's possible for testnet to be down
-				const cosmClient = network === 'mainnet' ?
-					await CosmWasmClient.connect(JUNO_MAINNET_RPC_ENDPOINT) :
-					await CosmWasmClient.connect(JUNO_TESTNET_RPC_ENDPOINT);
+				const rpcEndpoint = getConnectionFromPrefix(prefix, 'rpc', network)
+				const cosmClient = await CosmWasmClient.connect(rpcEndpoint)
 
 					smartContract = await cosmClient.queryContractSmart(tokenAddress, {
 						balance: {

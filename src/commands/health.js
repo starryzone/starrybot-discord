@@ -2,28 +2,51 @@ const { CosmWasmClient } = require("@cosmjs/cosmwasm-stargate");
 const { rolesGet } = require("../db");
 const { networkInfo } = require("../logic");
 const { createEmbed } = require("../utils/messages");
+const fetch = require("node-fetch");
 
-async function checkNetwork (networkName, networkUrl) {
-  const prefix = `${networkName} status:`
+async function checkRPC(networkName, networkUrl) {
+  const prefix = `${networkName} RPC status:`
   try {
-    await CosmWasmClient.connect(networkUrl);
+    const cosmClient = await CosmWasmClient.connect(networkUrl);
+    // Try getting the height
+    await cosmClient.getHeight()
     return `${prefix} 🟢`;
   } catch (e) {
-    console.warn(`Could not connect to ${networkUrl} for ${networkName}`, e);
+    console.warn(`Could not connect to RPC at ${networkUrl} for ${networkName}`, e);
     return `${prefix} 🔴`;
   }
-};
+}
 
-async function checkAllNetworks () {
+async function checkLCD(networkName, lcdUrl) {
+  const prefix = `${networkName} LCD status:`
+  try {
+    const delegationRes = await fetch(`${lcdUrl}/staking/pool`)
+    const body = await delegationRes.json();
+    // Ensure it at least is returning height
+    if (!body.hasOwnProperty('height')) throw 'Did not return height as expected'
+    return `${prefix} 🟢`;
+  } catch (e) {
+    console.warn(`Could not connect to LCD at ${lcdUrl} for ${networkName}`, e);
+    return `${prefix} 🔴`;
+  }
+}
+
+async function checkAllNetworks() {
   // Loop through all of our networks
   let networkPromises = [];
   Object.keys(networkInfo).forEach(networkName => {
     const network = networkInfo[networkName];
-    if (network.mainnet) {
-      networkPromises.push(checkNetwork(networkName + ' (mainnet)', network.mainnet));
+    if (network.rpc.mainnet) {
+      networkPromises.push(checkRPC(networkName + ' RPC (mainnet)', network.rpc.mainnet));
     }
-    if (network.testnet) {
-      networkPromises.push(checkNetwork(networkName + ' (testnet)', network.testnet));
+    if (network.rpc.testnet) {
+      networkPromises.push(checkRPC(networkName + ' RPC (testnet)', network.rpc.testnet));
+    }
+    if (network.lcd.mainnet) {
+      networkPromises.push(checkLCD(networkName + ' LCD (mainnet)', network.lcd.mainnet));
+    }
+    if (network.lcd.testnet) {
+      networkPromises.push(checkLCD(networkName + ' LCD (testnet)', network.lcd.testnet));
     }
   });
   return await Promise.all(networkPromises);
