@@ -344,4 +344,4 @@ async function hoistFinalize(blob, client) {
 	return { success:"done" }
 }
 
-module.exports = { hoistRequest, hoistInquire, hoistDrop, hoistFinalize, networkInfo }
+module.exports = { hoistRequest, hoistInquire, hoistDrop, hoistFinalize }

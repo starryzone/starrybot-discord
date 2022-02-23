@@ -1,5 +1,5 @@
-const { createEmbed, createButton, createMessageActionRow } = require("../../utils/messages");
-const { networkInfo } = require('../../logic')
+const { createButton, createMessageActionRow } = require("../../utils/messages");
+const { networkInfo } = require('../../utils/networks')
 
 // Add native token (like juno, stars…)
 async function addNativeToken(req, res, ctx, next) {
