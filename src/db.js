@@ -227,6 +227,16 @@ const memberExists = async (uuid, guildId) => {
 	}).select('id')
 }
 
+const inferPreferredNativeToken = async (guildId) => {
+	await ensureDatabaseInitialized()
+	let nativeTokens = await knex(myConfig.DB_TABLENAME_ROLES)
+		.where('discord_guild_id', guildId)
+		.andWhere('token_type', 'native')
+		.select('token_address' )
+		.orderBy('created_at', 'desc')
+	return (nativeTokens && nativeTokens.length) ? nativeTokens[0]['token_address'] : false
+}
+
 const memberBySessionToken = async (session_token) => {
 	await ensureDatabaseInitialized()
 	let members = await knex(myConfig.DB_TABLENAME_MEMBERS)
@@ -266,4 +276,4 @@ const memberDelete = async ({authorId, guildId}) => {
 	}
 }
 
-module.exports = { membersAll, memberExists, memberBySessionToken, memberByIdAndGuild, memberAdd, memberDelete, myConfig, rolesGet, roleGet, rolesSet, rolesDelete, rolesDeleteGuildAll, rolesGetForCleanUp }
+module.exports = { membersAll, memberExists, memberBySessionToken, memberByIdAndGuild, memberAdd, memberDelete, myConfig, rolesGet, roleGet, rolesSet, rolesDelete, rolesDeleteGuildAll, rolesGetForCleanUp, inferPreferredNativeToken }
