@@ -138,6 +138,22 @@ async function sumDelegationsForAccount(address) {
 	return sum
 }
 
+async function sumUnbondingDelegationsForAccount(address) {
+	const lcdUrl = getConnectionFromToken(address, 'lcd', 'mainnet')
+	const unbondingRes = await fetch(`${lcdUrl}/staking/delegators/${address}/unbonding_delegations`)
+	const body = await unbondingRes.json();
+
+	const sum = body.result.reduce((prevVal, currentVal) => {
+		const innerSum = currentVal.entries.reduce((innerPrevVal, innerCurrentVal) => {
+			return innerPrevVal + parseInt(innerCurrentVal.balance);
+		}, 0);
+		return prevVal + innerSum;
+	}, 0);
+
+	console.log('Sum of delegations currently unbonding', sum)
+	return sum
+}
+
 // Finalize hoist
 async function hoistFinalize(blob, client) {
 	const {traveller, signed, signature, account} = blob;
@@ -304,6 +320,9 @@ async function hoistFinalize(blob, client) {
 					const delegationTotal = await sumDelegationsForAccount(encodedAccount)
 					matches[0].amount = parseInt(matches[0].amount) + delegationTotal
 					console.log('Sum of liquid and staked', matches[0].amount)
+					const unbondingDelegationTotal = await sumUnbondingDelegationsForAccount(encodedAccount)
+					matches[0].amount = parseInt(matches[0].amount) + unbondingDelegationTotal
+					console.log('Sum of liquid and staked and unbonding', matches[0].amount)
 				}
 			} catch (e) {
 				console.warn(e);
