@@ -1,6 +1,6 @@
 const { CosmWasmClient } = require("@cosmjs/cosmwasm-stargate");
 const { rolesGet } = require("../db");
-const { networkInfo } = require("../logic");
+const { networkInfo } = require("../utils/networks");
 const { createEmbed } = require("../utils/messages");
 const fetch = require("node-fetch");
 
