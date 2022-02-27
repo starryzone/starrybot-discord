@@ -1,3 +1,6 @@
+const { CosmWasmClient } = require("@cosmjs/cosmwasm-stargate");
+const { getConnectionFromToken } = require('../utils/networks')
+
 // This will check mainnet or testnet for the existence and balance of the cw20 contract
 // gracefulExit is useful when we check if it's on mainnet first, then testnet.
 //   if it's not on mainnet, we don't want it to fail, basically
@@ -30,6 +33,29 @@ const checkForCW20 = async (cosmClient, cw20Input, gracefulExit) => {
   return tokenInfo
 }
 
+const getCW20TokenDetails = async (cw20Input) => {
+  let network = 'mainnet';
+  // Check user's cw20 token for existence on mainnet then testnet
+  let rpcEndpoint = getConnectionFromToken(cw20Input, 'rpc', 'mainnet')
+  let cosmClient = await CosmWasmClient.connect(rpcEndpoint)
+  let tokenInfo = await checkForCW20(cosmClient, cw20Input, true)
+  if (tokenInfo === false) {
+    // Nothing was found on mainnet, try testnet
+    network = 'testnet'
+    rpcEndpoint = getConnectionFromToken(cw20Input, 'rpc', network)
+    cosmClient = await CosmWasmClient.connect(rpcEndpoint)
+    tokenInfo = await checkForCW20(cosmClient, cw20Input, false)
+  }
+
+  return {
+    network,
+    cw20Input,
+    tokenType: 'cw20',
+    tokenInfo,
+  }
+}
+
 module.exports = {
   checkForCW20,
+  getCW20TokenDetails,
 }

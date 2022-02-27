@@ -1,7 +1,7 @@
 const { CosmWasmClient } = require("@cosmjs/cosmwasm-stargate");
 const { getConnectionFromToken } = require('../../utils/networks')
 const { getDaoDaoTokenDetails } = require("../../stargate/daodao");
-const { checkForCW20 } = require("../../stargate/cw20");
+const { getCW20TokenDetails } = require("../../stargate/cw20");
 const { createEmbed } = require("../../utils/messages");
 
 async function handleCW20Entry(req, res, ctx, next) {
@@ -25,18 +25,11 @@ async function handleCW20Entry(req, res, ctx, next) {
       tokenType = results.tokenType;
       tokenInfo = results.tokenInfo;
     } else {
-      // Check user's cw20 token for existence on mainnet then testnet
-      cw20Input = userInput;
-      rpcEndpoint = getConnectionFromToken(userInput, 'rpc', 'mainnet')
-      cosmClient = await CosmWasmClient.connect(rpcEndpoint)
-      tokenInfo = await checkForCW20(cosmClient, cw20Input, true)
-      if (tokenInfo === false) {
-        // Nothing was found on mainnet, try testnet
-        network = 'testnet'
-        rpcEndpoint = getConnectionFromToken(userInput, 'rpc', network)
-        cosmClient = await CosmWasmClient.connect(rpcEndpoint)
-        tokenInfo = await checkForCW20(cosmClient, cw20Input, false)
-      }
+      const results = await getCW20TokenDetails(userInput);
+      network = results.network;
+      cw20Input = results.cw20Input;
+      tokenType = results.tokenType;
+      tokenInfo = results.tokenInfo;
     }
   } catch (e) {
     // Notify the channel with whatever went wrong in this step
