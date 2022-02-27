@@ -57,8 +57,8 @@ const getCW20TokenDetails = async (cw20Input) => {
 }
 
 module.exports = {
+  // Used by Daodao's getTokenDetails
   checkForCW20,
-  getCW20TokenDetails,
 
   cw20: {
     name: 'CW20',

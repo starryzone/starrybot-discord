@@ -78,11 +78,7 @@ const getDaoDaoTokenDetails = async (daodaoUrl) => {
   };
 }
 
-module.exports = {
-  getDAOAddressFromDAODAOUrl,
-  getDaoDaoTokenDetails,
-  checkForDAODAODAO,
-  
+module.exports = {  
   daodao: {
     name: 'DAODAO',
     isTokenType: isDaoDaoAddress,
