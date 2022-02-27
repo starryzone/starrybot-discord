@@ -1,4 +1,4 @@
-const { getTokenDetails } = require('../../stargate')
+const { getTokenDetails } = require('../../astrolabe')
 const { createEmbed } = require("../../utils/messages");
 
 async function handleCW20Entry(req, res, ctx, next) {

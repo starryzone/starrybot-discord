@@ -1,5 +1,5 @@
 const { createButton, createMessageActionRow } = require("../../utils/messages");
-const { networkPrefixes } = require('../../stargate/networks');
+const { networkPrefixes } = require('../../astrolabe/networks');
 
 // Add native token (like juno, stars…)
 async function addNativeToken(req, res, ctx, next) {
