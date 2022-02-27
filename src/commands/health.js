@@ -1,15 +1,11 @@
-const { CosmWasmClient } = require("@cosmjs/cosmwasm-stargate");
 const { rolesGet } = require("../db");
-const { networkInfo } = require("../stargate/networks");
+const { checkRPCStatus, checkLCDStatus, networkInfo } = require("../stargate/networks");
 const { createEmbed } = require("../utils/messages");
-const fetch = require("node-fetch");
 
 async function checkRPC(networkName, networkUrl) {
   const prefix = `${networkName} RPC status:`
   try {
-    const cosmClient = await CosmWasmClient.connect(networkUrl);
-    // Try getting the height
-    await cosmClient.getHeight()
+    await checkRPCStatus(networkUrl);
     return `${prefix} 🟢`;
   } catch (e) {
     console.warn(`Could not connect to RPC at ${networkUrl} for ${networkName}`, e);
@@ -20,10 +16,7 @@ async function checkRPC(networkName, networkUrl) {
 async function checkLCD(networkName, lcdUrl) {
   const prefix = `${networkName} LCD status:`
   try {
-    const delegationRes = await fetch(`${lcdUrl}/staking/pool`)
-    const body = await delegationRes.json();
-    // Ensure it at least is returning height
-    if (!body.hasOwnProperty('height')) throw 'Did not return height as expected'
+    await checkLCDStatus(lcdUrl);
     return `${prefix} 🟢`;
   } catch (e) {
     console.warn(`Could not connect to LCD at ${lcdUrl} for ${networkName}`, e);
