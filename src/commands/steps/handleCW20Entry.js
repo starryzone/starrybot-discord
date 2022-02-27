@@ -1,6 +1,7 @@
 const { CosmWasmClient } = require("@cosmjs/cosmwasm-stargate");
 const { getConnectionFromToken } = require('../../utils/networks')
-const { checkForCW20, checkForDAODAODAO, getDAOAddressFromDAODAOUrl} = require("../../token");
+const { getDAOAddressFromDAODAOUrl } = require("../../stargate/daodao");
+const { checkForCW20, checkForDAODAODAO} = require("../../token");
 const { createEmbed } = require("../../utils/messages");
 
 async function handleCW20Entry(req, res, ctx, next) {

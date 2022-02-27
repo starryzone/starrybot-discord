@@ -1,3 +1,5 @@
+import { getDAOAddressFromDAODAOUrl } from "./stargate/daodao";
+
 // This will check mainnet or testnet for the existence and balance of the cw20 contract
 // gracefulExit is useful when we check if it's on mainnet first, then testnet.
 //   if it's not on mainnet, we don't want it to fail, basically
@@ -30,12 +32,6 @@ const checkForCW20 = async (cosmClient, cw20Input, gracefulExit) => {
   return tokenInfo
 }
 
-const getDAOAddressFromDAODAOUrl = daoDAOUrl => {
-  const daoAddressRegex = /^https:\/\/(testnet\.)?daodao.zone\/dao\/(\w*)/;
-  const regexMatches = daoAddressRegex.exec(daoDAOUrl);
-  // [0] is the string itself, [1] is the (testnet\.) capture group, [2] is the (\w*) capture group
-  return regexMatches[2];
-}
 
 const checkForDAODAODAO = async (cosmClient, daoDAOUrl, gracefulExit) => {
   let daoInfo
@@ -70,6 +66,5 @@ const checkForDAODAODAO = async (cosmClient, daoDAOUrl, gracefulExit) => {
 
 module.exports = {
     checkForCW20,
-    getDAOAddressFromDAODAOUrl,
     checkForDAODAODAO,
 }
