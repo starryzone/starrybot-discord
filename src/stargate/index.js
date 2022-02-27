@@ -16,7 +16,28 @@ const getTokenDetails = async (tokenInput) => {
   while (!tokenDetails && tokenIndex < allTokenTypes.length) {
     currentTokenType = allTokenTypes[tokenIndex];
     if (currentTokenType.isTokenType(tokenInput)) {
-      tokenDetails = await currentTokenType.getTokenDetails(tokenInput);
+      try {
+        tokenDetails = await currentTokenType.getTokenDetails(tokenInput);
+      } catch (e) {
+        // First try to log what chain failed
+        let chainId;
+        try {
+          // It's possible for this to also fail, but we still want to know what went wrong
+          chainId = await cosmClient.getChainId();
+        }  catch (e) {
+          chainId = '[chain ID not found]'
+        }
+        console.error(`Error message after trying to query ${currentTokenType.name} on ${chainId}`, e.message)
+
+        // Throw a more specific error message if we can
+        if (e.message.includes('decoding bech32 failed')) {
+          throw 'Invalid address. Remember: first you copy, then you paste.';
+        } else if (e.message.includes('contract: not found')) {
+          throw 'No contract at that address. Probable black hole.';
+        } else if (e.message.includes('Error parsing into type')) {
+          throw 'That is a valid contract, but cosmic perturbations tell us it is not a cw20.';
+        }
+      }
     }
     tokenIndex++;
   }
