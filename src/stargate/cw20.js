@@ -1,5 +1,5 @@
 const { CosmWasmClient } = require("@cosmjs/cosmwasm-stargate");
-const { getConnectionFromToken } = require('../utils/networks')
+const { getConnectionFromToken } = require('./networks')
 
 const checkForCW20 = async (cosmClient, cw20Input) => {
   return cosmClient.queryContractSmart(cw20Input, {

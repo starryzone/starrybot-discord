@@ -1,6 +1,6 @@
 'use strict';
 
-const { networkInfo, networkPrefixes, getConnectionFromPrefix, getConnectionFromToken, getPrefixFromToken } = require("./utils/networks")
+const { getConnectionFromPrefix, getConnectionFromToken, getPrefixFromToken, networkPrefixes } = require("./stargate/networks")
 const db = require("./db")
 const logger = require("./logger")
 const Sagan = require("./sagan.js")
