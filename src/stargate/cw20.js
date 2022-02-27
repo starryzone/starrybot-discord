@@ -1,4 +1,3 @@
-
 // This will check mainnet or testnet for the existence and balance of the cw20 contract
 // gracefulExit is useful when we check if it's on mainnet first, then testnet.
 //   if it's not on mainnet, we don't want it to fail, basically
@@ -32,5 +31,5 @@ const checkForCW20 = async (cosmClient, cw20Input, gracefulExit) => {
 }
 
 module.exports = {
-    checkForCW20,
+  checkForCW20,
 }
