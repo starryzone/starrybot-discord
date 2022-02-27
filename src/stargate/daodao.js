@@ -2,6 +2,8 @@ const { CosmWasmClient } = require("@cosmjs/cosmwasm-stargate");
 const { getConnectionFromToken } = require('../utils/networks')
 const { checkForCW20 } = require('./cw20');
 
+// Check to see if they pasted a DAODAO URL like this:
+// https://daodao.zone/dao/juno129spsp500mjpx7eut9p08s0jla9wmsen2g8nnjk3wmvwgc83srqq85awld
 const isDaoDaoAddress = daodaoUrl => {
   const daodaoRegex = /^https:\/\/(testnet\.)?daodao.zone/;
   return daodaoUrl.match(daodaoRegex);
@@ -71,7 +73,8 @@ const getDaoDaoTokenDetails = async (daodaoUrl) => {
     network,
     cw20Input,
     tokenType: 'cw20',
-    tokenInfo,
+    tokenSymbol: tokenInfo.symbol,
+    decimals: tokenInfo.decimals,
   };
 }
 
@@ -80,5 +83,10 @@ module.exports = {
   getDaoDaoTokenDetails,
   checkForDAODAODAO,
   
-  daodao: {},
+  daodao: {
+    name: 'DAODAO',
+    isTokenType: isDaoDaoAddress,
+    checkFor: checkForDAODAODAO,
+    getTokenDetails: getDaoDaoTokenDetails,
+  },
 }

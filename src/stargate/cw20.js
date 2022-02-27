@@ -51,11 +51,19 @@ const getCW20TokenDetails = async (cw20Input) => {
     network,
     cw20Input,
     tokenType: 'cw20',
-    tokenInfo,
+    tokenSymbol: tokenInfo.symbol,
+    decimals: tokenInfo.decimals,
   }
 }
 
 module.exports = {
   checkForCW20,
   getCW20TokenDetails,
+
+  cw20: {
+    name: 'CW20',
+    isTokenType: () => true, // TO-DO: is there a way to tell?
+    checkFor: checkForCW20,
+    getTokenDetails: getCW20TokenDetails,
+  }
 }
