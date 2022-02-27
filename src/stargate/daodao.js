@@ -1,3 +1,11 @@
+const { CosmWasmClient } = require("@cosmjs/cosmwasm-stargate");
+const { getConnectionFromToken } = require('../utils/networks')
+const { checkForCW20 } = require('./cw20');
+
+const isDaoDaoAddress = daodaoUrl => {
+  const daodaoRegex = /^https:\/\/(testnet\.)?daodao.zone/;
+  return daodaoUrl.match(daodaoRegex);
+}
 
 const getDAOAddressFromDAODAOUrl = daoDAOUrl => {
   const daoAddressRegex = /^https:\/\/(testnet\.)?daodao.zone\/dao\/(\w*)/;
@@ -37,8 +45,39 @@ const checkForDAODAODAO = async (cosmClient, daoDAOUrl, gracefulExit) => {
   return daoInfo
 }
 
+const getDaoDaoTokenDetails = async (daodaoUrl) => {
+  if (!isDaoDaoAddress(daodaoUrl)) return;
+
+  const network = daodaoUrl.includes('testnet') ? 'testnet' : 'mainnet';
+
+  // Let's determine the RPC to connect to
+  // based on the dao address
+  const daoAddress = getDAOAddressFromDAODAOUrl(daodaoUrl)
+  const rpcEndpoint = getConnectionFromToken(daoAddress, 'rpc', network)
+  const cosmClient = await CosmWasmClient.connect(rpcEndpoint)
+  // Exit a failed state more gracefully on mainnet
+  const gracefulExit = network === 'mainnet';
+  const daoInfo = await checkForDAODAODAO(cosmClient, daodaoUrl, gracefulExit);
+  // If there isn't a governance token associated with this DAO, fail with message
+  if (!daoInfo || !daoInfo.hasOwnProperty('gov_token')) {
+    // This will be caught in our own catch below
+    throw "We couldn't find any governance token associated with your DAO :/\nPerhaps destroyed in a supernova?";
+  }
+  const cw20Input = daoInfo['gov_token']
+  // Now that we have the cw20 token address and network, get the info we want
+  const tokenInfo = await checkForCW20(cosmClient, cw20Input, false)
+
+  return {
+    network,
+    cw20Input,
+    tokenType: 'cw20',
+    tokenInfo,
+  };
+}
+
 module.exports = {
   getDAOAddressFromDAODAOUrl,
+  getDaoDaoTokenDetails,
   checkForDAODAODAO,
   
   daodao: {},
