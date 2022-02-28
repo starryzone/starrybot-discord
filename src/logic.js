@@ -12,8 +12,7 @@ const { fromBase64, Bech32 } = require('@cosmjs/encoding')
 const { REST } = require("@discordjs/rest");
 const { Routes } = require("discord-api-types/v9");
 const { CosmWasmClient } = require("@cosmjs/cosmwasm-stargate");
-const { StargateClient } = require("@cosmjs/stargate");
-const { getTokenRpcEndpoint } = require("./astrolabe");
+const { getTokenRpcClient } = require("./astrolabe");
 
 // Returns a block with { memberId, saganism }
 // or on error either throws an error or returns { error }
@@ -211,19 +210,13 @@ async function hoistFinalize(blob, client) {
 		const network = role.network;
 		const tokenAddress = role.token_address
 
-		let rpcEndpoint;
+		let rpcClient;
 		try {
-			rpcEndpoint = await getTokenRpcEndpoint(tokenAddress, network);
+			rpcClient = await getTokenRpcClient(tokenAddress, network);
 		} catch (e) {
 			console.error(`Error with token ${tokenAddress}`, e);
 		}
 
-		if (!rpcEndpoint) {
-			console.error('Issue getting RPC endpoint for', tokenAddress)
-			return
-		}
-
-		const rpcClient = await StargateClient.connect(rpcEndpoint)
 		let decodedAccount = Bech32.decode(keplrAccount).data;
 		let encodedAccount, matches;
 

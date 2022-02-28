@@ -1,6 +1,7 @@
 const { daodao } = require('./daodao');
 const { cw20 } = require('./cw20');
 const { native } = require('./native');
+const { StargateClient } = require('@cosmjs/stargate');
 
 // cw20 must be last right now, as the others are
 // easier to check for
@@ -53,8 +54,17 @@ const getTokenRpcEndpoint = async (tokenAddress, network) => {
   }
 }
 
+const getTokenRpcClient = async (tokenAddress, network) => {
+  const rpcEndpoint = await getTokenRpcEndpoint(tokenAddress, network);
+  if (!rpcEndpoint) {
+   throw `Issue getting RPC endpoint for ${tokenAddress}`;
+  }
+  return StargateClient.connect(rpcEndpoint);
+}
+
 module.exports = {
   getTokenType,
   getTokenDetails,
   getTokenRpcEndpoint,
+  getTokenRpcClient,
 }
