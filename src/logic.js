@@ -1,10 +1,10 @@
 'use strict';
 
-const { networkInfo, networkPrefixes, getConnectionFromPrefix, getConnectionFromToken, getPrefixFromToken } = require("./astrolabe/networks")
+const { getConnectionFromPrefix, getPrefixFromToken } = require("./astrolabe/networks")
+const { sumDelegationsForAccount, sumUnbondingDelegationsForAccount } = require('./astrolabe/native');
 const db = require("./db")
 const logger = require("./logger")
 const Sagan = require("./sagan.js")
-const fetch = require("node-fetch");
 
 const { serializeSignDoc } = require('@cosmjs/amino')
 const { Secp256k1, Secp256k1Signature, sha256 } = require('@cosmjs/crypto')
@@ -13,6 +13,7 @@ const { REST } = require("@discordjs/rest");
 const { Routes } = require("discord-api-types/v9");
 const { CosmWasmClient } = require("@cosmjs/cosmwasm-stargate");
 const { StargateClient } = require("@cosmjs/stargate");
+const { getTokenRpcEndpoint } = require("./astrolabe");
 
 // Returns a block with { memberId, saganism }
 // or on error either throws an error or returns { error }
@@ -125,34 +126,6 @@ const isCorrectSaganism = async (traveller, signed) => {
 	}
 }
 
-async function sumDelegationsForAccount(address) {
-	const lcdUrl = getConnectionFromToken(address, 'lcd', 'mainnet')
-	const delegationRes = await fetch(`${lcdUrl}/staking/delegators/${address}/delegations`)
-	const body = await delegationRes.json();
-	const sum = body.result.reduce(
-		(prevVal, currentVal) => prevVal + parseInt(currentVal.balance.amount),
-		0
-	);
-
-	console.log('Sum of delegations', sum)
-	return sum
-}
-
-async function sumUnbondingDelegationsForAccount(address) {
-	const lcdUrl = getConnectionFromToken(address, 'lcd', 'mainnet')
-	const unbondingRes = await fetch(`${lcdUrl}/staking/delegators/${address}/unbonding_delegations`)
-	const body = await unbondingRes.json();
-
-	const sum = body.result.reduce((prevVal, currentVal) => {
-		const innerSum = currentVal.entries.reduce((innerPrevVal, innerCurrentVal) => {
-			return innerPrevVal + parseInt(innerCurrentVal.balance);
-		}, 0);
-		return prevVal + innerSum;
-	}, 0);
-
-	console.log('Sum of delegations currently unbonding', sum)
-	return sum
-}
 
 // Finalize hoist
 async function hoistFinalize(blob, client) {
@@ -238,33 +211,19 @@ async function hoistFinalize(blob, client) {
 		const network = role.network;
 		const tokenAddress = role.token_address
 
-		let rpcEndpoint, rpcClient;
-		// The token address is either going to be a prefix "juno"
-		// or an address with the prefix "juno123abc…"
-
-		if (networkPrefixes.includes(tokenAddress)) {
-			// This is a native token starrybot supports
-			try {
-				rpcEndpoint = await getConnectionFromPrefix(tokenAddress, 'rpc', network)
-			} catch (e) {
-				console.error(`Error with native token ${tokenAddress}`, e)
-				continue
-			}
-		} else {
-			// A cw20 address
-			try {
-				rpcEndpoint = await getConnectionFromToken(tokenAddress, 'rpc', network)
-			} catch (e) {
-				console.error(`Error with fungible token ${tokenAddress}`, e)
-				continue
-			}
+		let rpcEndpoint;
+		try {
+			rpcEndpoint = await getTokenRpcEndpoint(tokenAddress, network);
+		} catch (e) {
+			console.error(`Error with token ${tokenAddress}`, e);
 		}
+
 		if (!rpcEndpoint) {
 			console.error('Issue getting RPC endpoint for', tokenAddress)
 			return
 		}
 
-		rpcClient = await StargateClient.connect(rpcEndpoint)
+		const rpcClient = await StargateClient.connect(rpcEndpoint)
 		let decodedAccount = Bech32.decode(keplrAccount).data;
 		let encodedAccount, matches;
 

@@ -60,11 +60,11 @@ const checkLCDStatus = async (lcdUrl) => {
 }
 
 module.exports = {
+  checkRPCStatus,
+  checkLCDStatus,
   getPrefixFromToken,
   getConnectionFromToken,
   getConnectionFromPrefix,
-  checkRPCStatus,
-  checkLCDStatus,
   networkInfo,
   networkPrefixes
 }
