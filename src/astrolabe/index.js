@@ -1,13 +1,12 @@
-const { daodao } = require('./daodao');
 const { cw20 } = require('./cw20');
 const { native } = require('./native');
 
 // cw20 must be last right now, as the others are
 // easier to check for
-const allTokenTypes = [ native, daodao, cw20 ];
+const allTokenTypes = [ native, cw20 ];
 
 // Given any of a DAODAO URL, CW20 token address, or a native token,
-// return what type we've been given
+// return the handler for that token type
 const getTokenType = (tokenInput) => {
   return allTokenTypes.find(tokenType => tokenType.isTokenType(tokenInput));
 }

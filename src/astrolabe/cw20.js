@@ -1,6 +1,7 @@
 const { CosmWasmClient } = require("@cosmjs/cosmwasm-stargate");
 const { Bech32 } = require('@cosmjs/encoding')
 const { getConnectionFromPrefix, getConnectionFromToken, getPrefixFromToken } = require('./cosmos')
+const { isDaoDaoAddress, getCW20InputFromDaoDaoDao } = require('./daodao');
 
 const checkForCW20 = async (cosmClient, cw20Input) => {
   return cosmClient.queryContractSmart(cw20Input, {
@@ -8,7 +9,11 @@ const checkForCW20 = async (cosmClient, cw20Input) => {
   });
 }
 
-const getCW20TokenDetails = async (cw20Input) => {
+const getCW20TokenDetails = async (userInput) => {
+  const cw20Input = isDaoDaoAddress(userInput) ?
+    await getCW20InputFromDaoDaoDao(userInput) :
+    userInput;
+
   let network = 'mainnet';
   // Check user's cw20 token for existence on mainnet then testnet
   let rpcEndpoint = getConnectionFromToken(cw20Input, 'rpc', 'mainnet')
@@ -52,12 +57,11 @@ const getCW20TokenBalance = async (keplrAccount, tokenAddress, network) => {
 }
 
 module.exports = {
-  // Used by Daodao's getTokenDetails
-  checkForCW20,
-
   cw20: {
     name: 'CW20',
-    isTokenType: () => true, // TO-DO: is there a way to tell?
+    // TO-DO: is there a way to tell if we have a CW20? Right
+    // now we just try and see
+    isTokenType: () => true,
     getTokenBalance: getCW20TokenBalance,
     getTokenDetails: getCW20TokenDetails,
   }
