@@ -55,7 +55,10 @@ module.exports = {
   daodao: {
     name: 'DAODAO',
     isTokenType: isDaoDaoAddress,
-    checkFor: checkForDAODAODAO,
     getTokenDetails: getDaoDaoTokenDetails,
+    // There is no getTokenBalance because daodao tokens get stored
+    // CW20, so we just call the getTokenBalance in cw20.js instead.
+    // TO-DO: Ideally daodao would be a layer on top of CW20 since it's
+    // not strictly a token itself, but not positive what that looks like yet.
   },
 }

@@ -75,13 +75,9 @@ const getNativeRpcClient = async (tokenAddress, network) => {
 }
 
 module.exports = {
-  sumDelegationsForAccount,
-  sumUnbondingDelegationsForAccount,
-
   native: {
     name: 'native',
     isTokenType: token => networkPrefixes.includes(token),
     getTokenBalance: getNativeTokenBalance,
-    getTokenRpcEndpoint: getNativeRpcEndpoint,
   }
 }

@@ -58,9 +58,7 @@ module.exports = {
   cw20: {
     name: 'CW20',
     isTokenType: () => true, // TO-DO: is there a way to tell?
-    checkFor: checkForCW20,
     getTokenBalance: getCW20TokenBalance,
     getTokenDetails: getCW20TokenDetails,
-    getTokenRpcEndpoint: (tokenAddress, network) => getConnectionFromToken(tokenAddress, 'rpc', network)
   }
 }

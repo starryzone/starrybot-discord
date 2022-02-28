@@ -216,11 +216,10 @@ async function hoistFinalize(blob, client) {
 		}
 
 		// Only proceed if the balance is greater than the minimum
+		console.log(`Comparing ${balance} against ${parseInt(role.has_minimum_of)}`);
 		if (balance < parseInt(role.has_minimum_of)) {
-			console.log("not enough to get the role");
 			continue
 		}
-		console.log(`${balance} is greater than ${parseInt(role.has_minimum_of)}`)
 
 		// At this point, we can be sure the user should be given the role
 		const systemChannelId = guild.systemChannelId;
