@@ -1,6 +1,6 @@
 'use strict';
 
-const { getConnectionFromPrefix, getConnectionFromToken, getPrefixFromToken, networkPrefixes } = require("./astrolabe/networks")
+const { networkInfo, networkPrefixes, getConnectionFromPrefix, getConnectionFromToken, getPrefixFromToken } = require("./astrolabe/networks")
 const db = require("./db")
 const logger = require("./logger")
 const Sagan = require("./sagan.js")
