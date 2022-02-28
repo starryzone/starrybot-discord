@@ -62,8 +62,14 @@ const getTokenRpcClient = async (tokenAddress, network) => {
   return StargateClient.connect(rpcEndpoint);
 }
 
+const getTokenBalance = async (keplrAccount, tokenAddress, network) => {
+  const tokenType = getTokenType(tokenAddress);
+  return tokenType.getTokenBalance(keplrAccount, tokenAddress, network);
+}
+
 module.exports = {
   getTokenType,
+  getTokenBalance,
   getTokenDetails,
   getTokenRpcEndpoint,
   getTokenRpcClient,

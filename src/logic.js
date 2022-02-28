@@ -1,18 +1,15 @@
 'use strict';
 
-const { getConnectionFromPrefix, getPrefixFromToken } = require("./astrolabe/networks")
-const { sumDelegationsForAccount, sumUnbondingDelegationsForAccount } = require('./astrolabe/native');
 const db = require("./db")
 const logger = require("./logger")
 const Sagan = require("./sagan.js")
 
 const { serializeSignDoc } = require('@cosmjs/amino')
 const { Secp256k1, Secp256k1Signature, sha256 } = require('@cosmjs/crypto')
-const { fromBase64, Bech32 } = require('@cosmjs/encoding')
+const { fromBase64 } = require('@cosmjs/encoding')
 const { REST } = require("@discordjs/rest");
 const { Routes } = require("discord-api-types/v9");
-const { CosmWasmClient } = require("@cosmjs/cosmwasm-stargate");
-const { getTokenRpcClient } = require("./astrolabe");
+const { getTokenBalance } = require("./astrolabe");
 
 // Returns a block with { memberId, saganism }
 // or on error either throws an error or returns { error }
@@ -206,97 +203,24 @@ async function hoistFinalize(blob, client) {
 
 		let roleName = role.give_role
 		let roleDiscord = guild.roles.cache.find(r => r.name === roleName)
-		const tokenType = role.token_type
 		const network = role.network;
 		const tokenAddress = role.token_address
 
-		let rpcClient;
+		let balance;
 		try {
-			rpcClient = await getTokenRpcClient(tokenAddress, network);
-		} catch (e) {
-			console.error(`Error with token ${tokenAddress}`, e);
-		}
-
-		let decodedAccount = Bech32.decode(keplrAccount).data;
-		let encodedAccount, matches;
-
-		// We have an entire address instead of 'juno' or 'stars' prefixes
-		if (tokenType === 'cw20') {
-			const prefix = getPrefixFromToken(tokenAddress);
-			// Unlikely, but if something has gone wrong, continue
-			if (!prefix) {
-				console.error('Could not determine prefix')
-				continue
-			}
-
-			encodedAccount = Bech32.encode(prefix, decodedAccount);
-			let smartContract;
-			try {
-				// Attempt to connect in a try catch, as it's possible for testnet to be down
-				const rpcEndpoint = getConnectionFromPrefix(prefix, 'rpc', network)
-				const cosmClient = await CosmWasmClient.connect(rpcEndpoint)
-
-					smartContract = await cosmClient.queryContractSmart(tokenAddress, {
-						balance: {
-							address: encodedAccount,
-						}
-					});
-			} catch (e) {
-				console.warn(e);
-				// even if this role fails, see if we can add any others
-				continue;
-			}
-			console.log('cw20 holding info', smartContract)
-			matches = [{
-				amount: smartContract.balance
-			}]
-		} else if (rpcClient) {
-			// Token type is native, so the token address is expected to be a prefix
-			encodedAccount = Bech32.encode(tokenAddress, decodedAccount);
-			let balances;
-			try {
-				balances = await rpcClient.getAllBalances(encodedAccount);
-				console.log(`balances ${tokenAddress}`, balances)
-				matches = balances.filter(balances => balances.denom === `u${tokenAddress}`)
-
-				// A user can potentially have no liquid stars, account for that
-				if (matches.length === 0) {
-					matches = [{
-						amount: 0
-					}]
-				}
-				console.log('Liquid native tokens', matches[0].amount)
-
-				// Now check for delegation amounts if mainnet
-				if (network === 'mainnet') {
-					const delegationTotal = await sumDelegationsForAccount(encodedAccount)
-					matches[0].amount = parseInt(matches[0].amount) + delegationTotal
-					console.log('Sum of liquid and staked', matches[0].amount)
-					const unbondingDelegationTotal = await sumUnbondingDelegationsForAccount(encodedAccount)
-					matches[0].amount = parseInt(matches[0].amount) + unbondingDelegationTotal
-					console.log('Sum of liquid and staked and unbonding', matches[0].amount)
-				}
-			} catch (e) {
-				console.warn(e);
-				// Even if this role fails, see if we can add any others
-				continue;
-			}
-		} else {
-			// We don't know what to do, just skip
-			console.warn("No client was ever created to check");
+			balance = await getTokenBalance(keplrAccount, tokenAddress, network);
+		} catch(e) {
+			console.warn(e);
+			// even if this role fails, see if we can add any others
 			continue;
 		}
 
-		// If they have no balance or zero balance, continue the loop through roles
-		if (matches.length !== 1 || !Number.isInteger(parseInt(matches[0].amount))) {
-			console.log("no matches found");
-			continue
-		} else if (parseInt(matches[0].amount) < parseInt(role.has_minimum_of)) {
-			// If they don't have enough, don't add it either
+		// Only proceed if the balance is greater than the minimum
+		if (balance < parseInt(role.has_minimum_of)) {
 			console.log("not enough to get the role");
 			continue
 		}
-		console.log(`${parseInt(matches[0].amount)} is greater than ${parseInt(role.has_minimum_of)}`)
+		console.log(`${balance} is greater than ${parseInt(role.has_minimum_of)}`)
 
 		// At this point, we can be sure the user should be given the role
 		const systemChannelId = guild.systemChannelId;
