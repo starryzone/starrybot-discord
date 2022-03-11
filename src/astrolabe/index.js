@@ -1,5 +1,5 @@
-const { cw20 } = require('./cw20');
-const { native } = require('./native');
+const { cw20 } = require('./tokens/cw20');
+const { native } = require('./tokens/native');
 
 // cw20 must be last right now, as the others are
 // easier to check for

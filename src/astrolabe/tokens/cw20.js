@@ -1,7 +1,7 @@
 const { CosmWasmClient } = require("@cosmjs/cosmwasm-stargate");
 const { Bech32 } = require('@cosmjs/encoding')
-const { getConnectionFromPrefix, getConnectionFromToken, getPrefixFromToken } = require('./cosmos')
-const { isDaoDaoAddress, getCW20InputFromDaoDaoDao } = require('./daodao');
+const { getConnectionFromPrefix, getConnectionFromToken, getPrefixFromToken } = require('../cosmos')
+const { isDaoDaoAddress, getCW20InputFromDaoDaoDao } = require('../daodao');
 
 const checkForCW20 = async (cosmClient, cw20Input) => {
   return cosmClient.queryContractSmart(cw20Input, {
