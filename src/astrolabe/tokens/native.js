@@ -1,7 +1,7 @@
 const fetch = require("node-fetch");
 const { Bech32 } = require('@cosmjs/encoding')
 const { StargateClient } = require('@cosmjs/stargate');
-const { networkPrefixes, getConnectionFromPrefix, getConnectionFromToken } = require('../cosmos');
+const { networkPrefixes, getConnectionFromPrefix, getConnectionFromToken } = require('../networks');
 
 const sumDelegationsForAccount = async (address) => {
 	const lcdUrl = getConnectionFromToken(address, 'lcd', 'mainnet')

@@ -1,5 +1,5 @@
 const { CosmWasmClient } = require("@cosmjs/cosmwasm-stargate");
-const { getConnectionFromToken } = require('./cosmos')
+const { getConnectionFromToken } = require('./networks')
 
 // Check to see if they pasted a DAODAO URL like this:
 // https://daodao.zone/dao/juno129spsp500mjpx7eut9p08s0jla9wmsen2g8nnjk3wmvwgc83srqq85awld
