@@ -19,13 +19,14 @@ async function starryCommandTokenAdd(req, res, ctx, next) {
 
 	await msg.react('🔗');
 	await msg.react('📜');
+	await msg.react('🖼');
 	await msg.react('⁉');
 
 	msg.edit({ embeds: [
 			createEmbed({
 				color: '#FDC2A0',
 				title: 'What kind of token?',
-				description: '🔗 A native token on a Cosmos chain\n\n📜 A cw20 fungible token\n\n⁉️ Huh? I\'m confused.',
+				description: '🔗 A native token on a Cosmos chain\n\n📜 A cw20 fungible token\n\n🖼 A cw721 non-fungible token\n\n⁉️ Huh? I\'m confused.',
 			})
 	] });
 
@@ -41,6 +42,8 @@ async function starryCommandTokenAdd(req, res, ctx, next) {
 				return 'addNativeToken'
 			case '📜':
 				return 'addCW20';
+			case '🖼':
+				return 'addCW721';
 			case '⁉':
 				return 'explainTokenTypes';
 			default:
