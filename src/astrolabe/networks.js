@@ -1,4 +1,6 @@
+const { CosmWasmClient } = require("@cosmjs/cosmwasm-stargate");
 const { Bech32 } = require("@cosmjs/encoding");
+const fetch = require("node-fetch");
 
 // See getNetworkInfo where this is taken from env vars
 let networkInfo, networkPrefixes;
@@ -44,7 +46,22 @@ function getConnectionFromPrefix(prefix, connType, network) {
   return networkInfo[prefix][connType][network]
 }
 
+const checkRPCStatus = async (networkUrl) => {
+  const cosmClient = await CosmWasmClient.connect(networkUrl);
+  // Try getting the height
+  await cosmClient.getHeight()
+}
+
+const checkLCDStatus = async (lcdUrl) => {
+  const delegationRes = await fetch(`${lcdUrl}/staking/pool`)
+  const body = await delegationRes.json();
+  // Ensure it at least is returning height
+  if (!body.hasOwnProperty('height')) throw 'Did not return height as expected'
+}
+
 module.exports = {
+  checkRPCStatus,
+  checkLCDStatus,
   getPrefixFromToken,
   getConnectionFromToken,
   getConnectionFromPrefix,
