@@ -2,6 +2,7 @@ const { daoDao } = require('./daoDao');
 const { farewellConfirmation } = require('./farewellConfirmation');
 const { farewellRejection } = require('./farewellRejection');
 const { handleCW20Entry } = require('./handleCW20Entry');
+const { handleCW721Entry } = require('./handleCW721Entry');
 const { hasCW20 } = require('./hasCW20');
 const { hasCW721 } = require('./hasCW721');
 const { needsCW20 } = require('./needsCW20');
@@ -47,6 +48,7 @@ module.exports = {
     farewellConfirmation,
     farewellRejection,
     handleCW20Entry,
+    handleCW721Entry,
     hasCW20,
     hasCW721,
     needsCW20,
