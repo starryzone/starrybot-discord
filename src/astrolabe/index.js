@@ -1,9 +1,13 @@
 const { cw20 } = require('./tokens/cw20');
+const { cw721 } = require('./tokens/cw721');
 const { native } = require('./tokens/native');
 
 // cw20 must be last right now, as the others are
 // easier to check for
-const allTokenTypes = [ native, cw20 ];
+// @to-do 🚧: move cw721 in front of cw20 when we've identified
+// how to recognize an address is for a collection instead
+// of a cw20
+const allTokenTypes = [ native, cw20, cw721 ];
 
 // Given any of a DAODAO URL, CW20 token address, or a native token,
 // return the handler for that token type
