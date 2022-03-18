@@ -12,7 +12,7 @@ async function starryCommandTokenEdit(req, res, ctx, next) {
    res.done();
  }
  else {
-    const title = `${roles.length} roles currently configured`;
+    const title = `Current token rules`;
     const description = `${roles.map(role => {
       const roleName = role.give_role;
       const roleAmt = role.has_minimum_of;

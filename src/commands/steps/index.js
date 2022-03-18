@@ -1,4 +1,9 @@
 const { daoDao } = require('./daoDao');
+const { editCheck } = require('./editCheck');
+const { editRoleAmount } = require('./editRoleAmount');
+const { editRoleName } = require('./editRoleName');
+const { handleRoleAmountEdit } = require('./handleRoleAmountEdit');
+const { handleRoleNameEdit } = require('./handleRoleNameEdit');
 const { farewellConfirmation } = require('./farewellConfirmation');
 const { farewellRejection } = require('./farewellRejection');
 const { handleCW20Entry } = require('./handleCW20Entry');
@@ -45,6 +50,11 @@ const { stargaze } = require('./stargaze');
 module.exports = {
   starrySteps: [
     daoDao,
+    editCheck,
+    editRoleAmount,
+    editRoleName,
+    handleRoleAmountEdit,
+    handleRoleNameEdit,
     farewellConfirmation,
     farewellRejection,
     handleCW20Entry,
