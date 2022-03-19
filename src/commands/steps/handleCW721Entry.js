@@ -11,7 +11,7 @@ async function handleCW721Entry(req, res, ctx, next) {
 
   let results;
   try {
-    results = await getTokenDetails(userInput);
+    results = await getTokenDetails({tokenAddress: userInput});
   } catch (e) {
     // Notify the channel with whatever went wrong in this step
     return await res.error(e);

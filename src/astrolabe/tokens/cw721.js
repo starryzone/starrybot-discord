@@ -14,7 +14,7 @@ const attemptCW721Lookup = async (cw721Input, network) => {
   return await checkForCW721(cosmClient, cw721Input)
 }
 
-const getTokenInfo = async ({tokenAddress, network}) =>  {
+const getTokenInfo = async ({tokenAddress, network}) => {
   let tokenInfo;
 
   // If they defined network use it
@@ -32,17 +32,17 @@ const getTokenInfo = async ({tokenAddress, network}) =>  {
       tokenInfo = await attemptCW721Lookup(tokenAddress, network)
     }
   }
-  return tokenInfo
+  return { token: tokenInfo, network }
 }
 
 const getCW721TokenDetails = async ({tokenAddress, network}) => {
   let tokenInfo = await getTokenInfo({tokenAddress, network})
 
   return {
-    network: network,
+    network: tokenInfo.network,
     cw721: tokenAddress,
     tokenType: 'cw721',
-    tokenSymbol: tokenInfo.symbol,
+    tokenSymbol: tokenInfo.token.symbol,
     decimals: null, // keep null
   }
 }
@@ -69,17 +69,12 @@ const getCW721TokenBalance = async (keplrAccount, tokenAddress, network) => {
 
 const isCW721 = async (tokenAddress, network) => {
   let tokenInfo = await getTokenInfo({tokenAddress, network})
-  // Expecting this format:
-  // { tokens: [ '00154', '02097', '02355' ] }
-  if (tokenInfo &&
-    Object.keys(tokenInfo).length === 2 &&
-    tokenInfo.hasOwnProperty('name') &&
-    tokenInfo.hasOwnProperty('symbol')
-  ) {
-    return true
-  } else {
-    return false
-  }
+  // Expecting this format for tokenInfo.token:
+  // { name: 'Passage Marketplace', symbol: 'yawp' }
+  return tokenInfo.token &&
+    Object.keys(tokenInfo.token).length === 2 &&
+    tokenInfo.token.hasOwnProperty('name') &&
+    tokenInfo.token.hasOwnProperty('symbol');
 }
 
 module.exports = {

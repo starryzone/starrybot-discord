@@ -12,9 +12,6 @@ const allTokenTypes = [ native, cw20, cw721 ];
 // Given any of a DAODAO URL, CW20 token address, a native token, or an NFT
 // return the handler for that token type
 const getTokenType = async (tokenInput) => {
-  // leftoff: maybe find is not good for this?
-  // const isTypes = allTokenTypes.map(async tokenType => await tokenType.isTokenType(tokenInput))
-
   for (const tokenType of allTokenTypes) {
     const isType = await tokenType.isTokenType(tokenInput)
     if (isType) return tokenType
@@ -25,8 +22,7 @@ const getTokenType = async (tokenInput) => {
 // the corresponding getTokenDetail when we have a match
 const getTokenDetails = async ({tokenAddress, network}) => {
   let tokenDetails;
-
-  const tokenType = getTokenType(tokenAddress);
+  const tokenType = await getTokenType(tokenAddress);
   try {
     tokenDetails = await tokenType.getTokenDetails({tokenAddress});
   } catch (e) {

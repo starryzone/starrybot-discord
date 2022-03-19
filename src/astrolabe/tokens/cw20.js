@@ -33,7 +33,7 @@ const getTokenInfo = async ({tokenAddress, network}) =>  {
       tokenInfo = await attemptCW20Lookup(tokenAddress, network)
     }
   }
-  return tokenInfo
+  return { token: tokenInfo, network }
 }
 
 const getCW20TokenDetails = async ({tokenAddress, network}) => {
@@ -41,14 +41,14 @@ const getCW20TokenDetails = async ({tokenAddress, network}) => {
     await getCW20InputFromDaoDaoDao(tokenAddress) :
     tokenAddress;
 
-  let tokenInfo = await getTokenInfo({cw20Input, network})
+  let tokenInfo = await getTokenInfo({tokenAddress: cw20Input, network})
 
   return {
-    network,
+    network: tokenInfo.network,
     cw20Input,
     tokenType: 'cw20',
-    tokenSymbol: tokenInfo.symbol,
-    decimals: tokenInfo.decimals,
+    tokenSymbol: tokenInfo.token.symbol,
+    decimals: tokenInfo.token.decimals,
   }
 }
 
@@ -73,10 +73,21 @@ const isCW20 = async (tokenAddress, network) => {
   let validCW20 = true
   try {
     let tokenInfo = await getTokenInfo({tokenAddress, network})
-    // Expecting this format:
-    // { balance: '0' }
-    if (Object.keys(tokenInfo).length !== 1
-      || !tokenInfo.hasOwnProperty('balance')) validCW20 = false
+    // Expecting this format for tokenInfo.token:
+    // {
+    //   name: 'Mochi boo-boo',
+    //   symbol: 'MOCHI',
+    //   decimals: 6,
+    //   total_supply: '19000000'
+    // }
+    if (tokenInfo.token &&
+      Object.keys(tokenInfo.token).length !== 4 ||
+      !tokenInfo.token.hasOwnProperty('name') ||
+      !tokenInfo.token.hasOwnProperty('symbol') ||
+      !tokenInfo.token.hasOwnProperty('decimals') ||
+      !tokenInfo.token.hasOwnProperty('total_supply')) {
+      validCW20 = false
+    }
   } catch {
     validCW20 = false
   }
