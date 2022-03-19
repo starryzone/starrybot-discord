@@ -9,7 +9,7 @@ async function handleCW20Entry(req, res, ctx, next) {
   if (!userInput) return;
 
   try {
-    const results = await getTokenDetails(userInput);
+    const results = await getTokenDetails({ tokenAddress: userInput});
 
     ctx.cw20 = results.cw20Input;
     ctx.network = results.network;

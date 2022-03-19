@@ -77,7 +77,8 @@ const getNativeRpcClient = async (tokenAddress, network) => {
 module.exports = {
   native: {
     name: 'native',
-    isTokenType: token => networkPrefixes.includes(token),
+    // Note: other types require network calls, hence async
+    isTokenType: async token => networkPrefixes.includes(token),
     getTokenBalance: getNativeTokenBalance,
   }
 }

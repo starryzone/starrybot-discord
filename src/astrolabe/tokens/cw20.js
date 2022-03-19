@@ -4,31 +4,44 @@ const { getConnectionFromPrefix, getConnectionFromToken, getPrefixFromToken } = 
 const { isDaoDaoAddress, getCW20InputFromDaoDaoDao } = require('../daodao');
 
 const checkForCW20 = async (cosmClient, cw20Input) => {
-  return cosmClient.queryContractSmart(cw20Input, {
+  return await cosmClient.queryContractSmart(cw20Input, {
     token_info: { },
   });
 }
 
-const getCW20TokenDetails = async (userInput) => {
-  const cw20Input = isDaoDaoAddress(userInput) ?
-    await getCW20InputFromDaoDaoDao(userInput) :
-    userInput;
-
-  let network = 'mainnet';
-  // Check user's cw20 token for existence on mainnet then testnet
-  let rpcEndpoint = getConnectionFromToken(cw20Input, 'rpc', 'mainnet')
+const attemptCW20Lookup = async (cw20Input, network) => {
+  let rpcEndpoint = getConnectionFromToken(cw20Input, 'rpc', network)
   let cosmClient = await CosmWasmClient.connect(rpcEndpoint)
+  return await checkForCW20(cosmClient, cw20Input)
+}
+
+const getTokenInfo = async ({tokenAddress, network}) =>  {
   let tokenInfo;
-  try {
-    tokenInfo = await checkForCW20(cosmClient, cw20Input)
-  } catch {
-    // Nothing was found on mainnet but this could still be on testnet,
-    // so swallow the error and try testnet instead
-    network = 'testnet'
-    rpcEndpoint = getConnectionFromToken(cw20Input, 'rpc', network)
-    cosmClient = await CosmWasmClient.connect(rpcEndpoint)
-    tokenInfo = await checkForCW20(cosmClient, cw20Input)
+
+  // If they defined network use it
+  if (network) {
+    tokenInfo = await attemptCW20Lookup(tokenAddress, network)
+  } else {
+    // No network defined, check for existence on mainnet then testnet
+    network = 'mainnet';
+    try {
+      tokenInfo = await attemptCW20Lookup(tokenAddress, network)
+    } catch {
+      // Nothing was found on mainnet but this could still be on testnet,
+      // so swallow the error and try testnet instead
+      network = 'testnet'
+      tokenInfo = await attemptCW20Lookup(tokenAddress, network)
+    }
   }
+  return tokenInfo
+}
+
+const getCW20TokenDetails = async ({tokenAddress, network}) => {
+  const cw20Input = isDaoDaoAddress(tokenAddress) ?
+    await getCW20InputFromDaoDaoDao(tokenAddress) :
+    tokenAddress;
+
+  let tokenInfo = await getTokenInfo({cw20Input, network})
 
   return {
     network,
@@ -56,12 +69,24 @@ const getCW20TokenBalance = async (keplrAccount, tokenAddress, network) => {
   return parseInt(smartContract.balance);
 }
 
+const isCW20 = async (tokenAddress, network) => {
+  let validCW20 = true
+  try {
+    let tokenInfo = await getTokenInfo({tokenAddress, network})
+    // Expecting this format:
+    // { balance: '0' }
+    if (Object.keys(tokenInfo).length !== 1
+      || !tokenInfo.hasOwnProperty('balance')) validCW20 = false
+  } catch {
+    validCW20 = false
+  }
+  return validCW20
+}
+
 module.exports = {
   cw20: {
     name: 'CW20',
-    // TO-DO: is there a way to tell if we have a CW20? Right
-    // now we just try and see
-    isTokenType: () => true,
+    isTokenType: isCW20,
     getTokenBalance: getCW20TokenBalance,
     getTokenDetails: getCW20TokenDetails,
   }
