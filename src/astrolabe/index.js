@@ -24,7 +24,7 @@ const getTokenDetails = async ({tokenAddress, network}) => {
   let tokenDetails;
   const tokenType = await getTokenType(tokenAddress);
   try {
-    tokenDetails = await tokenType.getTokenDetails({tokenAddress});
+    tokenDetails = await tokenType.getTokenDetails({tokenAddress, network});
   } catch (e) {
     // Throw a more specific error message if we can
     if (e.message.includes('decoding bech32 failed')) {
@@ -34,6 +34,7 @@ const getTokenDetails = async ({tokenAddress, network}) => {
     } else if (e.message.includes('Error parsing into type')) {
       throw 'That is a valid contract, but cosmic perturbations tell us it is not a cw20.';
     } else {
+      console.warn(e.stack);
       throw `Error message after trying to query ${tokenType.name}: ${e.message}`;
     }
   }

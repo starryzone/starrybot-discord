@@ -1,5 +1,6 @@
 const { getTokenDetails } = require('../../astrolabe')
 const { createEmbed } = require("../../utils/messages");
+const { isDaoDaoAddress, getCW20InputFromDaoDaoDao } = require('../../astrolabe/daodao');
 
 async function handleCW20Entry(req, res, ctx, next) {
 	const { interaction } = req;
@@ -9,7 +10,10 @@ async function handleCW20Entry(req, res, ctx, next) {
   if (!userInput) return;
 
   try {
-    const results = await getTokenDetails({ tokenAddress: userInput});
+    const tokenAddress = isDaoDaoAddress(userInput) ?
+      await getCW20InputFromDaoDaoDao(userInput) :
+      userInput;
+    const results = await getTokenDetails({ tokenAddress });
 
     ctx.cw20 = results.cw20Input;
     ctx.network = results.network;

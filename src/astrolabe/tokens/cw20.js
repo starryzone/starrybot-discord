@@ -1,7 +1,6 @@
 const { CosmWasmClient } = require("@cosmjs/cosmwasm-stargate");
 const { Bech32 } = require('@cosmjs/encoding')
 const { getConnectionFromPrefix, getConnectionFromToken, getPrefixFromToken } = require('../networks')
-const { isDaoDaoAddress, getCW20InputFromDaoDaoDao } = require('../daodao');
 
 const checkForCW20 = async (cosmClient, cw20Input) => {
   return await cosmClient.queryContractSmart(cw20Input, {
@@ -17,9 +16,11 @@ const attemptCW20Lookup = async (cw20Input, network) => {
 
 const getTokenInfo = async ({tokenAddress, network}) =>  {
   let tokenInfo;
+  console.log(tokenInfo, tokenAddress, network);
 
   // If they defined network use it
   if (network) {
+    console.log(network);
     tokenInfo = await attemptCW20Lookup(tokenAddress, network)
   } else {
     // No network defined, check for existence on mainnet then testnet
@@ -37,15 +38,11 @@ const getTokenInfo = async ({tokenAddress, network}) =>  {
 }
 
 const getCW20TokenDetails = async ({tokenAddress, network}) => {
-  const cw20Input = isDaoDaoAddress(tokenAddress) ?
-    await getCW20InputFromDaoDaoDao(tokenAddress) :
-    tokenAddress;
-
-  let tokenInfo = await getTokenInfo({tokenAddress: cw20Input, network})
-
+  let tokenInfo = await getTokenInfo({tokenAddress, network})
+  console.log(tokenInfo);
   return {
     network: tokenInfo.network,
-    cw20Input,
+    cw20Input: tokenAddress,
     tokenType: 'cw20',
     tokenSymbol: tokenInfo.token.symbol,
     decimals: tokenInfo.token.decimals,
@@ -72,7 +69,9 @@ const getCW20TokenBalance = async (keplrAccount, tokenAddress, network) => {
 const isCW20 = async (tokenAddress, network) => {
   let validCW20 = true
   try {
+    console.log(tokenAddress);
     let tokenInfo = await getTokenInfo({tokenAddress, network})
+    console.log(tokenInfo);
     // Expecting this format for tokenInfo.token:
     // {
     //   name: 'Mochi boo-boo',
