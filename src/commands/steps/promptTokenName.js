@@ -18,13 +18,17 @@ async function promptTokenName(req, res, ctx, next) {
   }
 
   // Create database row
-  if (ctx.tokenType === 'cw20') {
-    await rolesSet(guildId, roleToCreate, ctx.tokenType, ctx.cw20, ctx.network, true, author.id, ctx.minimumTokensNeeded, ctx.decimals)
-  } else if (ctx.tokenType === 'native') {
-    await rolesSet(guildId, roleToCreate, ctx.tokenType, ctx.tokenSymbol, ctx.network, true, author.id, ctx.minimumTokensNeeded, ctx.decimals)
-  } else {
-    console.error('Unexpected tokenType', ctx.tokenType)
-  }
+  await rolesSet(
+    guildId,
+    roleToCreate,
+    ctx.tokenType,
+    ctx.tokenAddress,
+    ctx.network,
+    true,
+    author.id,
+    ctx.minimumTokensNeeded,
+    ctx.decimals
+  );
 
   res.done(`You may now use the role ${roleToCreate} for token-gated channels.\n\nEnjoy, traveller!`);
 }

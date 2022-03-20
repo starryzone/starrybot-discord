@@ -1,10 +1,9 @@
 const { getTokenDetails } = require('../../astrolabe')
-const { rolesSet } = require("../../db");
 const { isStargazeLaunchpadAddress, getCW721FromStargazeUrl } = require("../../astrolabe/stargaze");
+const { createEmbed } = require("../../utils/messages");
 
 async function handleCW721Entry(req, res, ctx, next) {
 	const { interaction } = req;
-  const { author, guild, guildId } = interaction;
 
   const userInput = interaction.content;
   // If user has done something else (like emoji reaction) do nothing
@@ -15,29 +14,30 @@ async function handleCW721Entry(req, res, ctx, next) {
     const tokenAddress = isStargazeLaunchpadAddress(userInput) ?
       await getCW721FromStargazeUrl(userInput) :
       userInput;
-    console.log(tokenAddress);
     results = await getTokenDetails({ tokenAddress });
+
+    ctx.tokenAddress = results.cw721;
+    ctx.network = results.network;
+    ctx.tokenType = results.tokenType;
+    ctx.tokenSymbol = results.tokenSymbol;
+    ctx.minimumTokensNeeded = 1;
+    ctx.decimals = results.decimals;
   } catch (e) {
     // Notify the channel with whatever went wrong in this step
     return await res.error(e);
   }
 
-  // Create role for them, but first check if it exists
-  const roleToCreate = `${results.tokenSymbol}-hodler`;
+  await interaction.reply({
+    embeds: [
+      createEmbed({
+        title: 'What is the role name?',
+        description: `Please enter the name of the role that should be given to users with at least 1 NFT from this collection.`,
+        footer: 'Note: this role will be created automatically',
+      }),
+    ]
+  });
 
-  const existingObjectRoles = await guild.roles.fetch();
-  let hasRole = existingObjectRoles.some(role => role.name === roleToCreate);
-
-  // Create it if it doesn't exist
-  if (!hasRole) {
-    const newRole = await guild.roles.create({name: roleToCreate, position: 0})
-    console.log('created new role with ID', newRole.id)
-  }
-
-  // Create database row
-  await rolesSet(guildId, roleToCreate, results.tokenType, results.cw721, results.network, true, author.id, 1, results.decimals)
-
-  res.done(`You may now use the role ${roleToCreate} for token-gated channels.\n\nEnjoy, traveller!`);
+  next(() => 'promptTokenName');
 }
 
 module.exports = {

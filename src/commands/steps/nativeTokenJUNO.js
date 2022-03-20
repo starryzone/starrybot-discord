@@ -4,6 +4,7 @@ const { createEmbed } = require("../../utils/messages");
 async function nativeTokenJUNO(req, res, ctx, next) {
   const { interaction } = req;
 
+  ctx.tokenAddress = 'juno'
   ctx.tokenSymbol = 'juno'
   ctx.network = 'mainnet'
 

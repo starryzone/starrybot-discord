@@ -4,6 +4,7 @@ const { createEmbed } = require("../../utils/messages");
 async function nativeTokenSTARS(req, res, ctx, next) {
   const { interaction } = req;
 
+  ctx.tokenAddress = 'stars'
   ctx.tokenSymbol = 'stars'
   ctx.network = 'mainnet'
 
