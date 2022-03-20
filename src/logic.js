@@ -6,7 +6,7 @@ const Sagan = require("./sagan.js")
 
 const { serializeSignDoc } = require('@cosmjs/amino')
 const { Secp256k1, Secp256k1Signature, sha256 } = require('@cosmjs/crypto')
-const { fromBase64 } = require('@cosmjs/encoding')
+const { fromBase64, Bech32} = require('@cosmjs/encoding')
 const { REST } = require("@discordjs/rest");
 const { Routes } = require("discord-api-types/v9");
 const { getTokenBalance } = require("./astrolabe");
@@ -125,7 +125,7 @@ const isCorrectSaganism = async (traveller, signed) => {
 
 // Finalize hoist
 async function hoistFinalize(blob, client) {
-	const {traveller, signed, signature, account} = blob;
+	const { traveller, signed, signature, account } = blob;
 	const publicKey = account.pubkey
 
 	// get member
@@ -161,6 +161,10 @@ async function hoistFinalize(blob, client) {
 	}
 
 	logger.log("*** user has passed all tests *** ")
+	// Add the user's Cosmos Hub address to database
+	// Convert to Cosmos Hub address
+	let cosmosHubAddress = Bech32.encode('cosmos', Bech32.decode(account.address).data)
+	await db.addCosmosHubAddress(member.discord_guild_id, member.discord_account_id, cosmosHubAddress)
 
 	// get all possible roles
 	let roles = await db.rolesGet(member.discord_guild_id)
