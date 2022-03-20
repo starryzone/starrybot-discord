@@ -16,11 +16,9 @@ const attemptCW20Lookup = async (cw20Input, network) => {
 
 const getTokenInfo = async ({tokenAddress, network}) =>  {
   let tokenInfo;
-  console.log(tokenInfo, tokenAddress, network);
 
   // If they defined network use it
   if (network) {
-    console.log(network);
     tokenInfo = await attemptCW20Lookup(tokenAddress, network)
   } else {
     // No network defined, check for existence on mainnet then testnet
