@@ -30,7 +30,6 @@ async function handleCW20Entry(req, res, ctx, next) {
       createEmbed({
         title: 'How many tokens?',
         description: 'Please enter the number of tokens a user must have to get a special role.',
-        footer: 'Note: this role will be created automatically',
       }),
     ]
   });

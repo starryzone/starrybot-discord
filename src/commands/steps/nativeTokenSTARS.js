@@ -12,7 +12,6 @@ async function nativeTokenSTARS(req, res, ctx, next) {
       createEmbed({
         title: 'How many native tokens?',
         description: 'Please enter the number of tokens a user must have to get a special role.',
-        footer: 'Note: this role will be created automatically',
       }),
     ]
   });

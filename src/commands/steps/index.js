@@ -12,6 +12,7 @@ const { hasCW20 } = require('./hasCW20');
 const { hasCW721 } = require('./hasCW721');
 const { needsCW20 } = require('./needsCW20');
 const { promptTokenAmount } = require('./promptTokenAmount');
+const { promptTokenName } = require('./promptTokenName');
 const { addCW20 } = require('./addCW20');
 const { addCW721 } = require('./addCW721');
 const { addNativeToken } = require('./addNativeToken');
@@ -63,6 +64,7 @@ module.exports = {
     hasCW721,
     needsCW20,
     promptTokenAmount,
+    promptTokenName,
     addCW20,
     addCW721,
     addNativeToken,
