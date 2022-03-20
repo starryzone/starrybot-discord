@@ -1,5 +1,6 @@
 const { getTokenDetails } = require('../../astrolabe')
 const { rolesSet } = require("../../db");
+const { isStargazeLaunchpadAddress, getCW721FromStargazeUrl } = require("../../astrolabe/stargaze");
 
 async function handleCW721Entry(req, res, ctx, next) {
 	const { interaction } = req;
@@ -11,7 +12,11 @@ async function handleCW721Entry(req, res, ctx, next) {
 
   let results;
   try {
-    results = await getTokenDetails({tokenAddress: userInput});
+    const tokenAddress = isStargazeLaunchpadAddress(userInput) ?
+      await getCW721FromStargazeUrl(userInput) :
+      userInput;
+    console.log(tokenAddress);
+    results = await getTokenDetails({ tokenAddress });
   } catch (e) {
     // Notify the channel with whatever went wrong in this step
     return await res.error(e);

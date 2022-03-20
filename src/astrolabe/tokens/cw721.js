@@ -1,6 +1,6 @@
 const { CosmWasmClient } = require("@cosmjs/cosmwasm-stargate");
 const { getConnectionFromPrefix, getConnectionFromToken, getPrefixFromToken } = require('../networks')
-const {Bech32} = require("@cosmjs/encoding");
+const { Bech32 } = require("@cosmjs/encoding");
 
 const checkForCW721 = async (cosmClient, cw721Input) => {
   return cosmClient.queryContractSmart(cw721Input, {
@@ -14,7 +14,7 @@ const attemptCW721Lookup = async (cw721Input, network) => {
   return await checkForCW721(cosmClient, cw721Input)
 }
 
-const getTokenInfo = async ({tokenAddress, network}) => {
+const getTokenInfo = async ({ tokenAddress, network }) => {
   let tokenInfo;
 
   // If they defined network use it
