@@ -24,7 +24,7 @@ async function addCW721(req, res, ctx, next) {
       createEmbed({
         color: '#FDC2A0',
         title: 'Tell us about the NFT',
-        description: '🖼 I have the token address\n\n💫 I have the stargaze URL',
+        description: '🖼 I have the token address\n\n💫 I have the Stargaze Launchpad URL',
       })
     ] });
 
