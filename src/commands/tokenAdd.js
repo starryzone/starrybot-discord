@@ -26,7 +26,7 @@ async function starryCommandTokenAdd(req, res, ctx, next) {
 			createEmbed({
 				color: '#FDC2A0',
 				title: 'What kind of token?',
-				description: '🔗 A native token on a Cosmos chain\n\n📜 A cw20 fungible token\n\n🖼 A cw721 non-fungible token\n\n⁉️ Huh? I\'m confused.',
+				description: '🔗 A native token on a Cosmos chain\n\n📜 A cw20 fungible token\n\n🖼 A cw721 non-fungible token (Beta)\n\n⁉️ Huh? I\'m confused.',
 			})
 	] });
 
