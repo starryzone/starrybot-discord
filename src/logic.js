@@ -145,11 +145,6 @@ async function hoistFinalize(blob, client) {
 	// TODO: see if they've surpassed their allotted time to respond ...
 	const saganism = member.saganism;
 
-	// already validated?
-	if (member.is_member) {
-		return {error:"You're already validated on this server!"}
-	}
-
 	// is signature valid?
 	const validSignature = await isValidSignature(signed, signature, publicKey);
 	if (!validSignature) {

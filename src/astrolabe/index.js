@@ -9,20 +9,22 @@ const { native } = require('./tokens/native');
 // of a cw20
 const allTokenTypes = [ native, cw20, cw721 ];
 
-// Given any of a DAODAO URL, CW20 token address, or a native token,
+// Given any of a DAODAO URL, CW20 token address, a native token, or an NFT
 // return the handler for that token type
-const getTokenType = (tokenInput) => {
-  return allTokenTypes.find(tokenType => tokenType.isTokenType(tokenInput));
+const getTokenType = async (tokenInput) => {
+  for (const tokenType of allTokenTypes) {
+    const isType = await tokenType.isTokenType(tokenInput)
+    if (isType) return tokenType
+  }
 }
 
 // Identify what type of token we have, then call
 // the corresponding getTokenDetail when we have a match
-const getTokenDetails = async (tokenInput) => {
+const getTokenDetails = async ({tokenAddress, network}) => {
   let tokenDetails;
-
-  const tokenType = getTokenType(tokenInput);
+  const tokenType = await getTokenType(tokenAddress);
   try {
-    tokenDetails = await tokenType.getTokenDetails(tokenInput);
+    tokenDetails = await tokenType.getTokenDetails({tokenAddress, network});
   } catch (e) {
     // Throw a more specific error message if we can
     if (e.message.includes('decoding bech32 failed')) {
@@ -32,6 +34,7 @@ const getTokenDetails = async (tokenInput) => {
     } else if (e.message.includes('Error parsing into type')) {
       throw 'That is a valid contract, but cosmic perturbations tell us it is not a cw20.';
     } else {
+      console.warn(e.stack);
       throw `Error message after trying to query ${tokenType.name}: ${e.message}`;
     }
   }
@@ -40,8 +43,8 @@ const getTokenDetails = async (tokenInput) => {
 }
 
 const getTokenBalance = async (keplrAccount, tokenAddress, network) => {
-  const tokenType = getTokenType(tokenAddress);
-  return tokenType.getTokenBalance(keplrAccount, tokenAddress, network);
+  const tokenType = await getTokenType(tokenAddress, network);
+  return await tokenType.getTokenBalance(keplrAccount, tokenAddress, network);
 }
 
 module.exports = {
