@@ -2,7 +2,7 @@ const { roleGet } = require("../../db");
 const { createButton, createMessageActionRow } = require("../../utils/messages");
 
 async function editCheck(req, res, ctx, next) {
-	const { interaction } = req;
+  const { interaction } = req;
   const { guildId } = interaction;
   const selectedRole = interaction.content;
   // Save the selection in ctx for later steps
