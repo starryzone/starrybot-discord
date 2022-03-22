@@ -141,10 +141,6 @@ async function hoistFinalize(blob, client) {
 		return {error:"incomplete params"}
 	}
 
-	const createdAt = member.created_at;
-	// TODO: see if they've surpassed their allotted time to respond ...
-	const saganism = member.saganism;
-
 	// is signature valid?
 	const validSignature = await isValidSignature(signed, signature, publicKey);
 	if (!validSignature) {
@@ -207,7 +203,7 @@ async function hoistFinalize(blob, client) {
 
 		let balance;
 		try {
-			balance = await getTokenBalance(keplrAccount, tokenAddress, network);
+			balance = await getTokenBalance({keplrAccount, tokenAddress, network, extra: { staking_contract: role.staking_contract }});
 		} catch(e) {
 			console.warn(e);
 			// even if this role fails, see if we can add any others

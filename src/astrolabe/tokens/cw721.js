@@ -47,7 +47,7 @@ const getCW721TokenDetails = async ({tokenAddress, network}) => {
   }
 }
 
-const getCW721TokenBalance = async (keplrAccount, tokenAddress, network) => {
+const getCW721TokenBalance = async ({keplrAccount, tokenAddress, network, extra}) => {
   // Given the wallet address, NFT collection address,
   // and the network it's on, do the math for the following correctly
   const decodedAccount = Bech32.decode(keplrAccount).data;

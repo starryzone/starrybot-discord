@@ -47,7 +47,7 @@ const getCW20TokenDetails = async ({tokenAddress, network}) => {
   }
 }
 
-const getCW20TokenBalance = async (keplrAccount, tokenAddress, network) => {
+const getCW20TokenBalance = async ({keplrAccount, tokenAddress, network, extra}) => {
   const decodedAccount = Bech32.decode(keplrAccount).data;
   const prefix = getPrefixFromToken(tokenAddress);
   if (!prefix) throw 'Could not determine prefix';
@@ -61,7 +61,18 @@ const getCW20TokenBalance = async (keplrAccount, tokenAddress, network) => {
     }
   });
 
-  return parseInt(smartContract.balance);
+  let balance = smartContract.balance
+
+  // If there's a staking, figure out balance
+  if (extra?.staking_contract) {
+    const stakedTokens = await cosmClient.queryContractSmart(extra['staking_contract'], {
+      staked_value: { address: encodedAccount},
+    })
+    console.log('Found staked tokens', stakedTokens.value)
+    balance += stakedTokens.value
+  }
+
+  return parseInt(balance);
 }
 
 const isCW20 = async (tokenAddress, network) => {

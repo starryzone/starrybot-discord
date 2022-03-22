@@ -10,9 +10,12 @@ async function handleCW20Entry(req, res, ctx, next) {
   if (!userInput) return;
 
   try {
-    const tokenAddress = isDaoDaoAddress(userInput) ?
-      await getCW20InputFromDaoDaoDao(userInput) :
-      userInput;
+    let tokenAddress = userInput
+    if (isDaoDaoAddress(userInput)) {
+      const daoDetails = await getCW20InputFromDaoDaoDao(userInput)
+      tokenAddress = daoDetails.govToken
+      ctx.stakingContract = daoDetails.stakingContract;
+    }
     const results = await getTokenDetails({ tokenAddress });
 
     ctx.tokenAddress = results.cw20Input;

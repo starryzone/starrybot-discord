@@ -88,23 +88,16 @@ const ensureDatabaseInitialized = async () => {
 	}
 }
 
-///
-/// When a discord user visits a discord area or "guild" the starrybot can grant them some special roles on demand.
-///
-/// Typically these magical roles (and any preconditions required to be knighted with these roles) are defined by an admin.
-///
-/// These roles, and the preconditions, are stored here.
-///
-/// Supply a discord_guild_id to find associated roles if any
-///
-
+// When a discord user visits a discord area or "guild" the starrybot can grant them some special roles on demand.
+// Typically, these magical roles (and any preconditions required to be knighted with these roles) are defined by an admin.
+// These roles, and the preconditions, are stored here.
+// Supply a discord_guild_id to find associated roles if any
 const rolesGet = async (guildId) => {
-
 	await ensureDatabaseInitialized()
 
 	const roles = await knex(myConfig.DB_TABLENAME_ROLES)
 		.where('discord_guild_id', guildId)
-		.select('discord_guild_id','token_address','has_minimum_of','created_at','created_by_discord_id','give_role', 'network', 'token_type', 'decimals')
+		.select('discord_guild_id','token_address','has_minimum_of','created_at','created_by_discord_id','give_role', 'network', 'token_type', 'decimals', 'staking_contract')
 
 	return roles
 }
@@ -117,7 +110,7 @@ const roleGet = async (guildId, roleName) => {
 		'discord_guild_id': guildId,
 		'give_role': roleName,
 	})
-	.select('discord_guild_id','token_address','has_minimum_of','created_at','created_by_discord_id','give_role', 'network', 'token_type', 'decimals')
+	.select('discord_guild_id','token_address','has_minimum_of','created_at','created_by_discord_id','give_role', 'network', 'token_type', 'decimals', 'staking_contract')
 
 	return role[0];
 }
@@ -131,7 +124,7 @@ const rolesGetForCleanUp = async (guildId) => {
 	return roles
 }
 
-const rolesSet = async (guildId, role, tokenType, tokenAddress, network, removeInCleanup, createdByDiscordId, hasMinimumOf, decimals) => {
+const rolesSet = async (guildId, role, tokenType, tokenAddress, network, removeInCleanup, createdByDiscordId, hasMinimumOf, decimals, stakingContract) => {
 	await ensureDatabaseInitialized()
 
 	let discord_guild_id = guildId;
@@ -140,6 +133,7 @@ const rolesSet = async (guildId, role, tokenType, tokenAddress, network, removeI
 	let token_address = tokenAddress
 	let created_by_discord_id = createdByDiscordId
 	let has_minimum_of = hasMinimumOf
+	const staking_contract = stakingContract
 
 	// If this role for this guild already exists, return
 	let existingRows = await knex(myConfig.DB_TABLENAME_ROLES).where({
@@ -157,7 +151,8 @@ const rolesSet = async (guildId, role, tokenType, tokenAddress, network, removeI
 			created_by_discord_id,
 			give_role,
 			network,
-			remove_in_cleanup: removeInCleanup
+			remove_in_cleanup: removeInCleanup,
+			staking_contract
 		}).where('id', existingRows[0].id)
 	} else {
 		results = await knex(myConfig.DB_TABLENAME_ROLES).insert({
@@ -169,7 +164,8 @@ const rolesSet = async (guildId, role, tokenType, tokenAddress, network, removeI
 			created_by_discord_id,
 			give_role,
 			network,
-			remove_in_cleanup: removeInCleanup
+			remove_in_cleanup: removeInCleanup,
+			staking_contract
 		})
 	}
 }
@@ -182,7 +178,6 @@ const rolesDelete = async (guildId,role) => {
 	} catch (e) {
 		console.warn('Error deleting row', e)
 	}
-
 }
 
 const rolesDeleteGuildAll = async (guildId) => {
@@ -193,24 +188,17 @@ const rolesDeleteGuildAll = async (guildId) => {
 	} catch (e) {
 		console.warn('Error deleting row', e)
 	}
-
 }
 
-///
-/// SessionID
-/// Math.random should be unique because of its seeding algorithm.
-/// Convert it to base 36 (numbers + letters), and grab the first 9 characters
-/// after the decimal.
-///
-
+// SessionID
+// Math.random should be unique because of its seeding algorithm.
+// Convert it to base 36 (numbers + letters), and grab the first 9 characters
+// after the decimal.
 const SessionID = function () {
 	return Math.random().toString(36).substr(2, 9);
 };
 
-
-///
-/// database wrapper - for members
-///
+// database wrapper - for members
 
 const membersAll = async (guildId) => {
 	await ensureDatabaseInitialized()
