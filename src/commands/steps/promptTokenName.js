@@ -29,7 +29,8 @@ async function promptTokenName(req, res, ctx, next) {
     true,
     author.id,
     ctx.minimumTokensNeeded,
-    ctx.decimals
+    ctx.decimals,
+    ctx.stakingContract
   );
 
   res.done(`You may now use the role ${roleToCreate} for token-gated channels.\n\nEnjoy, traveller!`);

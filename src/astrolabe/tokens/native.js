@@ -32,7 +32,7 @@ const sumUnbondingDelegationsForAccount = async (address) => {
 	return sum
 }
 
-const getNativeTokenBalance = async (keplrAccount, tokenAddress, network) => {
+const getNativeTokenBalance = async ({keplrAccount, tokenAddress, network, extra}) => {
   const decodedAccount = Bech32.decode(keplrAccount).data;
   // Token type is native, so the token address is expected to be a prefix
   const encodedAccount = Bech32.encode(tokenAddress, decodedAccount);

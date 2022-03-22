@@ -37,7 +37,10 @@ const getCW20InputFromDaoDaoDao = async (daodaoUrl) => {
   if (!daoInfo || !daoInfo.hasOwnProperty('gov_token')) {
     throw "We couldn't find any governance token associated with your DAO :/\nPerhaps destroyed in a supernova?";
   }
-  return daoInfo['gov_token'];
+  return {
+    govToken: daoInfo['gov_token'],
+    stakingContract: daoInfo['staking_contract']
+  };
 }
 
 module.exports = {
