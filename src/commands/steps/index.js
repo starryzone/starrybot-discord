@@ -1,4 +1,9 @@
 const { daoDao } = require('./daoDao');
+const { editCheck } = require('./editCheck');
+const { editRoleAmount } = require('./editRoleAmount');
+const { editRoleName } = require('./editRoleName');
+const { handleRoleAmountEdit } = require('./handleRoleAmountEdit');
+const { handleRoleNameEdit } = require('./handleRoleNameEdit');
 const { farewellConfirmation } = require('./farewellConfirmation');
 const { farewellRejection } = require('./farewellRejection');
 const { handleCW20Entry } = require('./handleCW20Entry');
@@ -7,6 +12,7 @@ const { hasCW20 } = require('./hasCW20');
 const { hasCW721 } = require('./hasCW721');
 const { needsCW20 } = require('./needsCW20');
 const { promptTokenAmount } = require('./promptTokenAmount');
+const { promptTokenName } = require('./promptTokenName');
 const { addCW20 } = require('./addCW20');
 const { addCW721 } = require('./addCW721');
 const { addNativeToken } = require('./addNativeToken');
@@ -45,6 +51,11 @@ const { stargaze } = require('./stargaze');
 module.exports = {
   starrySteps: [
     daoDao,
+    editCheck,
+    editRoleAmount,
+    editRoleName,
+    handleRoleAmountEdit,
+    handleRoleNameEdit,
     farewellConfirmation,
     farewellRejection,
     handleCW20Entry,
@@ -53,6 +64,7 @@ module.exports = {
     hasCW721,
     needsCW20,
     promptTokenAmount,
+    promptTokenName,
     addCW20,
     addCW721,
     addNativeToken,

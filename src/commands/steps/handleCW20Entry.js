@@ -15,7 +15,7 @@ async function handleCW20Entry(req, res, ctx, next) {
       userInput;
     const results = await getTokenDetails({ tokenAddress });
 
-    ctx.cw20 = results.cw20Input;
+    ctx.tokenAddress = results.cw20Input;
     ctx.network = results.network;
     ctx.tokenType = results.tokenType;
     ctx.tokenSymbol = results.tokenSymbol;
@@ -30,7 +30,6 @@ async function handleCW20Entry(req, res, ctx, next) {
       createEmbed({
         title: 'How many tokens?',
         description: 'Please enter the number of tokens a user must have to get a special role.',
-        footer: 'Note: this role will be created automatically',
       }),
     ]
   });
