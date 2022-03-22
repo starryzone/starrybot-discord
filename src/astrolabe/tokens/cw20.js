@@ -64,7 +64,7 @@ const getCW20TokenBalance = async ({keplrAccount, tokenAddress, network, extra})
   let balance = smartContract.balance
 
   // If there's a staking, figure out balance
-  if (extra && extra.hasOwnProperty('staking_contract')) {
+  if (extra?.staking_contract) {
     const stakedTokens = await cosmClient.queryContractSmart(extra['staking_contract'], {
       staked_value: { address: encodedAccount},
     })
