@@ -1,15 +1,8 @@
-const { rolesSet } = require("../../db");
+const { createEmbed } = require("../../utils/messages");
 
 async function promptTokenAmount(req, res, ctx, next) {
-	const {
-    interaction: {
-      author,
-      content,
-      guild,
-      guildId,
-   }
-  } = req;
-  let amountOfTokensNeeded = content;
+	const { interaction } = req;
+  let amountOfTokensNeeded = interaction.content;
 
   if (
     !Number.isInteger(parseInt(amountOfTokensNeeded)) ||
@@ -22,32 +15,35 @@ async function promptTokenAmount(req, res, ctx, next) {
   // Multiply by the decimals for native and fungible tokens
   if (ctx.tokenType === 'native' || ctx.tokenType === 'cw20') {
     console.log('Multiplying by the number of decimals', ctx.decimals)
-    amountOfTokensNeeded = amountOfTokensNeeded * (10 ** ctx.decimals)
-    console.log('New amount needed', amountOfTokensNeeded)
+    ctx.minimumTokensNeeded = amountOfTokensNeeded * (10 ** ctx.decimals)
+    console.log('New amount needed', ctx.minimumTokensNeeded)
   }
 
-  // Create role for them, but first check if it exists
-  const roleToCreate = `${ctx.tokenSymbol}-hodler`;
-
-  const existingObjectRoles = await guild.roles.fetch();
-  let hasRole = existingObjectRoles.some(role => role.name === roleToCreate);
-
-  // Create it if it doesn't exist
-  if (!hasRole) {
-    const newRole = await guild.roles.create({name: roleToCreate, position: 0})
-    console.log('created new role with ID', newRole.id)
-  }
-  console.log(roleToCreate);
-  // Create database row
-  if (ctx.tokenType === 'cw20') {
-    await rolesSet(guildId, roleToCreate, ctx.tokenType, ctx.cw20, ctx.network, true, author.id, amountOfTokensNeeded, ctx.decimals)
-  } else if (ctx.tokenType === 'native') {
-    await rolesSet(guildId, roleToCreate, ctx.tokenType, ctx.tokenSymbol, ctx.network, true, author.id, amountOfTokensNeeded, ctx.decimals)
-  } else {
-    console.error('Unexpected tokenType', ctx.tokenType)
+  // Building the user friendly name for what they're making
+  let noun = `${amountOfTokensNeeded} `;
+  switch (ctx.tokenType) {
+    case('native'):
+      noun = `${noun} ${ctx.tokenSymbol}`;
+      break;
+    case('cw20'):
+      noun = `${noun} cw20 token(s)`;
+      break;
+    // cw721 doesn't go through this step
+    default:
+      noun = `${noun} token(s)`;
+      break;
   }
 
-  res.done(`You may now use the role ${roleToCreate} for token-gated channels.\n\nEnjoy, traveller!`);
+  await interaction.reply({
+    embeds: [
+      createEmbed({
+        title: 'What is the role name?',
+        description: `Please enter the name of the role that should be given to users with at least ${noun}.`,
+        footer: 'Note: this role will be created automatically',
+      }),
+    ]
+  });
+  next(() => 'promptTokenName');
 }
 
 module.exports = {

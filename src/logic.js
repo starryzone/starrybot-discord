@@ -1,18 +1,15 @@
 'use strict';
 
-const { networkInfo, networkPrefixes, getConnectionFromPrefix, getConnectionFromToken, getPrefixFromToken } = require("./utils/networks")
 const db = require("./db")
 const logger = require("./logger")
 const Sagan = require("./sagan.js")
-const fetch = require("node-fetch");
 
 const { serializeSignDoc } = require('@cosmjs/amino')
 const { Secp256k1, Secp256k1Signature, sha256 } = require('@cosmjs/crypto')
-const { fromBase64, Bech32 } = require('@cosmjs/encoding')
+const { fromBase64, Bech32} = require('@cosmjs/encoding')
 const { REST } = require("@discordjs/rest");
 const { Routes } = require("discord-api-types/v9");
-const { CosmWasmClient } = require("@cosmjs/cosmwasm-stargate");
-const { StargateClient } = require("@cosmjs/stargate");
+const { getTokenBalance } = require("./astrolabe");
 
 // Returns a block with { memberId, saganism }
 // or on error either throws an error or returns { error }
@@ -125,38 +122,10 @@ const isCorrectSaganism = async (traveller, signed) => {
 	}
 }
 
-async function sumDelegationsForAccount(address) {
-	const lcdUrl = getConnectionFromToken(address, 'lcd', 'mainnet')
-	const delegationRes = await fetch(`${lcdUrl}/staking/delegators/${address}/delegations`)
-	const body = await delegationRes.json();
-	const sum = body.result.reduce(
-		(prevVal, currentVal) => prevVal + parseInt(currentVal.balance.amount),
-		0
-	);
-
-	console.log('Sum of delegations', sum)
-	return sum
-}
-
-async function sumUnbondingDelegationsForAccount(address) {
-	const lcdUrl = getConnectionFromToken(address, 'lcd', 'mainnet')
-	const unbondingRes = await fetch(`${lcdUrl}/staking/delegators/${address}/unbonding_delegations`)
-	const body = await unbondingRes.json();
-
-	const sum = body.result.reduce((prevVal, currentVal) => {
-		const innerSum = currentVal.entries.reduce((innerPrevVal, innerCurrentVal) => {
-			return innerPrevVal + parseInt(innerCurrentVal.balance);
-		}, 0);
-		return prevVal + innerSum;
-	}, 0);
-
-	console.log('Sum of delegations currently unbonding', sum)
-	return sum
-}
 
 // Finalize hoist
 async function hoistFinalize(blob, client) {
-	const {traveller, signed, signature, account} = blob;
+	const { traveller, signed, signature, account } = blob;
 	const publicKey = account.pubkey
 
 	// get member
@@ -176,11 +145,6 @@ async function hoistFinalize(blob, client) {
 	// TODO: see if they've surpassed their allotted time to respond ...
 	const saganism = member.saganism;
 
-	// already validated?
-	if (member.is_member) {
-		return {error:"You're already validated on this server!"}
-	}
-
 	// is signature valid?
 	const validSignature = await isValidSignature(signed, signature, publicKey);
 	if (!validSignature) {
@@ -197,6 +161,10 @@ async function hoistFinalize(blob, client) {
 	}
 
 	logger.log("*** user has passed all tests *** ")
+	// Add the user's Cosmos Hub address to database
+	// Convert to Cosmos Hub address
+	let cosmosHubAddress = Bech32.encode('cosmos', Bech32.decode(account.address).data)
+	await db.addCosmosHubAddress(member.discord_guild_id, member.discord_account_id, cosmosHubAddress)
 
 	// get all possible roles
 	let roles = await db.rolesGet(member.discord_guild_id)
@@ -234,117 +202,23 @@ async function hoistFinalize(blob, client) {
 
 		let roleName = role.give_role
 		let roleDiscord = guild.roles.cache.find(r => r.name === roleName)
-		const tokenType = role.token_type
 		const network = role.network;
 		const tokenAddress = role.token_address
 
-		let rpcEndpoint, rpcClient;
-		// The token address is either going to be a prefix "juno"
-		// or an address with the prefix "juno123abc…"
-
-		if (networkPrefixes.includes(tokenAddress)) {
-			// This is a native token starrybot supports
-			try {
-				rpcEndpoint = await getConnectionFromPrefix(tokenAddress, 'rpc', network)
-			} catch (e) {
-				console.error(`Error with native token ${tokenAddress}`, e)
-				continue
-			}
-		} else {
-			// A cw20 address
-			try {
-				rpcEndpoint = await getConnectionFromToken(tokenAddress, 'rpc', network)
-			} catch (e) {
-				console.error(`Error with fungible token ${tokenAddress}`, e)
-				continue
-			}
-		}
-		if (!rpcEndpoint) {
-			console.error('Issue getting RPC endpoint for', tokenAddress)
-			return
-		}
-
-		rpcClient = await StargateClient.connect(rpcEndpoint)
-		let decodedAccount = Bech32.decode(keplrAccount).data;
-		let encodedAccount, matches;
-
-		// We have an entire address instead of 'juno' or 'stars' prefixes
-		if (tokenType === 'cw20') {
-			const prefix = getPrefixFromToken(tokenAddress);
-			// Unlikely, but if something has gone wrong, continue
-			if (!prefix) {
-				console.error('Could not determine prefix')
-				continue
-			}
-
-			encodedAccount = Bech32.encode(prefix, decodedAccount);
-			let smartContract;
-			try {
-				// Attempt to connect in a try catch, as it's possible for testnet to be down
-				const rpcEndpoint = getConnectionFromPrefix(prefix, 'rpc', network)
-				const cosmClient = await CosmWasmClient.connect(rpcEndpoint)
-
-					smartContract = await cosmClient.queryContractSmart(tokenAddress, {
-						balance: {
-							address: encodedAccount,
-						}
-					});
-			} catch (e) {
-				console.warn(e);
-				// even if this role fails, see if we can add any others
-				continue;
-			}
-			console.log('cw20 holding info', smartContract)
-			matches = [{
-				amount: smartContract.balance
-			}]
-		} else if (rpcClient) {
-			// Token type is native, so the token address is expected to be a prefix
-			encodedAccount = Bech32.encode(tokenAddress, decodedAccount);
-			let balances;
-			try {
-				balances = await rpcClient.getAllBalances(encodedAccount);
-				console.log(`balances ${tokenAddress}`, balances)
-				matches = balances.filter(balances => balances.denom === `u${tokenAddress}`)
-
-				// A user can potentially have no liquid stars, account for that
-				if (matches.length === 0) {
-					matches = [{
-						amount: 0
-					}]
-				}
-				console.log('Liquid native tokens', matches[0].amount)
-
-				// Now check for delegation amounts if mainnet
-				if (network === 'mainnet') {
-					const delegationTotal = await sumDelegationsForAccount(encodedAccount)
-					matches[0].amount = parseInt(matches[0].amount) + delegationTotal
-					console.log('Sum of liquid and staked', matches[0].amount)
-					const unbondingDelegationTotal = await sumUnbondingDelegationsForAccount(encodedAccount)
-					matches[0].amount = parseInt(matches[0].amount) + unbondingDelegationTotal
-					console.log('Sum of liquid and staked and unbonding', matches[0].amount)
-				}
-			} catch (e) {
-				console.warn(e);
-				// Even if this role fails, see if we can add any others
-				continue;
-			}
-		} else {
-			// We don't know what to do, just skip
-			console.warn("No client was ever created to check");
+		let balance;
+		try {
+			balance = await getTokenBalance(keplrAccount, tokenAddress, network);
+		} catch(e) {
+			console.warn(e);
+			// even if this role fails, see if we can add any others
 			continue;
 		}
 
-		// If they have no balance or zero balance, continue the loop through roles
-		if (matches.length !== 1 || !Number.isInteger(parseInt(matches[0].amount))) {
-			console.log("no matches found");
-			continue
-		} else if (parseInt(matches[0].amount) < parseInt(role.has_minimum_of)) {
-			// If they don't have enough, don't add it either
-			console.log("not enough to get the role");
+		// Only proceed if the balance is greater than the minimum
+		console.log(`Comparing ${balance} against ${parseInt(role.has_minimum_of)}`);
+		if (balance < parseInt(role.has_minimum_of)) {
 			continue
 		}
-		console.log(`${parseInt(matches[0].amount)} is greater than ${parseInt(role.has_minimum_of)}`)
 
 		// At this point, we can be sure the user should be given the role
 		const systemChannelId = guild.systemChannelId;

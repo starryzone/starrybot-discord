@@ -1,18 +1,8 @@
 const { createButton, createMessageActionRow } = require("../../utils/messages");
-// const { networkInfo } = require('../../utils/networks')
-
+const { networkPrefixes } = require('../../astrolabe/networks');
 
 // Add native token (like juno, stars…)
 async function addNativeToken(req, res, ctx, next) {
-  // TODO: figure out why I can't import it, emergency hack
-  let networkInfo, networkPrefixes;
-  try {
-    networkInfo = JSON.parse(process.env.COSMOS_NETWORKS)
-    networkPrefixes = Object.keys(networkInfo)
-  } catch (e) {
-    console.error('Cannot parse COSMOS_NETWORKS environment variable, please ensure that it is set.')
-  }
-
   const { interaction } = req;
 
   let components = []

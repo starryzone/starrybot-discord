@@ -5,8 +5,7 @@ const { starryCommandHealth } = require('./health');
 const { starryCommandJoin } = require('./join');
 const { starryCommandTokenAdd } = require('./tokenAdd');
 const { starryCommandTokenList } = require('./tokenList');
-// TODO: we'll add this in later
-// const { starryCommandTokenEdit } = require('./tokenEdit');
+const { starryCommandTokenEdit } = require('./tokenEdit');
 const { starryCommandTokenRemove } = require('./tokenRemove');
 const { starrySteps } = require('./steps');
 
@@ -22,7 +21,7 @@ const definedCommands = [
     description: 'Do things with your token rules',
     options: [
       starryCommandTokenAdd,
-      // starryCommandTokenEdit,
+      starryCommandTokenEdit,
       starryCommandTokenList,
       starryCommandTokenRemove
     ]

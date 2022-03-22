@@ -276,4 +276,13 @@ const memberDelete = async ({authorId, guildId}) => {
 	}
 }
 
-module.exports = { membersAll, memberExists, memberBySessionToken, memberByIdAndGuild, memberAdd, memberDelete, myConfig, rolesGet, roleGet, rolesSet, rolesDelete, rolesDeleteGuildAll, rolesGetForCleanUp, inferPreferredNativeToken }
+const addCosmosHubAddress = async (guildId, discordAccountId, cosmosHubAddress) => {
+	await knex(myConfig.DB_TABLENAME_MEMBERS)
+		.where({
+			'discord_guild_id': guildId,
+			'discord_account_id': discordAccountId
+		})
+		.update('cosmos_address', cosmosHubAddress)
+}
+
+module.exports = { membersAll, memberExists, memberBySessionToken, memberByIdAndGuild, memberAdd, memberDelete, myConfig, rolesGet, roleGet, rolesSet, rolesDelete, rolesDeleteGuildAll, rolesGetForCleanUp, inferPreferredNativeToken, addCosmosHubAddress }
