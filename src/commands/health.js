@@ -1,6 +1,6 @@
+const { buildBasicMessageCommand } = require('../utils/commands');
 const { rolesGet } = require("../db");
 const { checkRPCStatus, checkLCDStatus, networkInfo } = require("../astrolabe/networks");
-const { createEmbed } = require("../utils/messages");
 
 async function checkRPC(networkName, networkUrl) {
   const prefix = `${networkName} RPC status:`
@@ -80,43 +80,40 @@ async function checkAllPermissions(guild) {
   return await Promise.all(permissionPromises);
 };
 
-async function starryCommandHealth(req, res, ctx, next) {
-	const { interaction } = req;
-  const { guild } = interaction;
-  const networkResults = await checkAllNetworks();
-  const permissionsResults = await checkAllPermissions(guild);
-
-  await interaction.reply({
-    embeds: [
-      createEmbed({
-        color: '#7585FF',
-        title: 'Diagnostics results 🌟',
-        description: 'This info describes what starrybot needs to work correctly',
-        fields: [
-          // Shouldn't be possible for these two arrays to be empty, but
-          // the message won't send at all if this value is undefined
-          {
-            name: 'Network statuses',
-            value: networkResults.join('\n') || '',
-          },
-          {
-            name: 'Role permissions',
-            value: permissionsResults.join('\n') || '',
-          },
-        ],
-        footer: `If there are any 🔴 above, please note that starrybot may not work as expected!`,
-      })
-    ]
-  })
-
-  res.done();
-}
-
 module.exports = {
   starryCommandHealth: {
     adminOnly: true,
     name: 'health',
     description: 'Run diagnostics for starrybot',
-    execute: starryCommandHealth,
+    execute: buildBasicMessageCommand(async (req, res, ctx, next) => {
+      const { interaction } = req;
+      const { guild } = interaction;
+      const networkResults = await checkAllNetworks();
+      const permissionsResults = await checkAllPermissions(guild);
+
+      return {
+        embeds: [
+          {
+            color: '#7585FF',
+            title: 'Diagnostics results 🌟',
+            description: 'This info describes what starrybot needs to work correctly',
+            fields: [
+              // Shouldn't be possible for these two arrays to be empty, but
+              // the message won't send at all if this value is undefined
+              {
+                name: 'Network statuses',
+                value: networkResults.join('\n') || '',
+              },
+              {
+                name: 'Role permissions',
+                value: permissionsResults.join('\n') || '',
+              },
+            ],
+            footer: `If there are any 🔴 above, please note that starrybot may not work as expected!`,
+          }
+        ],
+        done: true,
+      }
+    }),
   }
 }
