@@ -1,8 +1,11 @@
-async function farewellRejection(req, res, ctx, next) {
-  await req.interaction.reply('✨ 👍 🌟');
-  res.done();
-}
+const { buildBasicMessageCommand } = require('../../utils/commands');
 
 module.exports = {
-  farewellRejection,
+  farewellRejection: {
+    name: 'farewellRejection',
+    execute: buildBasicMessageCommand({
+      content: '✨ 👍 🌟',
+      done: true,
+    })
+  }
 }
