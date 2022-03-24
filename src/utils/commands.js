@@ -72,7 +72,8 @@ function buildBasicMessageCommand(configInput) {
         reply.ephemeral = true;
       }
 
-      await interaction.reply(reply);
+      const interactionTarget = interaction.message || interaction;
+      await interactionTarget.reply(reply);
 
       if (config.done) {
         res.done();
