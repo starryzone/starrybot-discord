@@ -5,7 +5,7 @@ module.exports = {
 		adminOnly: true,
 		name: 'add',
 		description: '(Admin only) Add a new token rule',
-		execute: buildBasicMessageCommand({			
+		execute: buildBasicMessageCommand({
 			color: '#FDC2A0',
 			title: 'What kind of token?',
 			emojiOptions: [
