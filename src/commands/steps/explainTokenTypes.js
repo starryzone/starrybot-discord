@@ -1,65 +1,39 @@
-const { createEmbed } = require("../../utils/messages");
-
-// Add native token (like juno, stars…)
-async function explainTokenTypes(req, res, ctx, next) {
-  const { interaction } = req;
-
-  let msgEmbed = createEmbed({
-    color: '#FDC2A0',
-    title: 'One moment…',
-    description: 'Loading choices, fren.',
-  })
-
-  const msg = await interaction.message.reply({
-    embeds: [
-      msgEmbed
-    ],
-    // Necessary in order to react to the message
-    fetchReply: true,
-  });
-
-  await msg.react('🔗');
-  await msg.react('📜');
-  await msg.react('🖼');
-  await msg.react('⁉');
-
-  msgEmbed = createEmbed({
-    color: '#FDC2A0',
-    title: "✨Pardon, lemme explain",
-    description: 'What is a native token?\nA "native" token is the base token of a blockchain. For Ethereum, it\'s ether. For the Juno chain on Cosmos, it\'s juno.\n\nWhat isn\'t a native token?\nDogecoin is not a native token, it\'s a fungible token. Cosmos has fungible tokens and they\'re referred to by the name of the standard, cw20. An example might be a token created for DAO council members to vote.\n\nWhat about non-fungible tokens?\nCosmos has those too, through Stargaze, and they are also referred to by the name of their standard, cw721. An example might be tokens created to represent works of art in a gallery.\n\nLet\'s try asking that again',
-  })
-
-  const repeatedTokenQuestion = createEmbed({
-    color: '#FDC2A0',
-    title: 'Now, what kind of token again?',
-    description: '🔗 A native token on a Cosmos chain\n\n📜 A cw20 fungible token\n\n🖼 A cw721 non-fungible token\n\n⁉️ Huh? I\'m confused.',
-  })
-
-  msg.edit({ embeds: [
-    msgEmbed,
-    repeatedTokenQuestion
-  ]});
-
-  const getCommandName = reaction => {
-    const emojiName = reaction._emoji.name;
-    switch(emojiName) {
-      case '🔗':
-        return 'addNativeToken'
-      case '📜':
-        return 'addCW20';
-      case '🖼':
-        return 'addCW721';
-      case '⁉':
-        return 'explainTokenTypes';
-      default:
-        return;
-    }
-  }
-
-  // Passing in an event handler for the user's interactions into next
-  next(getCommandName);
-}
+const { buildBasicMessageCommand } = require('../../utils/commands');
 
 module.exports = {
-  explainTokenTypes
+  explainTokenTypes: {
+    name: 'explainTokenTypes',
+    execute: buildBasicMessageCommand({
+      title: 'Now, what kind of token again?',
+      embeds: [
+        {
+          color: '#FDC2A0',
+          title: "✨Pardon, lemme explain",
+          description: 'What is a native token?\nA "native" token is the base token of a blockchain. For Ethereum, it\'s ether. For the Juno chain on Cosmos, it\'s juno.\n\nWhat isn\'t a native token?\nDogecoin is not a native token, it\'s a fungible token. Cosmos has fungible tokens and they\'re referred to by the name of the standard, cw20. An example might be a token created for DAO council members to vote.\n\nWhat about non-fungible tokens?\nCosmos has those too, through Stargaze, and they are also referred to by the name of their standard, cw721. An example might be tokens created to represent works of art in a gallery.\n\nLet\'s try asking that again',
+        },
+      ],
+      emojiOptions: [
+        {
+          emoji: '🔗',
+          description: 'A native token on a Cosmos chain',
+          next: 'addNativeToken',
+        },
+        {
+          emoji: '📜',
+          description: 'A cw20 fungible token',
+          next: 'addCW20',
+        },
+        {
+          emoji: '🖼',
+          description: 'A cw721 non-fungible token (Beta)',
+          next: 'addCW721',
+        },
+        {
+          emoji: '⁉',
+          description: 'Huh? I\'m confused.',
+          next: 'explainTokenTypes',
+        }
+      ]
+    })
+  }
 }

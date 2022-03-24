@@ -43,12 +43,14 @@ function buildBasicMessageCommand(configInput) {
 
       msg.edit({
         embeds: [
+          ...(config.embeds || []),
           createEmbed({
             color: config.color,
             title: config.title,
             description: config.emojiOptions.map(emojiConfig => `${emojiConfig.emoji} ${emojiConfig.description}`).join('\n\n'),
           })
-        ]
+        ],
+        title: config.title,
       });
 
       const getCommandName = reaction => {
