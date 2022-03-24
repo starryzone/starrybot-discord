@@ -11,7 +11,7 @@ async function editRoleName(req, res, ctx, next) {
       })
     ]
   });
-  next(() => 'handleRoleNameEdit');
+  next('handleRoleNameEdit')
 }
 
 module.exports = {

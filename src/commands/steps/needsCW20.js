@@ -33,7 +33,7 @@ async function needsCW20(req, res, ctx, next) {
       })
     ]
   });
-  next(() => 'handleCW20Entry');
+  next('handleCW20Entry')
 }
 
 module.exports = {

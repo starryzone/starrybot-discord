@@ -43,7 +43,7 @@ async function promptTokenAmount(req, res, ctx, next) {
       }),
     ]
   });
-  next(() => 'promptTokenName');
+  next('promptTokenName')
 }
 
 module.exports = {

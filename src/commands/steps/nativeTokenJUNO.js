@@ -17,7 +17,7 @@ async function nativeTokenJUNO(req, res, ctx, next) {
     ]
   });
 
-  next(() => 'promptTokenAmount');
+  next('promptTokenAmount')
 }
 
 module.exports = {

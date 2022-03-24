@@ -34,7 +34,7 @@ async function starryCommandTokenRemove(req, res, ctx, next) {
       ephemeral: true
     });
 
-    next(() => 'removeVerify');
+    next('removeVerify')
   }
 }
 

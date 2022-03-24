@@ -11,7 +11,7 @@ async function stargaze(req, res, ctx, next) {
       })
     ]
   });
-  next(() => 'handleCW721Entry');
+  next('handleCW721Entry')
 }
 
 module.exports = {

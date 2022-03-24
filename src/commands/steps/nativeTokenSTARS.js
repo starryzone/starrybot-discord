@@ -17,7 +17,7 @@ async function nativeTokenSTARS(req, res, ctx, next) {
     ]
   });
 
-  next(() => 'promptTokenAmount');
+  next('promptTokenAmount')
 }
 
 module.exports = {

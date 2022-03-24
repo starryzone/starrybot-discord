@@ -37,7 +37,7 @@ async function handleCW721Entry(req, res, ctx, next) {
     ]
   });
 
-  next(() => 'promptTokenName');
+  next('promptTokenName')
 }
 
 module.exports = {

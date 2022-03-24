@@ -28,7 +28,7 @@ async function starryCommandTokenEdit(req, res, ctx, next) {
       ephemeral: true
     });
 
-    next(() => 'editCheck');
+    next('editCheck')
  }
 }
 

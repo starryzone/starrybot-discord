@@ -37,7 +37,7 @@ async function handleCW20Entry(req, res, ctx, next) {
     ]
   });
 
-  next(() => 'promptTokenAmount');
+  next('promptTokenAmount')
 }
 
 module.exports = {

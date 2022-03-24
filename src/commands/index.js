@@ -164,7 +164,8 @@ async function initiateCommandChain(firstCommandName, interaction) {
             // No need to timeout now
             clearTimeout(cancelTimeout);
 
-            const commandName = getCommandName(interaction);
+            const commandName = typeof getCommandName === 'string' ?
+              getCommandName : getCommandName(interaction);
             await runner(commandName);
           },
         );
