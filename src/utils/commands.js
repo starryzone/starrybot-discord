@@ -4,6 +4,7 @@ function buildBasicMessageCommand(configInput) {
   return async (req, res, ctx, next) => {
     const config = typeof configInput === 'object' ?
       configInput : await configInput(req, res, ctx, next);
+    if (!config) { return; } // might have had error
     const { interaction } = req;
     const hasButtons = config.buttons?.length > 0;
     const wantsEmoji = config.emojiOptions?.length > 0;
