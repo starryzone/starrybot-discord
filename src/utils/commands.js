@@ -77,10 +77,12 @@ function buildBasicMessageCommand(configInput) {
         reply.ephemeral = true;
       }
       
-      await interactionTarget.reply(reply);
+      if (reply.content || reply.embeds || reply.components) {
+        await interactionTarget.reply(reply);
+      }
 
       if (config.done) {
-        res.done();
+        res.done(config.done === true ? undefined : config.done);
       }
       else if (hasButtons) {
         next(interaction => interaction.customId);
