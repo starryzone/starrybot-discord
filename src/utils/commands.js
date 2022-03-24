@@ -9,6 +9,11 @@ function buildBasicMessageCommand(configInput) {
     const hasButtons = config.buttons?.length > 0;
     const wantsEmoji = config.emojiOptions?.length > 0;
 
+
+    // TO-DO: Was the interaction from a slash command, message
+    // or emoji?
+    const interactionTarget = interaction.reply ? interaction : interaction.message;
+
     const reply = {};
     if (hasButtons) {
       const row = createMessageActionRow({
@@ -24,9 +29,6 @@ function buildBasicMessageCommand(configInput) {
         description: 'Loading choices, fren.',
       })
 
-      // TO-DO: Was the interaction from a slash command, message
-      // or emoji?
-      const interactionTarget = interaction.message || interaction;
       const msg = await interactionTarget.reply({
         embeds: [
           msgEmbed
@@ -72,8 +74,7 @@ function buildBasicMessageCommand(configInput) {
       if (config.ephemeral) {
         reply.ephemeral = true;
       }
-
-      const interactionTarget = interaction.message || interaction;
+      
       await interactionTarget.reply(reply);
 
       if (config.done) {
