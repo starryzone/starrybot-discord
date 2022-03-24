@@ -22,7 +22,11 @@ function buildBasicMessageCommand(configInput) {
         title: 'One moment…',
         description: 'Loading choices, fren.',
       })
-      const msg = await interaction.reply({
+
+      // TO-DO: Was the interaction from a slash command, message
+      // or emoji?
+      const interactionTarget = interaction.message || interaction;
+      const msg = await interactionTarget.reply({
         embeds: [
           msgEmbed
         ],

@@ -37,7 +37,7 @@ const flattenedCommandMap = starrySteps.reduce(
       ...commandMap,
       [step.name]: {
         name: step.name,
-        execute: step
+        execute: step.execute || step,
       },
     }
   },
