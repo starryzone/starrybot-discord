@@ -30,6 +30,8 @@ function buildBasicMessageCommand(configInput) {
     }
     else if (hasButtons) {
       next(interaction => interaction.customId);
+    } else if (config.next) {
+      next(config.next);
     }
   }
 }
