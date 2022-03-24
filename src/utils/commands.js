@@ -23,6 +23,10 @@ function buildBasicMessageCommand(configInput) {
       reply.embeds = config.embeds.map(embedConfig => createEmbed(embedConfig));
     }
 
+    if (config.ephemeral) {
+      reply.ephemeral = true;
+    }
+
     await interaction.reply(reply);
 
     if (config.done) {
