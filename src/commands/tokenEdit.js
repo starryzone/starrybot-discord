@@ -6,7 +6,7 @@ module.exports = {
     adminOnly: true,
     name: 'edit',
     description: "(Admin only) Edit a token rule's name or amount",
-    execute: buildBasicMessageCommand(async (req, res, ctx, next) => {
+    config: async (req, res, ctx, next) => {
       const { interaction } = req;
       let roles = await rolesGet(interaction.guildId);
       if (roles.length === 0) {
@@ -31,6 +31,6 @@ module.exports = {
           next: 'editCheck',
         }
       }
-    }),
+    }
   }
 }

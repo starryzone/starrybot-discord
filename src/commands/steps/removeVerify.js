@@ -4,7 +4,7 @@ const { roleGet } = require("../../db");
 module.exports = {
 	removeVerify: {
 		name: 'removeVerify',
-		execute: buildBasicMessageCommand(async (req, res, ctx, next) => {
+		config: async (req, res, ctx, next) => {
 			const { interaction } = req;
 			const { guildId } = interaction;
 			const selectedRole = interaction.content;
@@ -33,6 +33,6 @@ module.exports = {
 					}
 				],
 			}
-		}),
+		}
 	}
 }

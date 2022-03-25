@@ -4,7 +4,7 @@ const { networkPrefixes } = require('../../astrolabe/networks');
 module.exports = {
   addNativeToken: {
     name: 'addNativeToken',
-    execute: buildBasicMessageCommand(async (req, res, ctx, next) => {
+    config: async (req, res, ctx, next) => {
       ctx.tokenType = 'native'
       // According to Meow, all native tokens have 6 decimals
       ctx.decimals = 6
@@ -24,6 +24,6 @@ module.exports = {
         content: 'Please choose from the supported Cosmos chains:',
         buttons,
       }
-    })
+    }
   }
 }

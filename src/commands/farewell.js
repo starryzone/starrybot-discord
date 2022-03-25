@@ -5,7 +5,7 @@ module.exports = {
 		adminOnly: true,
 		name: 'farewell',
 		description: '(Admin only) Kick starrybot itself from your guild',
-		execute: buildBasicMessageCommand({
+		config: {
 			content: 'This will delete roles created by starrybot.',
 			buttons: [
 				{
@@ -19,6 +19,6 @@ module.exports = {
 					style: 'SECONDARY',
 				}
 			],
-		}),
+		}
 	}
 }

@@ -3,9 +3,9 @@ const { buildBasicMessageCommand } = require('../../utils/commands');
 module.exports = {
   farewellRejection: {
     name: 'farewellRejection',
-    execute: buildBasicMessageCommand({
+    config: {
       content: '✨ 👍 🌟',
       done: true,
-    })
+    }
   }
 }

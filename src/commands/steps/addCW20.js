@@ -3,7 +3,7 @@ const { buildBasicMessageCommand } = require('../../utils/commands');
 module.exports = {
   addCW20: {
     name: 'addCW20',
-    execute: buildBasicMessageCommand({
+    config: {
       color: '#FDC2A0',
       title: 'Tell us about your token',
       emojiOptions: [
@@ -23,6 +23,6 @@ module.exports = {
           next: 'daoDao',
         },
       ]
-    })
+    }
   }
 }

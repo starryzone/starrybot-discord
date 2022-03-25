@@ -8,7 +8,7 @@ module.exports = {
 	starryCommandJoin: {
 		name: 'join',
 		description: 'Get link to verify your account with Keplr',
-		execute: buildBasicMessageCommand(async (req, res, ctx, next) => {
+		config: async (req, res, ctx, next) => {
 			const { interaction } = req;
 
 			try {
@@ -37,6 +37,6 @@ module.exports = {
 			} catch(err) {
 				await res.error(err, "Internal error adding you")
 			}
-		}),
+		}
 	}
 }

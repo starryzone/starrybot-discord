@@ -6,7 +6,7 @@ module.exports = {
     adminOnly: true,
     name: 'remove',
     description: '(Admin only) Remove token rule',
-    execute: buildBasicMessageCommand(async (req, res, ctx, next) => {
+    config: async (req, res, ctx, next) => {
       const { interaction } = req;
       
       let roles = await rolesGet(interaction.guildId);
@@ -38,6 +38,6 @@ module.exports = {
           next: 'removeVerify',
         }
       }
-    }),
+    }
   }
 }

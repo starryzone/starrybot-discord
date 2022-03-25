@@ -6,7 +6,7 @@ const { myConfig, rolesDelete } = require("../../db");
 module.exports = {
   removeConfirmation: {
     name: 'removeConfirmation',
-    execute: buildBasicMessageCommand(async (req, res, ctx, next) => {
+    config: async (req, res, ctx, next) => {
       const { interaction } = req;
       const { guild, guildId } = interaction;
       const roleManager = guild.roles;
@@ -28,6 +28,6 @@ module.exports = {
       return {
         done: `${selectedRole} has been successfully removed!`
       }
-    })
+    }
   }
 }

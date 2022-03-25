@@ -3,7 +3,7 @@ const { buildBasicMessageCommand } = require('../../utils/commands');
 module.exports = {
   nativeTokenSTARS: {
     name: 'nativeTokenSTARS',
-    execute: buildBasicMessageCommand(async (req, res, ctx, next) => {    
+    config: async (req, res, ctx, next) => {    
       ctx.tokenAddress = 'stars'
       ctx.tokenSymbol = 'stars'
       ctx.network = 'mainnet'
@@ -17,6 +17,6 @@ module.exports = {
         ],
         next: 'promptTokenAmount',
       }
-    })
+    }
   }
 }

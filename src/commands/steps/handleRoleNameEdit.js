@@ -4,7 +4,7 @@ const { rolesSet, rolesDelete } = require("../../db");
 module.exports = {
   handleRoleNameEdit: {
     name: 'handleRoleNameEdit',
-    execute: buildBasicMessageCommand(async (req, res, ctx, next) => {
+    config: async (req, res, ctx, next) => {
       const {
         interaction: {
           author,
@@ -45,6 +45,6 @@ module.exports = {
       return {
         done: `${ctx.selectedRoleName} has been renamed to ${newRoleName} (min: ${ctx.selectedRole.has_minimum_of / (10 ** ctx.selectedRole.decimals)}).\n\nEnjoy, traveller!`
       }
-    }),
+    }
   }
 }

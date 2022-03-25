@@ -3,7 +3,7 @@ const { buildBasicMessageCommand } = require('../../utils/commands');
 module.exports = {
   needsCW20: {
     name: 'needsCW20',
-    execute: buildBasicMessageCommand({
+    config: {
       embeds: [
         {
           color: '#FDC2A0',
@@ -34,6 +34,6 @@ module.exports = {
         }
       ],
       next: 'handleCW20Entry',
-    })
+    }
   }
 }

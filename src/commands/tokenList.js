@@ -5,7 +5,7 @@ module.exports = {
   starryCommandTokenList: {
     name: 'list',
     description: 'List all token rules for this guild',
-    execute: buildBasicMessageCommand(async (req, res, ctx, next) => {
+    config: async (req, res, ctx, next) => {
       const { interaction } = req;
       let roles = await rolesGet(interaction.guildId);
       const title = `${roles.length} roles found`;
@@ -23,6 +23,6 @@ module.exports = {
         ],
         done: true,
       };
-    }),
+    }
   }
 }

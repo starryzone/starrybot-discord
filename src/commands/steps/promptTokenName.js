@@ -4,7 +4,7 @@ const { rolesSet } = require("../../db");
 module.exports = {
   promptTokenName: {
     name: 'promptTokenName',
-    execute: buildBasicMessageCommand(async (req, res, ctx, next) => {
+    config: async (req, res, ctx, next) => {
       const {
         interaction: {
           author,
@@ -40,6 +40,6 @@ module.exports = {
       return {
         done: `You may now use the role ${roleToCreate} for token-gated channels.\n\nEnjoy, traveller!`
       }
-    }),
+    }
   }
 }

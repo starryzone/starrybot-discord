@@ -12,6 +12,8 @@ const { starrySteps } = require('./steps');
 const { memberHasRole, memberHasPermissions } = require('../utils/auth');
 const { createEmbed } = require("../utils/messages");
 
+const { buildBasicMessageCommand } = require('../utils/commands');
+
 const globalCommandChains = new Map();
 const TIMEOUT_DURATION = 360000; // 6 minutes in milliseconds
 
@@ -37,7 +39,7 @@ const flattenedCommandMap = starrySteps.reduce(
       ...commandMap,
       [step.name]: {
         name: step.name,
-        execute: step.execute || step,
+        execute: step.config ? buildBasicMessageCommand(step.config) : step.execute,
       },
     }
   },
@@ -48,7 +50,10 @@ const commandData = buildCommandData();
 function registerSubcommand(mainCommand, subcommand) {
   const { name, description } = subcommand;
   mainCommand.addSubcommand(sub => sub.setName(name).setDescription(description));
-  flattenedCommandMap[name] = subcommand;
+  flattenedCommandMap[name] = {
+    ...subcommand,
+    execute: subcommand.config ? buildBasicMessageCommand(subcommand.config) : subcommand.execute
+  };
 }
 
 function registerSubcommandGroup(mainCommand, subcommandGroup) {
@@ -154,7 +159,7 @@ async function initiateCommandChain(firstCommandName, interaction) {
           'Sorry, you must be an admin to use this command :/'
         );
       }
-
+      console.log(command);
       return await command.execute(req, res, ctx, getCommandName => {
         globalCommandChains.set(
           uniqueCommandChainKey,

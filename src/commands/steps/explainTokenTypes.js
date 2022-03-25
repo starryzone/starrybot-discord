@@ -3,7 +3,7 @@ const { buildBasicMessageCommand } = require('../../utils/commands');
 module.exports = {
   explainTokenTypes: {
     name: 'explainTokenTypes',
-    execute: buildBasicMessageCommand({
+    config: {
       title: 'Now, what kind of token again?',
       embeds: [
         {
@@ -34,6 +34,6 @@ module.exports = {
           next: 'explainTokenTypes',
         }
       ]
-    })
+    }
   }
 }

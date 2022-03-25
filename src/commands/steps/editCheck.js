@@ -4,7 +4,7 @@ const { roleGet } = require("../../db");
 module.exports = {
   editCheck: {
     name: 'editCheck',
-    execute: buildBasicMessageCommand(async (req, res, ctx, next) => {
+    config: async (req, res, ctx, next) => {
       const { interaction } = req;
       const { guildId } = interaction;
       const selectedRole = interaction.content;
@@ -34,6 +34,6 @@ module.exports = {
           ]
         }
       }
-    })
+    }
   }
 }

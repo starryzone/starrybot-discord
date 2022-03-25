@@ -3,7 +3,7 @@ const { buildBasicMessageCommand } = require('../../utils/commands');
 module.exports = {
   editRoleName: {
     name: 'editRoleName',
-    execute: buildBasicMessageCommand(async (req, res, ctx, next) => {
+    config: async (req, res, ctx, next) => {
       return {
         embeds: [
           {
@@ -14,6 +14,6 @@ module.exports = {
         ],
         next: 'handleRoleNameEdit',
       }
-    })
+    }
   }
 }

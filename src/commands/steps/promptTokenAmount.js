@@ -3,7 +3,7 @@ const { buildBasicMessageCommand } = require('../../utils/commands');
 module.exports = {
   promptTokenAmount: {
     name: 'promptTokenAmount',
-    execute: buildBasicMessageCommand(async (req, res, ctx, next) => {
+    config: async (req, res, ctx, next) => {
       const { interaction } = req;
       let amountOfTokensNeeded = interaction.content;
 
@@ -47,6 +47,6 @@ module.exports = {
         ],
         next: 'promptTokenName',
       }
-    })
+    }
   }
 }
