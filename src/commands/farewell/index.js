@@ -5,7 +5,7 @@ module.exports = {
 	starryCommandFarewell: {
 		adminOnly: true,
 		name: 'farewell',
-		description: '(Admin only) Kick starrybot itself from your guild',
+		description: 'Kick starrybot itself from your guild',
 		config: {
 			prompt: {
 				type: 'button',

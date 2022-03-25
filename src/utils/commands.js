@@ -143,8 +143,12 @@ function buildBasicMessageCommand(configInput) {
 }
 
 function registerSubcommand(flattenedCommandMap, mainCommand, subcommand) {
-  const { name, description } = subcommand;
-  mainCommand.addSubcommand(sub => sub.setName(name).setDescription(description));
+  const { adminOnly, name, description } = subcommand;
+  mainCommand.addSubcommand(
+    sub => sub
+      .setName(name)
+      .setDescription(`${adminOnly && '(Admin only) '}${description}`)
+  );
   flattenedCommandMap[name] = {
     ...subcommand,
     execute: subcommand.execute ? subcommand.execute : buildBasicMessageCommand(subcommand.config)
@@ -159,9 +163,11 @@ function registerSubcommand(flattenedCommandMap, mainCommand, subcommand) {
 }
 
 function registerSubcommandGroup(flattenedCommandMap, mainCommand, subcommandGroup) {
-  const { name, description, options } = subcommandGroup;
+  const { adminOnly, name, description, options } = subcommandGroup;
   mainCommand.addSubcommandGroup(subgroup => {
-    const subGroup = subgroup.setName(name).setDescription(description);
+    const subGroup = subgroup
+      .setName(name)
+      .setDescription(`${adminOnly && '(Admin only) '}${description}`);
     options.forEach(opt => registerSubcommand(flattenedCommandMap, subGroup, opt));
     return subGroup;
   });

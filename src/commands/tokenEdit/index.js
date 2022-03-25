@@ -8,7 +8,7 @@ module.exports = {
   starryCommandTokenEdit: {
     adminOnly: true,
     name: 'edit',
-    description: "(Admin only) Edit a token rule's name or amount",
+    description: "Edit a token rule's name or amount",
     config: async ({ guildId }, { db: { rolesGet } }) => {
       let roles = await rolesGet(guildId);
       if (roles.length === 0) {

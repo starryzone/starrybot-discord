@@ -6,7 +6,7 @@ module.exports = {
   starryCommandTokenRemove: {
     adminOnly: true,
     name: 'remove',
-    description: '(Admin only) Remove token rule',
+    description: 'Remove token rule',
     config: async ({ guildId }, { db: { rolesGet } }) => {
       let roles = await rolesGet(guildId);
       if (roles.length === 0) {

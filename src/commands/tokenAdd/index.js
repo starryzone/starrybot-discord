@@ -19,7 +19,7 @@ module.exports = {
 	starryCommandTokenAdd: {
 		adminOnly: true,
 		name: 'add',
-		description: '(Admin only) Add a new token rule',
+		description: 'Add a new token rule',
 		config: {
 			prompt: {
 				type: 'reaction',
