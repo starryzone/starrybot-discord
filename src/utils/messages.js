@@ -96,7 +96,7 @@ function createMessage({
 }) {
 
   let componentPayload;
-  if (buttons) {
+  if (buttons?.length > 0) {
     const row = createMessageActionRow({
       components: buttons.map(buttonConfig => createButton(buttonConfig)),
     });
@@ -104,7 +104,7 @@ function createMessage({
   }
 
   let embedPayload;
-  if (embeds) {
+  if (embeds?.length > 0) {
     embedPayload = embeds.map(embed => createEmbed(embed));
   }
 
@@ -117,7 +117,7 @@ function createMessage({
     embeds: embedPayload,
     ephemeral,
     fetchReply,
-  }
+  };
 }
 
 function createError(errorMessage, ephemeral) {

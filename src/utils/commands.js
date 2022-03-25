@@ -41,7 +41,7 @@ function buildBasicMessageCommand(configInput) {
 
     const reply = {
       ephemeral: config.ephemeral,
-      message: config.message,
+      content: config.message,
     };
 
     switch(promptType) {
@@ -112,6 +112,10 @@ function buildBasicMessageCommand(configInput) {
           ...embedConfig,
           color: messageColor,
         }));
+
+        if (reply.content || reply.embeds?.length > 0) {
+          await interactionTarget.reply(createMessage(reply));
+        }
 
         if (config.next) {
           next(config.next);
