@@ -26,7 +26,6 @@ module.exports = {
         // Show them the options for deletion
         const description = `${roles.map(role => role.give_role).join('\n')}`;
         return {
-          messageType: 'prompt',
           embeds: [
             {
               title: 'Current token rules',
@@ -36,6 +35,9 @@ module.exports = {
           ],
           ephemeral: true,
           next: 'removeVerify',
+          prompt: {
+            type: 'input',
+          }
         }
       }
     },

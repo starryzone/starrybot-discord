@@ -3,7 +3,6 @@ module.exports = {
     name: 'editRoleName',
     config: async ({ selectedRoleName }) => {
       return {
-        messageType: 'prompt',
         embeds: [
           {
             title: "What is the new name?",
@@ -11,6 +10,9 @@ module.exports = {
           }
         ],
         next: 'handleRoleNameEdit',
+        prompt: {
+          type: 'input',
+        }
       }
     }
   }

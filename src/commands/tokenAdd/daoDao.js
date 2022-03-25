@@ -2,7 +2,6 @@ module.exports = {
   daoDao: {
     name: 'daoDao',
     config: {
-      messageType: 'prompt',
       embeds: [
         {
           title: 'Check out DAODAO',
@@ -22,6 +21,9 @@ module.exports = {
         }
       ],
       next: 'handleCW20Entry',
+      prompt: {
+        type: 'input',
+      }
     }
   }
 }

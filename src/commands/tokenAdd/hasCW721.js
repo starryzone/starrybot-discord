@@ -2,7 +2,6 @@ module.exports = {
   hasCW721: {
     name: 'hasCW721',
     config: {
-      messageType: 'prompt',
       embeds: [
         {
           title: "Enter the token address",
@@ -10,6 +9,9 @@ module.exports = {
         }
       ],
       next: 'handleCW721Entry',
+      prompt: {
+        type: 'input',
+      }
     }
   }
 }

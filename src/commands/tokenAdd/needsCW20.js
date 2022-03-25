@@ -2,7 +2,6 @@ module.exports = {
   needsCW20: {
     name: 'needsCW20',
     config: {
-      messageType: 'prompt',
       embeds: [
         {
           title: 'Learning about cw20 tokens…',
@@ -32,6 +31,9 @@ module.exports = {
         }
       ],
       next: 'handleCW20Entry',
+      prompt: {
+        type: 'input',
+      }
     }
   }
 }

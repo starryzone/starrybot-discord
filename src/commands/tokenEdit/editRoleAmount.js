@@ -6,7 +6,6 @@ module.exports = {
       selectedRole: { decimals, has_minimum_of }
     }) => {
       return {
-        messageType: 'prompt',
         embeds: [
           {
             title: 'How many tokens?',
@@ -14,6 +13,9 @@ module.exports = {
           }
         ],
         next: 'handleRoleAmountEdit',
+        prompt: {
+          type: 'input',
+        }
       }
     }
   }

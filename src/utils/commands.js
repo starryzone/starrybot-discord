@@ -30,18 +30,18 @@ function buildBasicMessageCommand(configInput) {
       args.endChain();
       return;
     }
-
-    const hasButtons = config.prompt?.type === 'button';
-    const wantsEmoji = config.prompt?.type === 'reaction';
-    const messageType = config.prompt?.type ? 'prompt' : config.messageType;
+    const promptType = config.prompt?.type;
+    const messageColor = promptType ?
+      COLORS_BY_MESSAGE_TYPE['prompt'] :
+      COLORS_BY_MESSAGE_TYPE[config.messageType];
 
     const reply = {};
 
-    if (wantsEmoji) {
+    if (promptType === 'reaction') {
       const msg = await interactionTarget.reply(createMessage(
         {
           embeds: [{
-            color: COLORS_BY_MESSAGE_TYPE.prompt,
+            color: messageColor,
             title: 'One moment…',
             description: 'Loading choices, fren.',
           }],
@@ -58,7 +58,7 @@ function buildBasicMessageCommand(configInput) {
         embeds: [
           ...(config.embeds || []),
           {
-            color: COLORS_BY_MESSAGE_TYPE[messageType],
+            color: messageColor,
             title: config.title,
             description: config.prompt.options.map(emojiConfig => `${emojiConfig.emoji} ${emojiConfig.description}`).join('\n\n'),
           }
@@ -78,7 +78,7 @@ function buildBasicMessageCommand(configInput) {
       next(getCommandName);
 
     } else {
-      if (hasButtons) {
+      if (promptType === 'button') {
         reply.buttons = config.prompt.options.map(buttonConfig => ({
           ...buttonConfig,
           customId: buttonConfig.next,
@@ -92,7 +92,7 @@ function buildBasicMessageCommand(configInput) {
       if (config.embeds) {
         reply.embeds = config.embeds.map(embedConfig => ({
           ...embedConfig,
-          color: COLORS_BY_MESSAGE_TYPE[messageType]
+          color: messageColor,
         }));
       }
 
@@ -104,7 +104,7 @@ function buildBasicMessageCommand(configInput) {
         await interactionTarget.reply(createMessage(reply));
       }
 
-      if (hasButtons) {
+      if (promptType === 'button') {
         next(interaction => interaction.customId);
       } else if (config.next) {
         next(config.next);

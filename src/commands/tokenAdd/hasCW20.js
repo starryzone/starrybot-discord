@@ -2,7 +2,6 @@ module.exports = {
   hasCW20: {
     name: 'hasCW20',
     config: {
-      messageType: 'prompt',
       embeds: [
         {
           title: 'Enter your token address',
@@ -10,6 +9,9 @@ module.exports = {
         }
       ],
       next: 'handleCW20Entry',
+      prompt: {
+        type: 'input',
+      }
     }
   }
 }
