@@ -77,7 +77,6 @@ function buildCommandData() {
 }
 
 async function initiateCommandChain(firstCommandName, interaction) {
-  const uniqueCommandChainKey = `${interaction.guildId}-${interaction.user.id}`;
   // Information about this initiated chain and how it's going
   const req = {
     currentIndex: 0,
@@ -87,12 +86,14 @@ async function initiateCommandChain(firstCommandName, interaction) {
   // A state that can be edited by any step in this chain
   const ctx = {
     guildId: interaction.guildId,
+    userId: interaction.user.id,
+    commandChainKey: `${interaction.guildId}-${interaction.user.id}`,
 
     endChain: () => {
       // TO-DO: Would be nice to edit the last message
       // so it's less confusing when we stop responding
 
-      globalCommandChains.delete(uniqueCommandChainKey);
+      globalCommandChains.delete(ctx.commandChainKey);
     }
   };
   const runner = async (commandName) => {
@@ -120,7 +121,7 @@ async function initiateCommandChain(firstCommandName, interaction) {
 
       return await command.execute(req, ctx, getCommandName => {
         globalCommandChains.set(
-          uniqueCommandChainKey,
+          ctx.commandChainKey,
           async interaction => {
             req.interaction = interaction;
 

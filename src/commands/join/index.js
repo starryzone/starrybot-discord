@@ -13,7 +13,7 @@ module.exports = {
 			try {
 				let results = await logic.hoistRequest({
 					guildId: ctx.guildId,
-					authorId: interaction.member.user.id
+					authorId: ctx.userId
 				});
 				if (results.error || !results.traveller || !results.saganism) {
 					return {
