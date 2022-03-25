@@ -79,16 +79,19 @@ function buildCommandData() {
 async function initiateCommandChain(firstCommandName, interaction) {
   // Information about this initiated chain and how it's going
   const req = {
-    currentIndex: 0,
     interaction,
-    steps: [firstCommandName],
   };
   // A state that can be edited by any step in this chain
   const ctx = {
+    interaction,
+
     guild: interaction.guild,
     guildId: interaction.guildId,
     userId: interaction.user.id,
     commandChainKey: `${interaction.guildId}-${interaction.user.id}`,
+
+    currentIndex: 0,
+    steps: [firstCommandName],
 
     endChain: () => {
       // TO-DO: Would be nice to edit the last message
@@ -100,8 +103,8 @@ async function initiateCommandChain(firstCommandName, interaction) {
   const runner = async (commandName) => {
     const command = flattenedCommandMap[commandName]
 
-    req.currentIndex += 1;
-    req.steps.push(commandName);
+    ctx.currentIndex += 1;
+    ctx.steps.push(commandName);
 
     let cancelTimeout;
     if (command) {
@@ -124,7 +127,7 @@ async function initiateCommandChain(firstCommandName, interaction) {
         globalCommandChains.set(
           ctx.commandChainKey,
           async interaction => {
-            req.interaction = interaction;
+            ctx.interaction = interaction;
             if(interaction.content) {
               ctx.userInput = interaction.content;
             }
@@ -143,9 +146,9 @@ async function initiateCommandChain(firstCommandName, interaction) {
       });
     } else {
       // Reply saying something's gone wrong
-      const replyTarget = req.interaction._emoji ?
-        req.interaction.message :
-        req.interaction;
+      const replyTarget = interaction._emoji ?
+        interaction.message :
+        interaction;
       await replyTarget.reply({
         embeds: [
           createEmbed({

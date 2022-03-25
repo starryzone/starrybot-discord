@@ -6,8 +6,7 @@ module.exports = {
   farewellConfirmation: {
     name: 'farewellConfirmation',
     execute: async (req, ctx, next) => {
-      const { interaction } = req;
-      const { guild, guildId } = ctx;
+      const { guild, guildId, interaction } = ctx;
       const roleManager = guild.roles;
       const rest = new REST().setToken(myConfig.DISCORD_TOKEN);
 
