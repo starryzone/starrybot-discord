@@ -1,6 +1,12 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const { COLORS_BY_MESSAGE_TYPE, createMessage, createPrivateError } = require("../utils/messages");
 
+/*
+ * Types of messages:
+ * { content: 'just a single message', ephemeral?: privateOrNot, buttons? }
+ * { title: }
+ */
+
 function buildBasicMessageCommand(configInput) {
   return async (args, next) => {
     const config = typeof configInput === 'object' ?
