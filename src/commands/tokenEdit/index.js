@@ -1,3 +1,8 @@
+const { editCheck } = require('./editCheck');
+const { editRoleAmount } = require('./editRoleAmount');
+const { editRoleName } = require('./editRoleName');
+const { handleRoleAmountEdit } = require('./handleRoleAmountEdit');
+const { handleRoleNameEdit } = require('./handleRoleNameEdit');
 
 const { rolesGet } = require("../../db");
 
@@ -31,6 +36,13 @@ module.exports = {
           next: 'editCheck',
         }
       }
-    }
+    },
+    steps: [
+      editCheck,
+      editRoleAmount,
+      editRoleName,
+      handleRoleAmountEdit,
+      handleRoleNameEdit,
+    ]
   }
 }

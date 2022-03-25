@@ -1,3 +1,6 @@
+const { farewellConfirmation } = require('../farewell/farewellConfirmation');
+const { farewellRejection } = require('./farewellRejection');
+
 module.exports = {
 	starryCommandFarewell: {
 		adminOnly: true,
@@ -17,6 +20,10 @@ module.exports = {
 					style: 'SECONDARY',
 				}
 			],
-		}
+		},
+		steps: [
+			farewellConfirmation,
+			farewellRejection,
+		]
 	}
 }

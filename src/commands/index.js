@@ -7,9 +7,8 @@ const { starryCommandTokenAdd } = require('./tokenAdd');
 const { starryCommandTokenList } = require('./tokenList');
 const { starryCommandTokenEdit } = require('./tokenEdit');
 const { starryCommandTokenRemove } = require('./tokenRemove');
-const { starrySteps } = require('./steps');
 
-const { memberHasRole, memberHasPermissions } = require('../utils/auth');
+const { memberHasRole } = require('../utils/auth');
 const { createEmbed } = require("../utils/messages");
 
 const { buildBasicMessageCommand } = require('../utils/commands');
@@ -33,18 +32,7 @@ const definedCommands = [
   starryCommandFarewell,
 ];
 
-const flattenedCommandMap = starrySteps.reduce(
-  (commandMap, step) => {
-    return {
-      ...commandMap,
-      [step.name]: {
-        name: step.name,
-        execute: step.config ? buildBasicMessageCommand(step.config) : step.execute,
-      },
-    }
-  },
-  {}
-);
+const flattenedCommandMap = [];
 const commandData = buildCommandData();
 
 function registerSubcommand(mainCommand, subcommand) {
@@ -54,6 +42,13 @@ function registerSubcommand(mainCommand, subcommand) {
     ...subcommand,
     execute: subcommand.config ? buildBasicMessageCommand(subcommand.config) : subcommand.execute
   };
+  
+  subcommand.steps?.forEach(step => {
+    flattenedCommandMap[step.name] = {
+      name: step.name,
+      execute: step.config ? buildBasicMessageCommand(step.config) : step.execute,
+    }
+  });
 }
 
 function registerSubcommandGroup(mainCommand, subcommandGroup) {
@@ -179,6 +174,8 @@ async function initiateCommandChain(firstCommandName, interaction) {
         cancelTimeout = setTimeout(res.timeout, TIMEOUT_DURATION);
       });
     } else {
+      console.log(commandName);
+      console.log(flattenedCommandMap);
       await res.error('Could not find a matching command');
     }
   }
