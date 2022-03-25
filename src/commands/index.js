@@ -86,6 +86,8 @@ async function initiateCommandChain(firstCommandName, interaction) {
   };
   // A state that can be edited by any step in this chain
   const ctx = {
+    guildId: interaction.guildId,
+
     endChain: () => {
       // TO-DO: Would be nice to edit the last message
       // so it's less confusing when we stop responding

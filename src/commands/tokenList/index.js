@@ -5,8 +5,7 @@ module.exports = {
     name: 'list',
     description: 'List all token rules for this guild',
     config: async (req, ctx, next) => {
-      const { interaction } = req;
-      let roles = await rolesGet(interaction.guildId);
+      let roles = await rolesGet(ctx.guildId);
       const title = `${roles.length} roles found`;
       const description = roles.length > 0 ?
         `${roles.map(role => {

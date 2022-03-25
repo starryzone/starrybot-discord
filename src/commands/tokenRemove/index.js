@@ -10,9 +10,7 @@ module.exports = {
     name: 'remove',
     description: '(Admin only) Remove token rule',
     config: async (req, ctx, next) => {
-      const { interaction } = req;
-      
-      let roles = await rolesGet(interaction.guildId);
+      let roles = await rolesGet(ctx.guildId);
       if (roles.length === 0) {
         // Nothing to actually delete
         return {
