@@ -4,8 +4,8 @@ const { isStargazeLaunchpadAddress, getCW721FromStargazeUrl } = require("../../a
 module.exports = {
   handleCW721Entry: {
     name: 'handleCW721Entry',
-    config: async (ctx) => {
-      const { userInput } = ctx;
+    config: async (args) => {
+      const { userInput } = args;
       // If user has done something else (like emoji reaction) do nothing
       if (!userInput) return;
 
@@ -16,12 +16,12 @@ module.exports = {
           userInput;
         results = await getTokenDetails({ tokenAddress });
 
-        ctx.tokenAddress = results.cw721;
-        ctx.network = results.network;
-        ctx.tokenType = results.tokenType;
-        ctx.tokenSymbol = results.tokenSymbol;
-        ctx.minimumTokensNeeded = 1;
-        ctx.decimals = results.decimals;
+        args.tokenAddress = results.cw721;
+        args.network = results.network;
+        args.tokenType = results.tokenType;
+        args.tokenSymbol = results.tokenSymbol;
+        args.minimumTokensNeeded = 1;
+        args.decimals = results.decimals;
       } catch (error) {
         // Notify the channel with whatever went wrong in this step
         return { error };

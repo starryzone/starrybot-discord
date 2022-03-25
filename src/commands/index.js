@@ -82,7 +82,7 @@ async function initiateCommandChain(firstCommandName, interaction) {
     interaction,
   };
   // A state that can be edited by any step in this chain
-  const ctx = {
+  const args = {
     interaction,
 
     guild: interaction.guild,
@@ -97,14 +97,14 @@ async function initiateCommandChain(firstCommandName, interaction) {
       // TO-DO: Would be nice to edit the last message
       // so it's less confusing when we stop responding
 
-      globalCommandChains.delete(ctx.commandChainKey);
+      globalCommandChains.delete(args.commandChainKey);
     }
   };
   const runner = async (commandName) => {
     const command = flattenedCommandMap[commandName]
 
-    ctx.currentIndex += 1;
-    ctx.steps.push(commandName);
+    args.currentIndex += 1;
+    args.steps.push(commandName);
 
     let cancelTimeout;
     if (command) {
@@ -123,13 +123,13 @@ async function initiateCommandChain(firstCommandName, interaction) {
         };
       }
 
-      return await command.execute(ctx, getCommandName => {
+      return await command.execute(args, getCommandName => {
         globalCommandChains.set(
-          ctx.commandChainKey,
+          args.commandChainKey,
           async interaction => {
-            ctx.interaction = interaction;
+            args.interaction = interaction;
             if(interaction.content) {
-              ctx.userInput = interaction.content;
+              args.userInput = interaction.content;
             }
 
             // No need to timeout now
@@ -142,7 +142,7 @@ async function initiateCommandChain(firstCommandName, interaction) {
         );
 
         // Timeout if it's taking too long
-        cancelTimeout = setTimeout(ctx.endChain, TIMEOUT_DURATION);
+        cancelTimeout = setTimeout(args.endChain, TIMEOUT_DURATION);
       });
     } else {
       // Reply saying something's gone wrong
@@ -159,7 +159,7 @@ async function initiateCommandChain(firstCommandName, interaction) {
         ],
         ephemeral: true,
       });
-      ctx.endChain();
+      args.endChain();
     }
   }
 

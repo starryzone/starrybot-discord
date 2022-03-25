@@ -3,10 +3,10 @@ const { roleGet } = require("../../db");
 module.exports = {
 	removeVerify: {
 		name: 'removeVerify',
-		config: async (ctx) => {
-			const { guildId, userInput: selectedRole } = ctx;
-			// Save the selection in ctx for removeConfirmation
-			ctx.selectedRole = selectedRole;
+		config: async (args) => {
+			const { guildId, userInput: selectedRole } = args;
+			// Save the selection in args for removeConfirmation
+			args.selectedRole = selectedRole;
 
 			// Make sure we recognize the selected role
 			const role = await roleGet(guildId, selectedRole);

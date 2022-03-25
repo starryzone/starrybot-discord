@@ -4,8 +4,8 @@ const { isDaoDaoAddress, getCW20InputFromDaoDaoDao } = require('../../astrolabe/
 module.exports = {
   handleCW20Entry: {
     name: 'handleCW20Entry',
-    config: async (ctx) => {
-      const { userInput } = ctx;
+    config: async (args) => {
+      const { userInput } = args;
       // If user has done something else (like emoji reaction) do nothing
       if (!userInput) return;
 
@@ -14,15 +14,15 @@ module.exports = {
         if (isDaoDaoAddress(userInput)) {
           const daoDetails = await getCW20InputFromDaoDaoDao(userInput)
           tokenAddress = daoDetails.govToken
-          ctx.stakingContract = daoDetails.stakingContract;
+          args.stakingContract = daoDetails.stakingContract;
         }
         const results = await getTokenDetails({ tokenAddress });
 
-        ctx.tokenAddress = results.cw20Input;
-        ctx.network = results.network;
-        ctx.tokenType = results.tokenType;
-        ctx.tokenSymbol = results.tokenSymbol;
-        ctx.decimals = results.decimals;
+        args.tokenAddress = results.cw20Input;
+        args.network = results.network;
+        args.tokenType = results.tokenType;
+        args.tokenSymbol = results.tokenSymbol;
+        args.decimals = results.decimals;
       } catch (error) {
         // Notify the channel with whatever went wrong in this step
         return { error };

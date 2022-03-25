@@ -1,8 +1,8 @@
 module.exports = {
   promptTokenAmount: {
     name: 'promptTokenAmount',
-    config: async (ctx) => {
-      let { userInput: amountOfTokensNeeded } = ctx;
+    config: async (args) => {
+      let { userInput: amountOfTokensNeeded } = args;
 
       if (
         !Number.isInteger(parseInt(amountOfTokensNeeded)) ||
@@ -15,17 +15,17 @@ module.exports = {
       }
 
       // Multiply by the decimals for native and fungible tokens
-      if (ctx.tokenType === 'native' || ctx.tokenType === 'cw20') {
-        console.log('Multiplying by the number of decimals', ctx.decimals)
-        ctx.minimumTokensNeeded = amountOfTokensNeeded * (10 ** ctx.decimals)
-        console.log('New amount needed', ctx.minimumTokensNeeded)
+      if (args.tokenType === 'native' || args.tokenType === 'cw20') {
+        console.log('Multiplying by the number of decimals', args.decimals)
+        args.minimumTokensNeeded = amountOfTokensNeeded * (10 ** args.decimals)
+        console.log('New amount needed', args.minimumTokensNeeded)
       }
 
       // Building the user friendly name for what they're making
       let noun = `${amountOfTokensNeeded} `;
-      switch (ctx.tokenType) {
+      switch (args.tokenType) {
         case('native'):
-          noun = `${noun} ${ctx.tokenSymbol}`;
+          noun = `${noun} ${args.tokenSymbol}`;
           break;
         case('cw20'):
           noun = `${noun} cw20 token(s)`;

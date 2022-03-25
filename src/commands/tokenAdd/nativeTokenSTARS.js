@@ -1,10 +1,10 @@
 module.exports = {
   nativeTokenSTARS: {
     name: 'nativeTokenSTARS',
-    config: async (ctx) => {    
-      ctx.tokenAddress = 'stars'
-      ctx.tokenSymbol = 'stars'
-      ctx.network = 'mainnet'
+    config: async (args) => {    
+      args.tokenAddress = 'stars'
+      args.tokenSymbol = 'stars'
+      args.network = 'mainnet'
 
       return {
         embeds: [

@@ -1,12 +1,12 @@
 const { createButton, createMessageActionRow, createEmbed } = require("../utils/messages");
 
 function buildBasicMessageCommand(configInput) {
-  return async (ctx, next) => {
+  return async (args, next) => {
     const config = typeof configInput === 'object' ?
-      configInput : await configInput(ctx);
+      configInput : await configInput(args);
     if (!config) { return; } // might have had error
 
-    const { interaction } = ctx;
+    const { interaction } = args;
     // TO-DO: Was the interaction from a slash command,n message
     // or emoji?
     const interactionTarget = interaction.reply ? interaction : interaction.message;
@@ -25,7 +25,7 @@ function buildBasicMessageCommand(configInput) {
         ],
         ephemeral: true,
       })
-      ctx.endChain();
+      args.endChain();
       return;
     }
 
@@ -116,7 +116,7 @@ function buildBasicMessageCommand(configInput) {
           });
         }
 
-        ctx.endChain();
+        args.endChain();
       }
     }
   }
