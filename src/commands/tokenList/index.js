@@ -1,10 +1,8 @@
-const { rolesGet } = require("../../db");
-
 module.exports = {
   starryCommandTokenList: {
     name: 'list',
     description: 'List all token rules for this guild',
-    config: async ({ guildId }) => {
+    config: async ({ guildId }, { db: { rolesGet } }) => {
       let roles = await rolesGet(guildId);
       const title = `${roles.length} roles found`;
       const description = roles.length > 0 ?

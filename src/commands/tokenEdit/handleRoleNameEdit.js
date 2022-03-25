@@ -1,16 +1,19 @@
-const { rolesSet, rolesDelete } = require("../../db");
-
 module.exports = {
   handleRoleNameEdit: {
     name: 'handleRoleNameEdit',
-    config: async ({
-      userId,
-      guild,
-      guildId,
-      userInput: newRoleName,
-      selectedRoleName,
-      selectedRole: { decimals, network, token_address, token_type }
-    }) => {
+    config: async (
+      {
+        userId,
+        guild,
+        guildId,
+        userInput: newRoleName,
+        selectedRoleName,
+        selectedRole: { decimals, network, token_address, token_type }
+      },
+      {
+        db: { rolesSet, rolesDelete }
+      }
+    ) => {
       const existingObjectRoles = await guild.roles.fetch();
       let roleAlreadyExists = existingObjectRoles.some(role => role.name === newRoleName);
       if (roleAlreadyExists) {

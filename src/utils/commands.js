@@ -8,9 +8,9 @@ const { COLORS_BY_MESSAGE_TYPE, createMessage, createPrivateError } = require(".
  */
 
 function buildBasicMessageCommand(configInput) {
-  return async (args, next) => {
+  return async (args, db, next) => {
     const config = typeof configInput === 'object' ?
-      configInput : await configInput(args);
+      configInput : await configInput(args, db);
     if (!config) { return; } // might have had error
 
     const { interaction } = args;

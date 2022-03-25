@@ -1,15 +1,18 @@
-const { rolesSet } = require("../../db");
-
 module.exports = {
   handleRoleAmountEdit: {
     name: 'handleRoleAmountEdit',
-    config: async ({
-      userId,
-      guildId,
-      userInput: amountOfTokensNeeded,
-      selectedRoleName,
-      selectedRole: { decimals, network, token_address, token_type }
-    }) => {
+    config: async (
+      {
+        userId,
+        guildId,
+        userInput: amountOfTokensNeeded,
+        selectedRoleName,
+        selectedRole: { decimals, network, token_address, token_type }
+      },
+      {
+        db: { rolesSet }
+      }
+    ) => {
       if (
         !Number.isInteger(parseInt(amountOfTokensNeeded)) ||
         amountOfTokensNeeded <= 0

@@ -1,4 +1,4 @@
-const { farewellConfirmation } = require('../farewell/farewellConfirmation');
+const { farewellConfirmation } = require('./farewellConfirmation');
 const { farewellRejection } = require('./farewellRejection');
 
 module.exports = {

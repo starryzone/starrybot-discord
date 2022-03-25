@@ -2,14 +2,12 @@ const { removeConfirmation } = require('./removeConfirmation');
 const { removeRejection } = require('./removeRejection');
 const { removeVerify } = require('./removeVerify');
 
-const { rolesGet } = require("../../db");
-
 module.exports = {
   starryCommandTokenRemove: {
     adminOnly: true,
     name: 'remove',
     description: '(Admin only) Remove token rule',
-    config: async ({ guildId }) => {
+    config: async ({ guildId }, { db: { rolesGet } }) => {
       let roles = await rolesGet(guildId);
       if (roles.length === 0) {
         // Nothing to actually delete

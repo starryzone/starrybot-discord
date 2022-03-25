@@ -1,10 +1,13 @@
-const { getTokenDetails } = require('../../astrolabe')
-const { isStargazeLaunchpadAddress, getCW721FromStargazeUrl } = require("../../astrolabe/stargaze");
-
 module.exports = {
   handleCW721Entry: {
     name: 'handleCW721Entry',
-    config: async (args) => {
+    config: async (
+      args,
+      {
+        astrolabe: { getTokenDetails },
+        stargaze: { isStargazeLaunchpadAddress, getCW721FromStargazeUrl }
+      }
+    ) => {
       const { userInput } = args;
       // If user has done something else (like emoji reaction) do nothing
       if (!userInput) return;

@@ -4,14 +4,12 @@ const { editRoleName } = require('./editRoleName');
 const { handleRoleAmountEdit } = require('./handleRoleAmountEdit');
 const { handleRoleNameEdit } = require('./handleRoleNameEdit');
 
-const { rolesGet } = require("../../db");
-
 module.exports = {
   starryCommandTokenEdit: {
     adminOnly: true,
     name: 'edit',
     description: "(Admin only) Edit a token rule's name or amount",
-    config: async ({ guildId }) => {
+    config: async ({ guildId }, { db: { rolesGet } }) => {
       let roles = await rolesGet(guildId);
       if (roles.length === 0) {
         return {

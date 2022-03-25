@@ -1,9 +1,7 @@
-const { roleGet } = require("../../db");
-
 module.exports = {
   editCheck: {
     name: 'editCheck',
-    config: async (args) => {
+    config: async (args, { db: { roleGet } }) => {
       const { guildId, userInput: selectedRole } = args;
 
       // Make sure we recognize the selected role

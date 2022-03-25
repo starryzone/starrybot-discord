@@ -9,7 +9,16 @@ const { starryCommandTokenRemove } = require('./tokenRemove');
 const { memberHasRole } = require('../utils/auth');
 const { createPrivateError } = require("../utils/messages");
 
-const { buildCommandData, COLORS_BY_MESSAGE_TYPE } = require('../utils/commands');
+const { buildCommandData } = require('../utils/commands');
+
+// Useful dependencies to inject through the steps
+const astrolabe = require("../astrolabe");
+const daodao = require("../astrolabe/daodao");
+const db = require("../db");
+const logic = require("../logic");
+const networks = require("../astrolabe/networks");
+const stargaze = require("../astrolabe/stargaze");
+///
 
 const globalCommandChains = new Map();
 const TIMEOUT_DURATION = 360000; // 6 minutes in milliseconds
@@ -82,27 +91,31 @@ async function initiateCommandChain(firstCommandName, interaction) {
         };
       }
 
-      return await command.execute(args, getCommandName => {
-        globalCommandChains.set(
-          args.commandChainKey,
-          async interaction => {
-            args.interaction = interaction;
-            if(interaction.content) {
-              args.userInput = interaction.content;
-            }
+      return await command.execute(
+        args,
+        { astrolabe, daodao, db, logic, networks, stargaze },
+        getCommandName => {
+          globalCommandChains.set(
+            args.commandChainKey,
+            async interaction => {
+              args.interaction = interaction;
+              if(interaction.content) {
+                args.userInput = interaction.content;
+              }
 
-            // No need to timeout now
-            clearTimeout(cancelTimeout);
+              // No need to timeout now
+              clearTimeout(cancelTimeout);
 
-            const commandName = typeof getCommandName === 'string' ?
-              getCommandName : getCommandName(interaction);
-            await runner(commandName);
-          },
-        );
+              const commandName = typeof getCommandName === 'string' ?
+                getCommandName : getCommandName(interaction);
+              await runner(commandName);
+            },
+          );
 
-        // Timeout if it's taking too long
-        cancelTimeout = setTimeout(args.endChain, TIMEOUT_DURATION);
-      });
+          // Timeout if it's taking too long
+          cancelTimeout = setTimeout(args.endChain, TIMEOUT_DURATION);
+        }
+      );
     } else {
       // Reply saying something's gone wrong
       const replyTarget = interaction._emoji ?

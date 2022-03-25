@@ -1,11 +1,13 @@
 const { REST } = require("@discordjs/rest");
 const { Routes } = require("discord-api-types/v9");
-const { myConfig, rolesDelete } = require("../../db");
 
 module.exports = {
   removeConfirmation: {
     name: 'removeConfirmation',
-    config: async ({ guild, guildId, userInput: selectedRole }) => {
+    config: async (
+      { guild, guildId, userInput: selectedRole },
+      { db: { myConfig, rolesDelete } }
+    ) => {
       const roleManager = guild.roles;
       const rest = new REST().setToken(myConfig.DISCORD_TOKEN);
 

@@ -1,15 +1,16 @@
-const db = require("../../db")
-const logic = require("../../logic")
-
-let validatorURL = db.myConfig.VALIDATOR
-
 module.exports = {
 	starryCommandJoin: {
 		name: 'join',
 		description: 'Get link to verify your account with Keplr',
-		config: async ({ guildId, userId: authorId }) => {
+		config: async (
+			{ guildId, userId: authorId },
+			{
+				db: { myConfig: { VALIDATOR: validatorURL } },
+				logic: { hoistRequest }
+			}
+		) => {
 			try {
-				let results = await logic.hoistRequest({ guildId, authorId });
+				let results = await hoistRequest({ guildId, authorId });
 				if (results.error || !results.traveller || !results.saganism) {
 					return {
 						error: results.error || "Internal error",

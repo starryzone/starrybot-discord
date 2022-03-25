@@ -1,10 +1,13 @@
-const { getTokenDetails } = require('../../astrolabe')
-const { isDaoDaoAddress, getCW20InputFromDaoDaoDao } = require('../../astrolabe/daodao');
-
 module.exports = {
   handleCW20Entry: {
     name: 'handleCW20Entry',
-    config: async (args) => {
+    config: async (
+      args,
+      {
+        astrolabe: { getTokenDetails },
+        daodao: { isDaoDaoAddress, getCW20InputFromDaoDaoDao }
+      }
+    ) => {
       const { userInput } = args;
       // If user has done something else (like emoji reaction) do nothing
       if (!userInput) return;

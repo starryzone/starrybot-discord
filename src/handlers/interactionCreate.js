@@ -1,5 +1,11 @@
 const { continueCommandChain } = require("../commands");
-
+// Useful dependencies to inject through the steps
+const astrolabe = require("../astrolabe");
+const daodao = require("../astrolabe/daodao");
+const db = require("../db");
+const logic = require("../logic");
+const networks = require("../astrolabe/networks");
+const stargaze = require("../astrolabe/stargaze");
 ///
 /// A user has a command for us - resolve
 ///
@@ -13,7 +19,7 @@ async function handleGuildCommands(interaction) {
 
 	try {
 		// Called whenever you do any /starry * command
-		await command.execute(interaction);
+		await command.execute(interaction, { astrolabe, daodao, db, logic, networks, stargaze });
 	} catch (e) {
 		console.warn(e);
 		await interaction.reply({
