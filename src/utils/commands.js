@@ -32,16 +32,10 @@ function buildBasicMessageCommand(configInput) {
     }
 
     const hasButtons = config.prompt?.type === 'button';
-    const wantsEmoji = config.emojiOptions?.length > 0;
-    const messageType = (hasButtons || wantsEmoji) ? 'prompt' : config.messageType;
+    const wantsEmoji = config.prompt?.type === 'reaction';
+    const messageType = config.prompt?.type ? 'prompt' : config.messageType;
 
     const reply = {};
-    if (hasButtons) {
-      reply.buttons = config.prompt.options.map(buttonConfig => ({
-        ...buttonConfig,
-        customId: buttonConfig.next,
-      }));
-    }
 
     if (wantsEmoji) {
       const msg = await interactionTarget.reply(createMessage(
@@ -56,8 +50,8 @@ function buildBasicMessageCommand(configInput) {
         })
       );
 
-      for (var i = 0; i < config.emojiOptions.length; i++) {
-        await msg.react(config.emojiOptions[i].emoji);
+      for (var i = 0; i < config.prompt.options.length; i++) {
+        await msg.react(config.prompt.options[i].emoji);
       }
 
       msg.edit(createMessage({
@@ -66,7 +60,7 @@ function buildBasicMessageCommand(configInput) {
           {
             color: COLORS_BY_MESSAGE_TYPE[messageType],
             title: config.title,
-            description: config.emojiOptions.map(emojiConfig => `${emojiConfig.emoji} ${emojiConfig.description}`).join('\n\n'),
+            description: config.prompt.options.map(emojiConfig => `${emojiConfig.emoji} ${emojiConfig.description}`).join('\n\n'),
           }
         ],
         title: config.title,
@@ -76,7 +70,7 @@ function buildBasicMessageCommand(configInput) {
         const emojiName = reaction?._emoji?.name;
         if(!emojiName) return;
         else {
-          return config.emojiOptions.find(emojiConfig => emojiConfig.emoji === emojiName).next;
+          return config.prompt.options.find(emojiConfig => emojiConfig.emoji === emojiName).next;
         }
       }
 
@@ -84,6 +78,13 @@ function buildBasicMessageCommand(configInput) {
       next(getCommandName);
 
     } else {
+      if (hasButtons) {
+        reply.buttons = config.prompt.options.map(buttonConfig => ({
+          ...buttonConfig,
+          customId: buttonConfig.next,
+        }));
+      }
+
       if (config.message) {
         reply.content = config.message;
       }

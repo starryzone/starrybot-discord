@@ -3,18 +3,21 @@ module.exports = {
     name: 'addCW721',
     config: {
       title: 'Tell us about your token',
-      emojiOptions: [
-        {
-          emoji: '🖼',
-          description: 'I have the token address',
-          next: 'hasCW721',
-        },
-        {
-          emoji: '💫',
-          description: 'I have the Stargaze Launchpad URL',
-          next: 'stargaze',
-        },
-      ]
+      prompt: {
+        type: 'reaction',
+        options: [
+          {
+            emoji: '🖼',
+            description: 'I have the token address',
+            next: 'hasCW721',
+          },
+          {
+            emoji: '💫',
+            description: 'I have the Stargaze Launchpad URL',
+            next: 'stargaze',
+          },
+        ]
+      }
     }
   }
 }
