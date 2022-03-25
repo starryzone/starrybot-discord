@@ -99,7 +99,7 @@ function buildBasicMessageCommand(configInput) {
           });
         }
 
-        res.done();
+        res.endChain();
       }
     }
   }

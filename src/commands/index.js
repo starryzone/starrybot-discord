@@ -86,9 +86,6 @@ async function initiateCommandChain(firstCommandName, interaction) {
   };
   // Functions for resolving the chain
   const res = {
-    done: async doneMessage => {
-      globalCommandChains.delete(uniqueCommandChainKey);
-    },
     error: async (consoleError, channelError) => {
       console.warn(consoleError);
       globalCommandChains.delete(uniqueCommandChainKey);
@@ -108,7 +105,7 @@ async function initiateCommandChain(firstCommandName, interaction) {
         ephemeral: true,
       });
     },
-    timeout: () => {
+    endChain: () => {
       // TO-DO: Would be nice to edit the last message
       // so it's less confusing when we stop responding
 
@@ -156,7 +153,7 @@ async function initiateCommandChain(firstCommandName, interaction) {
         );
 
         // Timeout if it's taking too long
-        cancelTimeout = setTimeout(res.timeout, TIMEOUT_DURATION);
+        cancelTimeout = setTimeout(res.endChain, TIMEOUT_DURATION);
       });
     } else {
       console.log(commandName);
