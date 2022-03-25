@@ -1,4 +1,4 @@
-const { MessageActionRow, MessageButton, MessageEmbed, MessagePayload } = require('discord.js')
+const { MessageActionRow, MessageButton, MessageEmbed } = require('discord.js')
 
 const COLORS_BY_MESSAGE_TYPE = {
   error: '#BE75A4',
@@ -83,7 +83,6 @@ function createMessageActionRow({
   components,
 }) {
   const row = new MessageActionRow();
-  console.log(components);
   components.forEach(component => row.addComponents(component));
   return row;
 }
@@ -109,15 +108,16 @@ function createMessage({
     embedPayload = embeds.map(embed => createEmbed(embed));
   }
 
-  const result= {
+  // We don't use MessagePayload here because it requires passing in
+  // a user first, and right now we're conveniently only ever using
+  // this object in an interaction.reply
+  return {
     content,
     components: componentPayload,
     embeds: embedPayload,
     ephemeral,
     fetchReply,
   }
-  console.log(result);
-  return result;
 }
 
 function createError(errorMessage, ephemeral) {

@@ -10,16 +10,19 @@ module.exports = {
     },
     config: {
       message: 'Please choose from the supported Cosmos chains:',
-      buttons: [
-        ...networkPrefixes.map(prefix => ({
-          next: `nativeToken${prefix.toUpperCase()}`,
-          label: prefix.toUpperCase()
-        })),
-        {
-          next: `nativeTokenSuggestion`,
-          label: '🙋🏽 Suggest another!'
-        }
-      ]
+      prompt: {
+        type: 'button',
+        options: [
+          ...networkPrefixes.map(prefix => ({
+            next: `nativeToken${prefix.toUpperCase()}`,
+            label: prefix.toUpperCase()
+          })),
+          {
+            next: `nativeTokenSuggestion`,
+            label: '🙋🏽 Suggest another!'
+          }
+        ]
+      }
     }
   }
 }

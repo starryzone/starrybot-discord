@@ -8,18 +8,21 @@ module.exports = {
 		description: '(Admin only) Kick starrybot itself from your guild',
 		config: {
 			message: 'This will delete roles created by starrybot.',
-			buttons: [
-				{
-					next: 'farewellConfirmation',
-					label: 'I understand',
-					style: 'PRIMARY',
-				},
-				{
-					next: 'farewellRejection',
-					label: 'Cancel',
-					style: 'SECONDARY',
-				}
-			],
+			prompt: {
+				type: 'button',
+				options: [
+					{
+						next: 'farewellConfirmation',
+						label: 'I understand',
+						style: 'PRIMARY',
+					},
+					{
+						next: 'farewellRejection',
+						label: 'Cancel',
+						style: 'SECONDARY',
+					}
+				]
+			},
 		},
 		steps: [
 			farewellConfirmation,

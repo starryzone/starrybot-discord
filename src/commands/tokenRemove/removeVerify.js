@@ -14,18 +14,21 @@ module.exports = {
 		
 			return {
 				message: `Are you sure you want to delete ${selectedRole}?`,
-				buttons: [
-					{
-						next: 'removeConfirmation',
-						label: 'Yes please!',
-						style: 'PRIMARY',
-					},
-					{
-						next: 'removeRejection',
-						label: 'Cancel',
-						style: 'SECONDARY',
-					}
-				],
+				prompt: {
+					type: 'button',
+					options: [
+						{
+							next: 'removeConfirmation',
+							label: 'Yes please!',
+							style: 'PRIMARY',
+						},
+						{
+							next: 'removeRejection',
+							label: 'Cancel',
+							style: 'SECONDARY',
+						}
+					]
+				},
 			}
 		}
 	}

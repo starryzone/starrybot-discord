@@ -31,13 +31,13 @@ function buildBasicMessageCommand(configInput) {
       return;
     }
 
-    const hasButtons = config.buttons?.length > 0;
+    const hasButtons = config.prompt?.type === 'button';
     const wantsEmoji = config.emojiOptions?.length > 0;
     const messageType = (hasButtons || wantsEmoji) ? 'prompt' : config.messageType;
 
     const reply = {};
     if (hasButtons) {
-      reply.buttons = config.buttons.map(buttonConfig => ({
+      reply.buttons = config.prompt.options.map(buttonConfig => ({
         ...buttonConfig,
         customId: buttonConfig.next,
       }));
