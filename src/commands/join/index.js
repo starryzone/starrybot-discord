@@ -16,7 +16,9 @@ module.exports = {
 					authorId: interaction.member.user.id
 				});
 				if (results.error || !results.traveller || !results.saganism) {
-					await res.error(results.error || "Internal error");
+					return {
+						error: results.error || "Internal error",
+					};
 				} else {
 					let url = `${validatorURL}?traveller=${results.traveller}`
 
@@ -32,8 +34,11 @@ module.exports = {
 						ephemeral: true,
 					}
 				}
-			} catch(err) {
-				await res.error(err, "Internal error adding you")
+			} catch (error) {
+				return {
+					error,
+					channelError: "Internal error adding you"
+				}
 			}
 		}
 	}

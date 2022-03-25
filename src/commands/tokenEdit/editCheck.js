@@ -11,8 +11,9 @@ module.exports = {
       // Make sure we recognize the selected role
       const role = await roleGet(guildId, selectedRole);
       if (!role) {
-        await res.error('Invalid role. Remember: first you copy, then you paste.');
-        return;
+        return {
+          error: 'Invalid role. Remember: first you copy, then you paste.'
+        };
       } else {
         // Save the selection in ctx for later steps
         ctx.selectedRoleName = selectedRole;

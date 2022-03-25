@@ -86,25 +86,6 @@ async function initiateCommandChain(firstCommandName, interaction) {
   };
   // Functions for resolving the chain
   const res = {
-    error: async (consoleError, channelError) => {
-      console.warn(consoleError);
-      globalCommandChains.delete(uniqueCommandChainKey);
-
-      // Reply saying something's gone wrong
-      const replyTarget = req.interaction._emoji ?
-        req.interaction.message :
-        req.interaction;
-      await replyTarget.reply({
-        embeds: [
-          createEmbed({
-            color: '#be75a4',
-            title: 'Error (star might be in retrograde)',
-            description: channelError ? channelError.toString() : consoleError.toString(),
-          })
-        ],
-        ephemeral: true,
-      });
-    },
     endChain: () => {
       // TO-DO: Would be nice to edit the last message
       // so it's less confusing when we stop responding
@@ -131,10 +112,10 @@ async function initiateCommandChain(firstCommandName, interaction) {
         true;
 
       if (!allowed) {
-        return await res.error(
-          'Canceling a command chain from insufficient permissions',
-          'Sorry, you must be an admin to use this command :/'
-        );
+        return {
+          error: 'Canceling a command chain from insufficient permissions',
+          channelError: 'Sorry, you must be an admin to use this command :/'
+        };
       }
 
       return await command.execute(req, res, ctx, getCommandName => {
@@ -156,9 +137,21 @@ async function initiateCommandChain(firstCommandName, interaction) {
         cancelTimeout = setTimeout(res.endChain, TIMEOUT_DURATION);
       });
     } else {
-      console.log(commandName);
-      console.log(flattenedCommandMap);
-      await res.error('Could not find a matching command');
+      // Reply saying something's gone wrong
+      const replyTarget = req.interaction._emoji ?
+        req.interaction.message :
+        req.interaction;
+      await replyTarget.reply({
+        embeds: [
+          createEmbed({
+            color: '#be75a4',
+            title: 'Error (star might be in retrograde)',
+            description: 'Could not find a matching command',
+          })
+        ],
+        ephemeral: true,
+      });
+      res.endChain();
     }
   }
 
@@ -167,7 +160,6 @@ async function initiateCommandChain(firstCommandName, interaction) {
 }
 
 module.exports = {
-  globalCommandChains,
   starryCommand: {
     data: commandData,
     async execute (interaction) {

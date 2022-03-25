@@ -18,8 +18,9 @@ module.exports = {
         amountOfTokensNeeded <= 0
       ) {
         // Invalid reply
-        await res.error('Need a positive number of tokens.');
-        return;
+        return {
+          error: 'Need a positive number of tokens.'
+        }
       }
 
       // Multiply by the decimals for native and fungible tokens

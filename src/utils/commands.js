@@ -1,19 +1,36 @@
 const { createButton, createMessageActionRow, createEmbed } = require("../utils/messages");
-const { globalCommandChains } = require("../commands");
 
 function buildBasicMessageCommand(configInput) {
   return async (req, res, ctx, next) => {
     const config = typeof configInput === 'object' ?
       configInput : await configInput(req, res, ctx, next);
     if (!config) { return; } // might have had error
+
     const { interaction } = req;
-    const hasButtons = config.buttons?.length > 0;
-    const wantsEmoji = config.emojiOptions?.length > 0;
-
-
     // TO-DO: Was the interaction from a slash command, message
     // or emoji?
     const interactionTarget = interaction.reply ? interaction : interaction.message;
+
+    if (config.error) {
+      console.warn(config.error);
+      await interactionTarget.reply({
+        embeds: [
+          createEmbed({
+            color: '#BE75A4',
+            title: 'Error (star might be in retrograde)',
+            description: config.channelError ?
+              config.channelError.toString() :
+              config.error.toString(),
+          })
+        ],
+        ephemeral: true,
+      })
+      res.endChain();
+      return;
+    }
+
+    const hasButtons = config.buttons?.length > 0;
+    const wantsEmoji = config.emojiOptions?.length > 0;
 
     const reply = {};
     if (hasButtons) {

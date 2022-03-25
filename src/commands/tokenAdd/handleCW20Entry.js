@@ -25,10 +25,9 @@ module.exports = {
         ctx.tokenType = results.tokenType;
         ctx.tokenSymbol = results.tokenSymbol;
         ctx.decimals = results.decimals;
-      } catch (e) {
+      } catch (error) {
         // Notify the channel with whatever went wrong in this step
-        await res.error(e);
-        return;
+        return { error };
       }
 
       return {

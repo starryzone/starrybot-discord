@@ -17,7 +17,9 @@ module.exports = {
         let roleObj = roleManager.cache.find(r => r.name === selectedRole)
         if (roleObj) await rest.delete(Routes.guildRole(guildId, roleObj.id))
       } catch (e) {
-        return await res.error(`Error deleting ${role['give_role']}: ${e}`);
+        return {
+          error: `Error deleting ${role['give_role']}: ${e}`,
+        };
       }
 
       // Delete the selected role from the database

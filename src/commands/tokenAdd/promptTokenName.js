@@ -17,7 +17,9 @@ module.exports = {
       let roleAlreadyExists = existingObjectRoles.some(role => role.name === roleToCreate);
       if (roleAlreadyExists) {
         // Invalid reply
-        return await res.error('A token role already exists with this name. Please pick a different name, or rename that one first.');
+        return {
+          error: 'A token role already exists with this name. Please pick a different name, or rename that one first.'
+        };
       } else {
         await guild.roles.create({name: roleToCreate, position: 0});
       }

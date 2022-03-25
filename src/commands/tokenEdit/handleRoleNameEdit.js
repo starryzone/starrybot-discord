@@ -17,8 +17,9 @@ module.exports = {
       let roleAlreadyExists = existingObjectRoles.some(role => role.name === newRoleName);
       if (roleAlreadyExists) {
         // Invalid reply
-        await res.error('A token role already exists with this name. Please pick a different name, or rename that one first.');
-        return;
+        return {
+          error: 'A token role already exists with this name. Please pick a different name, or rename that one first.'
+        }
       }
 
       try {
@@ -27,11 +28,13 @@ module.exports = {
         await guild.roles.edit(existingRole, { name: newRoleName });
       } catch (e) {
         if (e.message.includes('Supplied role is not a RoleResolvable')) {
-          res.error(`I was unable to find the role in the Discord channel.`);
-          return;
+          return {
+            error: `I was unable to find the role in the Discord channel.`,
+          }
         } else {
-          res.error(`I was unable to update the guild roles: ${e?.message || e}`);
-          return;
+          return {
+            error: `I was unable to update the guild roles: ${e?.message || e}`
+          }
         }
       }
 
