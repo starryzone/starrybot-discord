@@ -1,11 +1,5 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
-const { createButton, createMessageActionRow, createEmbed } = require("../utils/messages");
-
-const COLORS_BY_MESSAGE_TYPE = {
-  error: '#BE75A4',
-  success: '#7485FF',
-  prompt: '#FDC2A0',
-}
+const { COLORS_BY_MESSAGE_TYPE, createMessage, createPrivateError } = require("../utils/messages");
 
 function buildBasicMessageCommand(configInput) {
   return async (args, next) => {
@@ -20,18 +14,13 @@ function buildBasicMessageCommand(configInput) {
 
     if (config.error) {
       console.warn(config.error);
-      await interactionTarget.reply({
-        embeds: [
-          createEmbed({
-            color: COLORS_BY_MESSAGE_TYPE.error,
-            title: 'Error (star might be in retrograde)',
-            description: config.channelError ?
-              config.channelError.toString() :
-              config.error.toString(),
-          })
-        ],
-        ephemeral: true,
-      })
+      await interactionTarget.reply(
+        createPrivateError(
+          config.channelError ?
+          config.channelError.toString() :
+          config.error.toString()
+        )
+      );
       args.endChain();
       return;
     }
@@ -41,47 +30,42 @@ function buildBasicMessageCommand(configInput) {
 
     const reply = {};
     if (hasButtons) {
-      const row = createMessageActionRow({
-        components: config.buttons.map(buttonConfig => createButton({
-          ...buttonConfig,
-          customId: buttonConfig.next,
-        }))
-      });
-      reply.components = [row];
+      reply.buttons = config.buttons.map(buttonConfig => ({
+        ...buttonConfig,
+        customId: buttonConfig.next,
+      }));
     }
 
     if (wantsEmoji) {
-      const msgEmbed = createEmbed({
-        color: COLORS_BY_MESSAGE_TYPE.prompt,
-        title: 'One moment…',
-        description: 'Loading choices, fren.',
-      })
-
-      const msg = await interactionTarget.reply({
-        embeds: [
-          msgEmbed
-        ],
-        // Necessary in order to react to the message
-        fetchReply: true
-      });
+      const msg = await interactionTarget.reply(createMessage(
+        {
+          embeds: [{
+            color: COLORS_BY_MESSAGE_TYPE.prompt,
+            title: 'One moment…',
+            description: 'Loading choices, fren.',
+          }],
+          // Necessary in order to react to the message
+          fetchReply: true
+        })
+      );
 
       for (var i = 0; i < config.emojiOptions.length; i++) {
         await msg.react(config.emojiOptions[i].emoji);
       }
 
-      msg.edit({
+      msg.edit(createMessage({
         embeds: [
           ...(config.embeds || []),
-          createEmbed({
+          {
             color: config.messageType ?
               COLORS_BY_MESSAGE_TYPE[config.messageType] :
               config.color,
             title: config.title,
             description: config.emojiOptions.map(emojiConfig => `${emojiConfig.emoji} ${emojiConfig.description}`).join('\n\n'),
-          })
+          }
         ],
         title: config.title,
-      });
+      }));
 
       const getCommandName = reaction => {
         const emojiName = reaction?._emoji?.name;
@@ -100,7 +84,7 @@ function buildBasicMessageCommand(configInput) {
       }
 
       if (config.embeds) {
-        reply.embeds = config.embeds.map(embedConfig => createEmbed({
+        reply.embeds = config.embeds.map(embedConfig => ({
           ...embedConfig,
           color: config.messageType ?
             COLORS_BY_MESSAGE_TYPE[config.messageType] :
@@ -113,7 +97,8 @@ function buildBasicMessageCommand(configInput) {
       }
       
       if (reply.content || reply.embeds || reply.components) {
-        await interactionTarget.reply(reply);
+        console.log(reply);
+        await interactionTarget.reply(createMessage(reply));
       }
 
       if (hasButtons) {
@@ -122,15 +107,15 @@ function buildBasicMessageCommand(configInput) {
         next(config.next);
       } else {
         if (config.doneMessage) {
-          await interactionTarget.reply({
+          await interactionTarget.reply(createMessage({
             embeds: [
-              createEmbed({
+              {
                 color: COLORS_BY_MESSAGE_TYPE.success,
                 title: 'Finished! 🌟',
                 description: config.doneMessage,
-              })
+              }
             ]
-          });
+          }));
         }
 
         args.endChain();

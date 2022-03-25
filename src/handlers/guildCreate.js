@@ -3,7 +3,7 @@ const { Routes } = require('discord-api-types/v9');
 const db = require("../db");
 const { myConfig } = db;
 const { starryCommand } = require("../commands");
-const { createEmbed } = require("../utils/messages");
+const { createMessage } = require("../utils/messages");
 
 // If the bot was added to the server with the correct scope, it should
 // have the authorization to add commands already.
@@ -35,15 +35,17 @@ async function guildCreate(guild) {
 	let systemChannel = await client.channels.fetch(systemChannelId);
 	try {
 		await registerGuildCommands(client.application.id, guild.id);
-		systemChannel.send({
-			embeds: [
-				createEmbed({
-					title: 'Hello friends!',
-					description: 'starrybot just joined',
-					footer: 'Feel free to use the /starry join command.'
-				})
-			]
-		})
+		systemChannel.send(
+			createMessage({
+				embeds: [
+					{
+						title: 'Hello friends!',
+						description: 'starrybot just joined',
+						footer: 'Feel free to use the /starry join command.'
+					}
+				]
+			})
+		)
 	} catch (e) {
 		if (e) {
 			console.warn(e);

@@ -7,7 +7,7 @@ const { starryCommandTokenEdit } = require('./tokenEdit');
 const { starryCommandTokenRemove } = require('./tokenRemove');
 
 const { memberHasRole } = require('../utils/auth');
-const { createEmbed } = require("../utils/messages");
+const { createPrivateError } = require("../utils/messages");
 
 const { buildCommandData, COLORS_BY_MESSAGE_TYPE } = require('../utils/commands');
 
@@ -108,16 +108,9 @@ async function initiateCommandChain(firstCommandName, interaction) {
       const replyTarget = interaction._emoji ?
         interaction.message :
         interaction;
-      await replyTarget.reply({
-        embeds: [
-          createEmbed({
-            color: COLORS_BY_MESSAGE_TYPE.error,
-            title: 'Error (star might be in retrograde)',
-            description: 'Could not find a matching command',
-          })
-        ],
-        ephemeral: true,
-      });
+      await replyTarget.reply(
+        createPrivateError('Could not find a matching command')
+      );
       args.endChain();
     }
   }
