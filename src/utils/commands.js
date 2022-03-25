@@ -1,4 +1,5 @@
 const { createButton, createMessageActionRow, createEmbed } = require("../utils/messages");
+const { globalCommandChains } = require("../commands");
 
 function buildBasicMessageCommand(configInput) {
   return async (req, res, ctx, next) => {
@@ -81,13 +82,24 @@ function buildBasicMessageCommand(configInput) {
         await interactionTarget.reply(reply);
       }
 
-      if (config.done) {
-        res.done(config.done === true ? undefined : config.done);
-      }
-      else if (hasButtons) {
+      if (hasButtons) {
         next(interaction => interaction.customId);
       } else if (config.next) {
         next(config.next);
+      } else {
+        if (config.doneMessage) {
+          await interactionTarget.reply({
+            embeds: [
+              createEmbed({
+                color: '#7585FF',
+                title: 'Finished! 🌟',
+                description: config.doneMessage,
+              })
+            ]
+          });
+        }
+
+        res.done();
       }
     }
   }

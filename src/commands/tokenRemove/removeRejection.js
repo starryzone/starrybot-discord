@@ -3,7 +3,6 @@ module.exports = {
     name: 'removeRejection',
     config: {
       content: '✨ 👍 🌟',
-      done: true,
     }
   }
 }

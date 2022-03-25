@@ -42,7 +42,7 @@ module.exports = {
       await rolesDelete(guildId, ctx.selectedRoleName);
     
       return {
-        done: `${ctx.selectedRoleName} has been renamed to ${newRoleName} (min: ${ctx.selectedRole.has_minimum_of / (10 ** ctx.selectedRole.decimals)}).\n\nEnjoy, traveller!`
+        doneMessage: `${ctx.selectedRoleName} has been renamed to ${newRoleName} (min: ${ctx.selectedRole.has_minimum_of / (10 ** ctx.selectedRole.decimals)}).\n\nEnjoy, traveller!`
       }
     }
   }

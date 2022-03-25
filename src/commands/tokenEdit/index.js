@@ -17,8 +17,6 @@ module.exports = {
       if (roles.length === 0) {
         return {
           content: 'No roles exist to edit!',
-          done: true,
-          next: 'editCheck',
         }
       } else {
         const title = `Current token rules`;

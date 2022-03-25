@@ -87,21 +87,6 @@ async function initiateCommandChain(firstCommandName, interaction) {
   // Functions for resolving the chain
   const res = {
     done: async doneMessage => {
-      if (doneMessage) {
-        const replyTarget = req.interaction._emoji ?
-          req.interaction.message :
-          req.interaction;
-        await replyTarget.reply({
-          embeds: [
-            createEmbed({
-              color: '#7585FF',
-              title: 'Finished! 🌟',
-              description: doneMessage,
-            })
-          ]
-        });
-      }
-
       globalCommandChains.delete(uniqueCommandChainKey);
     },
     error: async (consoleError, channelError) => {
@@ -185,6 +170,7 @@ async function initiateCommandChain(firstCommandName, interaction) {
 }
 
 module.exports = {
+  globalCommandChains,
   starryCommand: {
     data: commandData,
     async execute (interaction) {

@@ -111,7 +111,6 @@ module.exports = {
             footer: `If there are any 🔴 above, please note that starrybot may not work as expected!`,
           }
         ],
-        done: true,
       }
     }
   }

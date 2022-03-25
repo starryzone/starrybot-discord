@@ -30,7 +30,6 @@ module.exports = {
 							url,
 						}],
 						ephemeral: true,
-						done: true,
 					}
 				}
 			} catch(err) {

@@ -3,7 +3,6 @@ module.exports = {
     name: 'farewellRejection',
     config: {
       content: '✨ 👍 🌟',
-      done: true,
     }
   }
 }

@@ -23,7 +23,6 @@ module.exports = {
             }
           ],
           ephemeral: true,
-          done: true,
         }
       } else {
         // Show them the options for deletion

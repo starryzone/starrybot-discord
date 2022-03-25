@@ -20,7 +20,6 @@ module.exports = {
         embeds: [
           { title, description }
         ],
-        done: true,
       };
     }
   }

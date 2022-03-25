@@ -37,7 +37,7 @@ module.exports = {
       );
 
       return {
-        done: `You may now use the role ${roleToCreate} for token-gated channels.\n\nEnjoy, traveller!`
+        doneMessage: `You may now use the role ${roleToCreate} for token-gated channels.\n\nEnjoy, traveller!`
       }
     }
   }
