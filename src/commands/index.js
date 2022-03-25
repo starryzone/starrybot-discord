@@ -85,6 +85,7 @@ async function initiateCommandChain(firstCommandName, interaction) {
   };
   // A state that can be edited by any step in this chain
   const ctx = {
+    guild: interaction.guild,
     guildId: interaction.guildId,
     userId: interaction.user.id,
     commandChainKey: `${interaction.guildId}-${interaction.user.id}`,
@@ -124,6 +125,9 @@ async function initiateCommandChain(firstCommandName, interaction) {
           ctx.commandChainKey,
           async interaction => {
             req.interaction = interaction;
+            if(interaction.content) {
+              ctx.userInput = interaction.content;
+            }
 
             // No need to timeout now
             clearTimeout(cancelTimeout);

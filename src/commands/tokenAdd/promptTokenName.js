@@ -4,14 +4,8 @@ module.exports = {
   promptTokenName: {
     name: 'promptTokenName',
     config: async (req, ctx, next) => {
-      const {
-        interaction: {
-          author,
-          content,
-          guild,
-          guildId,
-       }
-      } = req;
+      const { userId, guild, guildId, userInput: content } = ctx;
+
       let roleToCreate = content;
       const existingObjectRoles = await guild.roles.fetch();
       let roleAlreadyExists = existingObjectRoles.some(role => role.name === roleToCreate);
@@ -32,7 +26,7 @@ module.exports = {
         ctx.tokenAddress,
         ctx.network,
         true,
-        author.id,
+        userId,
         ctx.minimumTokensNeeded,
         ctx.decimals,
         ctx.stakingContract

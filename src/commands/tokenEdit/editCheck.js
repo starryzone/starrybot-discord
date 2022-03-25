@@ -4,9 +4,7 @@ module.exports = {
   editCheck: {
     name: 'editCheck',
     config: async (req, ctx, next) => {
-      const { interaction } = req;
-      const { guildId } = interaction;
-      const selectedRole = interaction.content;
+      const { guildId, userInput: selectedRole } = ctx;
 
       // Make sure we recognize the selected role
       const role = await roleGet(guildId, selectedRole);

@@ -4,14 +4,7 @@ module.exports = {
   handleRoleAmountEdit: {
     name: 'handleRoleAmountEdit',
     config: async (req, ctx, next) => {
-      const {
-        interaction: {
-          author,
-          content,
-          guildId,
-      }
-      } = req;
-      let amountOfTokensNeeded = content;
+      const { userId, guildId, userInput: amountOfTokensNeeded } = ctx;
 
       if (
         !Number.isInteger(parseInt(amountOfTokensNeeded)) ||
@@ -29,7 +22,7 @@ module.exports = {
       }
 
       // Update the database row with the new amount + same rest of data
-      await rolesSet(guildId, ctx.selectedRoleName, ctx.selectedRole.token_type, ctx.selectedRole.token_address, ctx.selectedRole.network, true, author.id, amountOfTokensNeeded, ctx.selectedRole.decimals);
+      await rolesSet(guildId, ctx.selectedRoleName, ctx.selectedRole.token_type, ctx.selectedRole.token_address, ctx.selectedRole.network, true, userId, amountOfTokensNeeded, ctx.selectedRole.decimals);
 
       return {
         doneMessage: `${ctx.selectedRoleName} has been updated to require ${amountOfTokensNeeded / (10 ** ctx.selectedRole.decimals)} tokens moving forward. Please note that this change will not apply to current hodlers of the role. \n\nEnjoy, traveller!`

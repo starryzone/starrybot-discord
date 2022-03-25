@@ -2,8 +2,7 @@ module.exports = {
   promptTokenAmount: {
     name: 'promptTokenAmount',
     config: async (req, ctx, next) => {
-      const { interaction } = req;
-      let amountOfTokensNeeded = interaction.content;
+      let amountOfTokensNeeded = ctx.userInput;
 
       if (
         !Number.isInteger(parseInt(amountOfTokensNeeded)) ||

@@ -6,8 +6,7 @@ module.exports = {
   removeConfirmation: {
     name: 'removeConfirmation',
     config: async (req, ctx, next) => {
-      const { interaction } = req;
-      const { guild, guildId } = interaction;
+      const { guild, guildId } = ctx;
       const roleManager = guild.roles;
       const rest = new REST().setToken(myConfig.DISCORD_TOKEN);
       const { selectedRole } = ctx;

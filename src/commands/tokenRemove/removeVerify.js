@@ -4,9 +4,7 @@ module.exports = {
 	removeVerify: {
 		name: 'removeVerify',
 		config: async (req, ctx, next) => {
-			const { interaction } = req;
-			const { guildId } = interaction;
-			const selectedRole = interaction.content;
+			const { guildId, userInput: selectedRole } = ctx;
 			// Save the selection in ctx for removeConfirmation
 			ctx.selectedRole = selectedRole;
 

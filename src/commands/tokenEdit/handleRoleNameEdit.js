@@ -4,14 +4,8 @@ module.exports = {
   handleRoleNameEdit: {
     name: 'handleRoleNameEdit',
     config: async (req, ctx, next) => {
-      const {
-        interaction: {
-          author,
-          content,
-          guild,
-          guildId,
-        }
-      } = req;
+      const { userId, guild, guildId, userInput: content } = ctx;
+
       let newRoleName = content;
       const existingObjectRoles = await guild.roles.fetch();
       let roleAlreadyExists = existingObjectRoles.some(role => role.name === newRoleName);
@@ -39,7 +33,7 @@ module.exports = {
       }
 
       // Add a new database row with the new name + same rest of data
-      await rolesSet(guildId, newRoleName, ctx.selectedRole.token_type, ctx.selectedRole.token_address, ctx.selectedRole.network, true, author.id, ctx.selectedRole.has_minimum_of, ctx.selectedRole.decimals);
+      await rolesSet(guildId, newRoleName, ctx.selectedRole.token_type, ctx.selectedRole.token_address, ctx.selectedRole.network, true, userId, ctx.selectedRole.has_minimum_of, ctx.selectedRole.decimals);
 
       // Delete the original one
       await rolesDelete(guildId, ctx.selectedRoleName);

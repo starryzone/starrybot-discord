@@ -8,8 +8,6 @@ module.exports = {
 		name: 'join',
 		description: 'Get link to verify your account with Keplr',
 		config: async (req, ctx, next) => {
-			const { interaction } = req;
-
 			try {
 				let results = await logic.hoistRequest({
 					guildId: ctx.guildId,
