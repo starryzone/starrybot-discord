@@ -1,6 +1,12 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const { createButton, createMessageActionRow, createEmbed } = require("../utils/messages");
 
+const COLORS_BY_MESSAGE_TYPE = {
+  error: '#BE75A4',
+  success: '#7485FF',
+  prompt: '#FDC2A0',
+}
+
 function buildBasicMessageCommand(configInput) {
   return async (args, next) => {
     const config = typeof configInput === 'object' ?
@@ -17,7 +23,7 @@ function buildBasicMessageCommand(configInput) {
       await interactionTarget.reply({
         embeds: [
           createEmbed({
-            color: '#BE75A4',
+            color: COLORS_BY_MESSAGE_TYPE.error,
             title: 'Error (star might be in retrograde)',
             description: config.channelError ?
               config.channelError.toString() :
@@ -46,7 +52,7 @@ function buildBasicMessageCommand(configInput) {
 
     if (wantsEmoji) {
       const msgEmbed = createEmbed({
-        color: '#FDC2A0',
+        color: COLORS_BY_MESSAGE_TYPE.prompt,
         title: 'One moment…',
         description: 'Loading choices, fren.',
       })
@@ -67,7 +73,9 @@ function buildBasicMessageCommand(configInput) {
         embeds: [
           ...(config.embeds || []),
           createEmbed({
-            color: config.color,
+            color: config.messageType ?
+              COLORS_BY_MESSAGE_TYPE[config.messageType] :
+              config.color,
             title: config.title,
             description: config.emojiOptions.map(emojiConfig => `${emojiConfig.emoji} ${emojiConfig.description}`).join('\n\n'),
           })
@@ -92,7 +100,12 @@ function buildBasicMessageCommand(configInput) {
       }
 
       if (config.embeds) {
-        reply.embeds = config.embeds.map(embedConfig => createEmbed(embedConfig));
+        reply.embeds = config.embeds.map(embedConfig => createEmbed({
+          ...embedConfig,
+          color: config.messageType ?
+            COLORS_BY_MESSAGE_TYPE[config.messageType] :
+            config.color,
+        }));
       }
 
       if (config.ephemeral) {
@@ -112,7 +125,7 @@ function buildBasicMessageCommand(configInput) {
           await interactionTarget.reply({
             embeds: [
               createEmbed({
-                color: '#7585FF',
+                color: COLORS_BY_MESSAGE_TYPE.success,
                 title: 'Finished! 🌟',
                 description: config.doneMessage,
               })
@@ -174,4 +187,6 @@ function buildCommandData(definedCommands) {
 module.exports = {
   buildBasicMessageCommand,
   buildCommandData,
+
+  COLORS_BY_MESSAGE_TYPE,
 }

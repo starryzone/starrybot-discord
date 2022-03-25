@@ -2,9 +2,9 @@ module.exports = {
   needsCW20: {
     name: 'needsCW20',
     config: {
+      messageType: 'prompt',
       embeds: [
         {
-          color: '#FDC2A0',
           title: 'Learning about cw20 tokens…',
           description: 'This info will help you understand your options.',
           fields: [

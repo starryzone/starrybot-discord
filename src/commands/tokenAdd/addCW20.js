@@ -2,7 +2,7 @@ module.exports = {
   addCW20: {
     name: 'addCW20',
     config: {
-      color: '#FDC2A0',
+      messageType: 'prompt',
       title: 'Tell us about your token',
       emojiOptions: [
         {

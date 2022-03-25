@@ -5,7 +5,7 @@ const { myConfig, rolesDelete } = require("../../db");
 module.exports = {
   removeConfirmation: {
     name: 'removeConfirmation',
-    config: async ({ guild, guildId, selectedRole }) => {
+    config: async ({ guild, guildId, userInput: selectedRole }) => {
       const roleManager = guild.roles;
       const rest = new REST().setToken(myConfig.DISCORD_TOKEN);
 

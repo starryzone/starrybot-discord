@@ -2,9 +2,9 @@ module.exports = {
   daoDao: {
     name: 'daoDao',
     config: {
+      messageType: 'prompt',
       embeds: [
         {
-          color: '#FDC2A0',
           title: 'Check out DAODAO',
           description: 'If you have not set up a DAO, visit the link above to create a DAO with a governance token.',
           fields: [

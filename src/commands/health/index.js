@@ -89,9 +89,9 @@ module.exports = {
       const permissionsResults = await checkAllPermissions(guild);
 
       return {
+        messageType: 'success',
         embeds: [
           {
-            color: '#7585FF',
             title: 'Diagnostics results 🌟',
             description: 'This info describes what starrybot needs to work correctly',
             fields: [

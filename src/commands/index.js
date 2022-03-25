@@ -9,7 +9,7 @@ const { starryCommandTokenRemove } = require('./tokenRemove');
 const { memberHasRole } = require('../utils/auth');
 const { createEmbed } = require("../utils/messages");
 
-const { buildCommandData } = require('../utils/commands');
+const { buildCommandData, COLORS_BY_MESSAGE_TYPE } = require('../utils/commands');
 
 const globalCommandChains = new Map();
 const TIMEOUT_DURATION = 360000; // 6 minutes in milliseconds
@@ -111,7 +111,7 @@ async function initiateCommandChain(firstCommandName, interaction) {
       await replyTarget.reply({
         embeds: [
           createEmbed({
-            color: '#be75a4',
+            color: COLORS_BY_MESSAGE_TYPE.error,
             title: 'Error (star might be in retrograde)',
             description: 'Could not find a matching command',
           })

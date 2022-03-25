@@ -3,9 +3,9 @@ module.exports = {
     name: 'editRoleName',
     config: async ({ selectedRoleName }) => {
       return {
+        messageType: 'prompt',
         embeds: [
           {
-            color: '#FDC2A0',
             title: "What is the new name?",
             description: `Please enter the new name for the role currently named ${selectedRoleName}.`,
           }
