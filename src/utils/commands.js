@@ -136,7 +136,7 @@ function registerSubcommand(flattenedCommandMap, mainCommand, subcommand) {
   
   subcommand.steps?.forEach(step => {
     flattenedCommandMap[step.name] = {
-      name: step.name,
+      ...step,
       execute: step.config ? buildBasicMessageCommand(step.config) : step.execute,
     }
   });
