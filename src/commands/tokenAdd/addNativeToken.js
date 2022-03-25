@@ -3,7 +3,7 @@ const { networkPrefixes } = require('../../astrolabe/networks');
 module.exports = {
   addNativeToken: {
     name: 'addNativeToken',
-    config: async (req, res, ctx, next) => {
+    config: async (req, ctx, next) => {
       ctx.tokenType = 'native'
       // According to Meow, all native tokens have 6 decimals
       ctx.decimals = 6

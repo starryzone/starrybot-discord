@@ -3,7 +3,7 @@ const { rolesSet } = require("../../db");
 module.exports = {
   handleRoleAmountEdit: {
     name: 'handleRoleAmountEdit',
-    config: async (req, res, ctx, next) => {
+    config: async (req, ctx, next) => {
       const {
         interaction: {
           author,

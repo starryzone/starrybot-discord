@@ -1,7 +1,7 @@
 module.exports = {
   editRoleAmount: {
     name: 'editRoleAmount',
-    config: async (req, res, ctx, next) => {
+    config: async (req, ctx, next) => {
       return {
         embeds: [
           {

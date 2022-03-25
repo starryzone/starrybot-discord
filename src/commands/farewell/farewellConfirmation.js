@@ -5,7 +5,7 @@ const { myConfig, rolesGetForCleanUp, rolesDeleteGuildAll} = require("../../db")
 module.exports = {
   farewellConfirmation: {
     name: 'farewellConfirmation',
-    execute: async (req, res, ctx, next) => {
+    execute: async (req, ctx, next) => {
       const { interaction } = req;
       const { guild, guildId } = interaction;
       const roleManager = guild.roles;

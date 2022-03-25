@@ -4,7 +4,7 @@ const { isDaoDaoAddress, getCW20InputFromDaoDaoDao } = require('../../astrolabe/
 module.exports = {
   handleCW20Entry: {
     name: 'handleCW20Entry',
-    config: async (req, res, ctx, next) => {
+    config: async (req, ctx, next) => {
       const { interaction } = req;
 
       const userInput = interaction.content;

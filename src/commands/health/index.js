@@ -84,7 +84,7 @@ module.exports = {
     adminOnly: true,
     name: 'health',
     description: 'Run diagnostics for starrybot',
-    config: async (req, res, ctx, next) => {
+    config: async (req, ctx, next) => {
       const { interaction } = req;
       const { guild } = interaction;
       const networkResults = await checkAllNetworks();

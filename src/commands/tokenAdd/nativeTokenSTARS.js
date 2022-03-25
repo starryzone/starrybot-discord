@@ -1,7 +1,7 @@
 module.exports = {
   nativeTokenSTARS: {
     name: 'nativeTokenSTARS',
-    config: async (req, res, ctx, next) => {    
+    config: async (req, ctx, next) => {    
       ctx.tokenAddress = 'stars'
       ctx.tokenSymbol = 'stars'
       ctx.network = 'mainnet'

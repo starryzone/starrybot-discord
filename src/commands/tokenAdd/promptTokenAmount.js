@@ -1,7 +1,7 @@
 module.exports = {
   promptTokenAmount: {
     name: 'promptTokenAmount',
-    config: async (req, res, ctx, next) => {
+    config: async (req, ctx, next) => {
       const { interaction } = req;
       let amountOfTokensNeeded = interaction.content;
 

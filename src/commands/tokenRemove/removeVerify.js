@@ -3,7 +3,7 @@ const { roleGet } = require("../../db");
 module.exports = {
 	removeVerify: {
 		name: 'removeVerify',
-		config: async (req, res, ctx, next) => {
+		config: async (req, ctx, next) => {
 			const { interaction } = req;
 			const { guildId } = interaction;
 			const selectedRole = interaction.content;

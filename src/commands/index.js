@@ -84,8 +84,8 @@ async function initiateCommandChain(firstCommandName, interaction) {
     interaction,
     steps: [firstCommandName],
   };
-  // Functions for resolving the chain
-  const res = {
+  // A state that can be edited by any step in this chain
+  const ctx = {
     endChain: () => {
       // TO-DO: Would be nice to edit the last message
       // so it's less confusing when we stop responding
@@ -93,8 +93,6 @@ async function initiateCommandChain(firstCommandName, interaction) {
       globalCommandChains.delete(uniqueCommandChainKey);
     }
   };
-  // A state that can be edited by any step in this chain
-  const ctx = {};
   const runner = async (commandName) => {
     const command = flattenedCommandMap[commandName]
 
@@ -118,7 +116,7 @@ async function initiateCommandChain(firstCommandName, interaction) {
         };
       }
 
-      return await command.execute(req, res, ctx, getCommandName => {
+      return await command.execute(req, ctx, getCommandName => {
         globalCommandChains.set(
           uniqueCommandChainKey,
           async interaction => {
@@ -134,7 +132,7 @@ async function initiateCommandChain(firstCommandName, interaction) {
         );
 
         // Timeout if it's taking too long
-        cancelTimeout = setTimeout(res.endChain, TIMEOUT_DURATION);
+        cancelTimeout = setTimeout(ctx.endChain, TIMEOUT_DURATION);
       });
     } else {
       // Reply saying something's gone wrong
@@ -151,7 +149,7 @@ async function initiateCommandChain(firstCommandName, interaction) {
         ],
         ephemeral: true,
       });
-      res.endChain();
+      ctx.endChain();
     }
   }
 

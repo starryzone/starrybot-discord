@@ -7,7 +7,7 @@ module.exports = {
 	starryCommandJoin: {
 		name: 'join',
 		description: 'Get link to verify your account with Keplr',
-		config: async (req, res, ctx, next) => {
+		config: async (req, ctx, next) => {
 			const { interaction } = req;
 
 			try {

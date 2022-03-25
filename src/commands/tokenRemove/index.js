@@ -9,7 +9,7 @@ module.exports = {
     adminOnly: true,
     name: 'remove',
     description: '(Admin only) Remove token rule',
-    config: async (req, res, ctx, next) => {
+    config: async (req, ctx, next) => {
       const { interaction } = req;
       
       let roles = await rolesGet(interaction.guildId);

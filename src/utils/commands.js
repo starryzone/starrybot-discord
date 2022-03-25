@@ -1,9 +1,9 @@
 const { createButton, createMessageActionRow, createEmbed } = require("../utils/messages");
 
 function buildBasicMessageCommand(configInput) {
-  return async (req, res, ctx, next) => {
+  return async (req, ctx, next) => {
     const config = typeof configInput === 'object' ?
-      configInput : await configInput(req, res, ctx, next);
+      configInput : await configInput(req, ctx, next);
     if (!config) { return; } // might have had error
 
     const { interaction } = req;
@@ -25,7 +25,7 @@ function buildBasicMessageCommand(configInput) {
         ],
         ephemeral: true,
       })
-      res.endChain();
+      ctx.endChain();
       return;
     }
 
@@ -116,7 +116,7 @@ function buildBasicMessageCommand(configInput) {
           });
         }
 
-        res.endChain();
+        ctx.endChain();
       }
     }
   }

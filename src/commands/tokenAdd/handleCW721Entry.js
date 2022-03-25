@@ -4,7 +4,7 @@ const { isStargazeLaunchpadAddress, getCW721FromStargazeUrl } = require("../../a
 module.exports = {
   handleCW721Entry: {
     name: 'handleCW721Entry',
-    config: async (req, res, ctx, next) => {
+    config: async (req, ctx, next) => {
       const { interaction } = req;
 
       const userInput = interaction.content;
