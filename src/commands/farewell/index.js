@@ -10,12 +10,12 @@ module.exports = {
 			content: 'This will delete roles created by starrybot.',
 			buttons: [
 				{
-					customId: 'farewellConfirmation',
+					next: 'farewellConfirmation',
 					label: 'I understand',
 					style: 'PRIMARY',
 				},
 				{
-					customId: 'farewellRejection',
+					next: 'farewellRejection',
 					label: 'Cancel',
 					style: 'SECONDARY',
 				}

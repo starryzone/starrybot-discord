@@ -20,12 +20,12 @@ module.exports = {
 				content: `Are you sure you want to delete ${selectedRole}?`,
 				buttons: [
 					{
-						customId: 'removeConfirmation',
+						next: 'removeConfirmation',
 						label: 'Yes please!',
 						style: 'PRIMARY',
 					},
 					{
-						customId: 'removeRejection',
+						next: 'removeRejection',
 						label: 'Cancel',
 						style: 'SECONDARY',
 					}

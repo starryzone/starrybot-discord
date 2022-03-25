@@ -20,12 +20,12 @@ module.exports = {
           content: `What would you like to edit for ${selectedRole}?`,
           buttons: [
             {
-              customId: 'editRoleName',
+              next: 'editRoleName',
               label: 'Role Name',
               style: 'PRIMARY',
             },
             {
-              customId: 'editRoleAmount',
+              next: 'editRoleAmount',
               label: 'Role Amount',
               style: 'PRIMARY',
             }

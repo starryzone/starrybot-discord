@@ -35,7 +35,10 @@ function buildBasicMessageCommand(configInput) {
     const reply = {};
     if (hasButtons) {
       const row = createMessageActionRow({
-        components: config.buttons.map(buttonConfig => createButton(buttonConfig))
+        components: config.buttons.map(buttonConfig => createButton({
+          ...buttonConfig,
+          customId: buttonConfig.next,
+        }))
       });
       reply.components = [row];
     }

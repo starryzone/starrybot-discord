@@ -11,12 +11,12 @@ module.exports = {
       const buttons = [];
       for (const prefix of networkPrefixes) {
         buttons.push({
-          customId: `nativeToken${prefix.toUpperCase()}`,
+          next: `nativeToken${prefix.toUpperCase()}`,
           label: prefix.toUpperCase()
         });
       }
       buttons.push({
-        customId: `nativeTokenSuggestion`,
+        next: `nativeTokenSuggestion`,
         label: '🙋🏽 Suggest another!'
       })
       return {
