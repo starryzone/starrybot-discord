@@ -1,5 +1,5 @@
 
-const { rolesGet } = require("../db");
+const { rolesGet } = require("../../db");
 
 module.exports = {
   starryCommandTokenEdit: {
