@@ -4,8 +4,8 @@ module.exports = {
   starryCommandTokenList: {
     name: 'list',
     description: 'List all token rules for this guild',
-    config: async (ctx) => {
-      let roles = await rolesGet(ctx.guildId);
+    config: async ({ guildId }) => {
+      let roles = await rolesGet(guildId);
       const title = `${roles.length} roles found`;
       const description = roles.length > 0 ?
         `${roles.map(role => {

@@ -3,9 +3,13 @@ const { rolesSet } = require("../../db");
 module.exports = {
   handleRoleAmountEdit: {
     name: 'handleRoleAmountEdit',
-    config: async (ctx) => {
-      const { userId, guildId, userInput: amountOfTokensNeeded } = ctx;
-
+    config: async ({
+      userId,
+      guildId,
+      userInput: amountOfTokensNeeded,
+      selectedRoleName,
+      selectedRole: { decimals, network, token_address, token_type }
+    }) => {
       if (
         !Number.isInteger(parseInt(amountOfTokensNeeded)) ||
         amountOfTokensNeeded <= 0
@@ -17,15 +21,15 @@ module.exports = {
       }
 
       // Multiply by the decimals for native and fungible tokens
-      if (['native', 'cw20'].includes(ctx.selectedRole.token_type)) {
-        amountOfTokensNeeded = amountOfTokensNeeded * (10 ** ctx.selectedRole.decimals)
+      if (['native', 'cw20'].includes(token_type)) {
+        amountOfTokensNeeded = amountOfTokensNeeded * (10 ** decimals)
       }
 
       // Update the database row with the new amount + same rest of data
-      await rolesSet(guildId, ctx.selectedRoleName, ctx.selectedRole.token_type, ctx.selectedRole.token_address, ctx.selectedRole.network, true, userId, amountOfTokensNeeded, ctx.selectedRole.decimals);
+      await rolesSet(guildId, selectedRoleName, token_type, token_address, network, true, userId, amountOfTokensNeeded, decimals);
 
       return {
-        doneMessage: `${ctx.selectedRoleName} has been updated to require ${amountOfTokensNeeded / (10 ** ctx.selectedRole.decimals)} tokens moving forward. Please note that this change will not apply to current hodlers of the role. \n\nEnjoy, traveller!`
+        doneMessage: `${selectedRoleName} has been updated to require ${amountOfTokensNeeded / (10 ** decimals)} tokens moving forward. Please note that this change will not apply to current hodlers of the role. \n\nEnjoy, traveller!`
       }
     }
   }

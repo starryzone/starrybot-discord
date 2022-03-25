@@ -7,12 +7,9 @@ module.exports = {
 	starryCommandJoin: {
 		name: 'join',
 		description: 'Get link to verify your account with Keplr',
-		config: async (ctx) => {
+		config: async ({ guildId, userId: authorId }) => {
 			try {
-				let results = await logic.hoistRequest({
-					guildId: ctx.guildId,
-					authorId: ctx.userId
-				});
+				let results = await logic.hoistRequest({ guildId, authorId });
 				if (results.error || !results.traveller || !results.saganism) {
 					return {
 						error: results.error || "Internal error",

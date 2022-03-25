@@ -1,13 +1,13 @@
 module.exports = {
   editRoleName: {
     name: 'editRoleName',
-    config: async (ctx) => {
+    config: async ({ selectedRoleName }) => {
       return {
         embeds: [
           {
             color: '#FDC2A0',
             title: "What is the new name?",
-            description: `Please enter the new name for the role currently named ${ctx.selectedRoleName}.`,
+            description: `Please enter the new name for the role currently named ${selectedRoleName}.`,
           }
         ],
         next: 'handleRoleNameEdit',

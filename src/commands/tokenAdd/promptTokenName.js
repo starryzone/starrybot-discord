@@ -3,8 +3,18 @@ const { rolesSet } = require("../../db");
 module.exports = {
   promptTokenName: {
     name: 'promptTokenName',
-    config: async (ctx) => {
-      const { userId, guild, guildId, userInput: content } = ctx;
+    config: async ({
+      userId,
+      guild,
+      guildId,
+      userInput: content,
+      tokenType,
+      tokenAddress,
+      network,
+      minimumTokensNeeded,
+      decimals,
+      stakingContract
+    }) => {
 
       let roleToCreate = content;
       const existingObjectRoles = await guild.roles.fetch();
@@ -22,14 +32,14 @@ module.exports = {
       await rolesSet(
         guildId,
         roleToCreate,
-        ctx.tokenType,
-        ctx.tokenAddress,
-        ctx.network,
+        tokenType,
+        tokenAddress,
+        network,
         true,
         userId,
-        ctx.minimumTokensNeeded,
-        ctx.decimals,
-        ctx.stakingContract
+        minimumTokensNeeded,
+        decimals,
+        stakingContract
       );
 
       return {

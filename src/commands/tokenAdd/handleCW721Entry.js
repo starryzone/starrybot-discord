@@ -5,7 +5,7 @@ module.exports = {
   handleCW721Entry: {
     name: 'handleCW721Entry',
     config: async (ctx) => {
-      const userInput = ctx.userInput;
+      const { userInput } = ctx;
       // If user has done something else (like emoji reaction) do nothing
       if (!userInput) return;
 

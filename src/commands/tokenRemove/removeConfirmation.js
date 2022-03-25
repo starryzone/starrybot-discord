@@ -5,11 +5,9 @@ const { myConfig, rolesDelete } = require("../../db");
 module.exports = {
   removeConfirmation: {
     name: 'removeConfirmation',
-    config: async (ctx) => {
-      const { guild, guildId } = ctx;
+    config: async ({ guild, guildId, selectedRole }) => {
       const roleManager = guild.roles;
       const rest = new REST().setToken(myConfig.DISCORD_TOKEN);
-      const { selectedRole } = ctx;
 
       // First try to delete the role from discord
       try {

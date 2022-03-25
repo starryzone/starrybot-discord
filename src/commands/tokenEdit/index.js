@@ -11,8 +11,8 @@ module.exports = {
     adminOnly: true,
     name: 'edit',
     description: "(Admin only) Edit a token rule's name or amount",
-    config: async (ctx) => {
-      let roles = await rolesGet(ctx.guildId);
+    config: async ({ guildId }) => {
+      let roles = await rolesGet(guildId);
       if (roles.length === 0) {
         return {
           content: 'No roles exist to edit!',

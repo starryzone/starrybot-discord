@@ -2,7 +2,7 @@ module.exports = {
   promptTokenAmount: {
     name: 'promptTokenAmount',
     config: async (ctx) => {
-      let amountOfTokensNeeded = ctx.userInput;
+      let { userInput: amountOfTokensNeeded } = ctx;
 
       if (
         !Number.isInteger(parseInt(amountOfTokensNeeded)) ||

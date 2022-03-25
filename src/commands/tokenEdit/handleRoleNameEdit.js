@@ -3,10 +3,14 @@ const { rolesSet, rolesDelete } = require("../../db");
 module.exports = {
   handleRoleNameEdit: {
     name: 'handleRoleNameEdit',
-    config: async (ctx) => {
-      const { userId, guild, guildId, userInput: content } = ctx;
-
-      let newRoleName = content;
+    config: async ({
+      userId,
+      guild,
+      guildId,
+      userInput: newRoleName,
+      selectedRoleName,
+      selectedRole: { decimals, network, token_address, token_type }
+    }) => {
       const existingObjectRoles = await guild.roles.fetch();
       let roleAlreadyExists = existingObjectRoles.some(role => role.name === newRoleName);
       if (roleAlreadyExists) {
@@ -18,7 +22,7 @@ module.exports = {
 
       try {
         // Rename the current role in discord
-        const existingRole = existingObjectRoles.find(discordRole => discordRole.name === ctx.selectedRoleName);
+        const existingRole = existingObjectRoles.find(discordRole => discordRole.name === selectedRoleName);
         await guild.roles.edit(existingRole, { name: newRoleName });
       } catch (e) {
         if (e.message.includes('Supplied role is not a RoleResolvable')) {
@@ -33,13 +37,13 @@ module.exports = {
       }
 
       // Add a new database row with the new name + same rest of data
-      await rolesSet(guildId, newRoleName, ctx.selectedRole.token_type, ctx.selectedRole.token_address, ctx.selectedRole.network, true, userId, ctx.selectedRole.has_minimum_of, ctx.selectedRole.decimals);
+      await rolesSet(guildId, newRoleName, token_type, token_address, network, true, userId, has_minimum_of, decimals);
 
       // Delete the original one
-      await rolesDelete(guildId, ctx.selectedRoleName);
+      await rolesDelete(guildId, selectedRoleName);
     
       return {
-        doneMessage: `${ctx.selectedRoleName} has been renamed to ${newRoleName} (min: ${ctx.selectedRole.has_minimum_of / (10 ** ctx.selectedRole.decimals)}).\n\nEnjoy, traveller!`
+        doneMessage: `${selectedRoleName} has been renamed to ${newRoleName} (min: ${has_minimum_of / (10 ** decimals)}).\n\nEnjoy, traveller!`
       }
     }
   }
