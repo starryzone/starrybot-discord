@@ -1,4 +1,4 @@
-const { buildBasicMessageCommand } = require('../utils/commands');
+
 const { rolesGet } = require("../db");
 const { checkRPCStatus, checkLCDStatus, networkInfo } = require("../astrolabe/networks");
 

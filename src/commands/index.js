@@ -159,7 +159,7 @@ async function initiateCommandChain(firstCommandName, interaction) {
           'Sorry, you must be an admin to use this command :/'
         );
       }
-      console.log(command);
+
       return await command.execute(req, res, ctx, getCommandName => {
         globalCommandChains.set(
           uniqueCommandChainKey,

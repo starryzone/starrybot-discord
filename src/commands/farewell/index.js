@@ -1,5 +1,3 @@
-const { buildBasicMessageCommand } = require('../utils/commands');
-
 module.exports = {
 	starryCommandFarewell: {
 		adminOnly: true,

@@ -1,4 +1,4 @@
-const { buildBasicMessageCommand } = require('../../utils/commands');
+
 const { getTokenDetails } = require('../../astrolabe')
 const { isDaoDaoAddress, getCW20InputFromDaoDaoDao } = require('../../astrolabe/daodao');
 

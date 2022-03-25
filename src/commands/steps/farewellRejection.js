@@ -1,4 +1,4 @@
-const { buildBasicMessageCommand } = require('../../utils/commands');
+
 
 module.exports = {
   farewellRejection: {

@@ -1,4 +1,4 @@
-const { buildBasicMessageCommand } = require('../../utils/commands');
+
 const { networkPrefixes } = require('../../astrolabe/networks');
 
 module.exports = {

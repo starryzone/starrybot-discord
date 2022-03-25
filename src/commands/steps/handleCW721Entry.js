@@ -1,4 +1,4 @@
-const { buildBasicMessageCommand } = require('../../utils/commands');
+
 const { getTokenDetails } = require('../../astrolabe')
 const { isStargazeLaunchpadAddress, getCW721FromStargazeUrl } = require("../../astrolabe/stargaze");
 
