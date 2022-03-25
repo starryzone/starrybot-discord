@@ -1,5 +1,3 @@
-
-
 module.exports = {
   addCW20: {
     name: 'addCW20',

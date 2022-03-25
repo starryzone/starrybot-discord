@@ -1,4 +1,3 @@
-
 const { networkPrefixes } = require('../../astrolabe/networks');
 
 module.exports = {

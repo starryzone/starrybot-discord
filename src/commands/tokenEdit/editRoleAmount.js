@@ -1,5 +1,3 @@
-
-
 module.exports = {
   editRoleAmount: {
     name: 'editRoleAmount',

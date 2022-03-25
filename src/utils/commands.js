@@ -92,8 +92,6 @@ function buildBasicMessageCommand(configInput) {
     }
   }
 }
-
-
 module.exports = {
   buildBasicMessageCommand,
 }

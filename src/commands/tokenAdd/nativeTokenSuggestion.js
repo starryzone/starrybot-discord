@@ -1,5 +1,3 @@
-
-
 module.exports = {
   nativeTokenSuggestion: {
     name: 'nativeTokenSuggestion',

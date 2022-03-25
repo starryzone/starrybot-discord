@@ -1,5 +1,3 @@
-
-
 module.exports = {
   hasCW721: {
     name: 'hasCW721',

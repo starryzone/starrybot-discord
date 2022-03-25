@@ -1,5 +1,3 @@
-
-
 module.exports = {
   explainTokenTypes: {
     name: 'explainTokenTypes',

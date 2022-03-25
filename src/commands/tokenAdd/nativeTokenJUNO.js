@@ -1,5 +1,3 @@
-
-
 module.exports = {
   nativeTokenJUNO: {
     name: 'nativeTokenJUNO',

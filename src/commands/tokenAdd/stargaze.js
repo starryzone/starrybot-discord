@@ -1,5 +1,3 @@
-
-
 module.exports = {
   stargaze: {
     name: 'stargaze',
