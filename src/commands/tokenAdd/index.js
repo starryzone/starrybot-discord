@@ -21,9 +21,9 @@ module.exports = {
 		name: 'add',
 		description: '(Admin only) Add a new token rule',
 		config: {
-			title: 'What kind of token?',
 			prompt: {
 				type: 'reaction',
+				title: 'What kind of token?',
 				options: [
 					{
 						emoji: '🔗',

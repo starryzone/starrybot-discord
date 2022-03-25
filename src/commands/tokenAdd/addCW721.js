@@ -2,9 +2,9 @@ module.exports = {
   addCW721: {
     name: 'addCW721',
     config: {
-      title: 'Tell us about your token',
       prompt: {
         type: 'reaction',
+        title: 'Tell us about your token',
         options: [
           {
             emoji: '🖼',

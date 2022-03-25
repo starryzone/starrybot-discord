@@ -2,7 +2,6 @@ module.exports = {
   explainTokenTypes: {
     name: 'explainTokenTypes',
     config: {
-      title: 'Now, what kind of token again?',
       embeds: [
         {
           title: "✨Pardon, lemme explain",
@@ -11,6 +10,7 @@ module.exports = {
       ],
       prompt: {
         type: 'reaction',
+        title: 'Now, what kind of token again?',
         options: [
           {
             emoji: '🔗',

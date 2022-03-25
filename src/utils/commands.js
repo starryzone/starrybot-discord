@@ -59,7 +59,7 @@ function buildBasicMessageCommand(configInput) {
           ...(config.embeds || []),
           {
             color: messageColor,
-            title: config.title,
+            title: config.prompt.title,
             description: config.prompt.options.map(emojiConfig => `${emojiConfig.emoji} ${emojiConfig.description}`).join('\n\n'),
           }
         ],
