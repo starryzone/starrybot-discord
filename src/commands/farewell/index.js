@@ -7,9 +7,9 @@ module.exports = {
 		name: 'farewell',
 		description: '(Admin only) Kick starrybot itself from your guild',
 		config: {
-			message: 'This will delete roles created by starrybot.',
 			prompt: {
 				type: 'button',
+				title: 'This will delete roles created by starrybot.',
 				options: [
 					{
 						next: 'farewellConfirmation',

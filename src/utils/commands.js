@@ -79,6 +79,7 @@ function buildBasicMessageCommand(configInput) {
 
     } else {
       if (promptType === 'button') {
+        reply.content = config.prompt.title;
         reply.buttons = config.prompt.options.map(buttonConfig => ({
           ...buttonConfig,
           customId: buttonConfig.next,

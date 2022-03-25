@@ -11,9 +11,9 @@ module.exports = {
 			}
 		
 			return {
-				message: `Are you sure you want to delete ${selectedRole}?`,
 				prompt: {
 					type: 'button',
+					title: `Are you sure you want to delete ${selectedRole}?`,
 					options: [
 						{
 							next: 'removeConfirmation',

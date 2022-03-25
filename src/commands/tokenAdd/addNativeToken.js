@@ -7,9 +7,9 @@ module.exports = {
       decimals: 6,
     },
     config: async ({}, { networks: { networkPrefixes }}) => ({
-      message: 'Please choose from the supported Cosmos chains:',
       prompt: {
         type: 'button',
+        title: 'Please choose from the supported Cosmos chains:',
         options: [
           ...networkPrefixes.map(prefix => ({
             next: `nativeToken${prefix.toUpperCase()}`,
