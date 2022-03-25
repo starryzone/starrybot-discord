@@ -77,10 +77,6 @@ function buildCommandData() {
 }
 
 async function initiateCommandChain(firstCommandName, interaction) {
-  // Information about this initiated chain and how it's going
-  const req = {
-    interaction,
-  };
   // A state that can be edited by any step in this chain
   const args = {
     interaction,
