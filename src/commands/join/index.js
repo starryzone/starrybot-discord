@@ -1,6 +1,6 @@
 
-const db = require("../db")
-const logic = require("../logic")
+const db = require("../../db")
+const logic = require("../../logic")
 
 let validatorURL = db.myConfig.VALIDATOR
 
