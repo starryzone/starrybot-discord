@@ -1,5 +1,3 @@
-const { SlashCommandBuilder } = require('@discordjs/builders');
-
 const { starryCommandFarewell } = require('./farewell');
 const { starryCommandHealth } = require('./health');
 const { starryCommandJoin } = require('./join');
@@ -11,12 +9,12 @@ const { starryCommandTokenRemove } = require('./tokenRemove');
 const { memberHasRole } = require('../utils/auth');
 const { createEmbed } = require("../utils/messages");
 
-const { buildBasicMessageCommand } = require('../utils/commands');
+const { buildCommandData } = require('../utils/commands');
 
 const globalCommandChains = new Map();
 const TIMEOUT_DURATION = 360000; // 6 minutes in milliseconds
 
-const definedCommands = [
+const { flattenedCommandMap, commandData } = buildCommandData([
   {
     name: 'token-rule',
     description: 'Do things with your token rules',
@@ -30,51 +28,7 @@ const definedCommands = [
   starryCommandHealth,
   starryCommandJoin,
   starryCommandFarewell,
-];
-
-const flattenedCommandMap = [];
-const commandData = buildCommandData();
-
-function registerSubcommand(mainCommand, subcommand) {
-  const { name, description } = subcommand;
-  mainCommand.addSubcommand(sub => sub.setName(name).setDescription(description));
-  flattenedCommandMap[name] = {
-    ...subcommand,
-    execute: subcommand.config ? buildBasicMessageCommand(subcommand.config) : subcommand.execute
-  };
-  
-  subcommand.steps?.forEach(step => {
-    flattenedCommandMap[step.name] = {
-      name: step.name,
-      execute: step.config ? buildBasicMessageCommand(step.config) : step.execute,
-    }
-  });
-}
-
-function registerSubcommandGroup(mainCommand, subcommandGroup) {
-  const { name, description, options } = subcommandGroup;
-  mainCommand.addSubcommandGroup(subgroup => {
-    const subGroup = subgroup.setName(name).setDescription(description);
-    options.forEach(opt => registerSubcommand(subGroup, opt));
-    return subGroup;
-  });
-}
-
-function registerCommand(mainCommand, command) {
-  if (command.options) {
-    registerSubcommandGroup(mainCommand, command);
-  } else {
-    registerSubcommand(mainCommand, command);
-  }
-}
-
-function buildCommandData() {
-  const mainCommand = new SlashCommandBuilder()
-    .setName('starry')
-    .setDescription('Use starrybot (starrybot.xyz)');
-  definedCommands.forEach(command => registerCommand(mainCommand, command));
-  return mainCommand;
-}
+]);
 
 async function initiateCommandChain(firstCommandName, interaction) {
   // A state that can be edited by any step in this chain

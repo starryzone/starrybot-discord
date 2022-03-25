@@ -1,3 +1,4 @@
+const { SlashCommandBuilder } = require('@discordjs/builders');
 const { createButton, createMessageActionRow, createEmbed } = require("../utils/messages");
 
 function buildBasicMessageCommand(configInput) {
@@ -124,6 +125,53 @@ function buildBasicMessageCommand(configInput) {
     }
   }
 }
+
+function registerSubcommand(flattenedCommandMap, mainCommand, subcommand) {
+  const { name, description } = subcommand;
+  mainCommand.addSubcommand(sub => sub.setName(name).setDescription(description));
+  flattenedCommandMap[name] = {
+    ...subcommand,
+    execute: subcommand.config ? buildBasicMessageCommand(subcommand.config) : subcommand.execute
+  };
+  
+  subcommand.steps?.forEach(step => {
+    flattenedCommandMap[step.name] = {
+      name: step.name,
+      execute: step.config ? buildBasicMessageCommand(step.config) : step.execute,
+    }
+  });
+}
+
+function registerSubcommandGroup(flattenedCommandMap, mainCommand, subcommandGroup) {
+  const { name, description, options } = subcommandGroup;
+  mainCommand.addSubcommandGroup(subgroup => {
+    const subGroup = subgroup.setName(name).setDescription(description);
+    options.forEach(opt => registerSubcommand(flattenedCommandMap, subGroup, opt));
+    return subGroup;
+  });
+}
+
+function registerCommand(flattenedCommandMap, mainCommand, command) {
+  if (command.options) {
+    registerSubcommandGroup(flattenedCommandMap, mainCommand, command);
+  } else {
+    registerSubcommand(flattenedCommandMap, mainCommand, command);
+  }
+}
+
+function buildCommandData(definedCommands) {
+  const mainCommand = new SlashCommandBuilder()
+    .setName('starry')
+    .setDescription('Use starrybot (starrybot.xyz)');
+  const flattenedCommandMap = {};
+  definedCommands.forEach(command => registerCommand(flattenedCommandMap, mainCommand, command));
+  return {
+    flattenedCommandMap,
+    commandData: mainCommand
+  };
+}
+
 module.exports = {
   buildBasicMessageCommand,
+  buildCommandData,
 }
