@@ -33,6 +33,7 @@ function buildBasicMessageCommand(configInput) {
 
     const hasButtons = config.buttons?.length > 0;
     const wantsEmoji = config.emojiOptions?.length > 0;
+    const messageType = (hasButtons || wantsEmoji) ? 'prompt' : config.messageType;
 
     const reply = {};
     if (hasButtons) {
@@ -63,9 +64,7 @@ function buildBasicMessageCommand(configInput) {
         embeds: [
           ...(config.embeds || []),
           {
-            color: config.messageType ?
-              COLORS_BY_MESSAGE_TYPE[config.messageType] :
-              config.color,
+            color: COLORS_BY_MESSAGE_TYPE[messageType],
             title: config.title,
             description: config.emojiOptions.map(emojiConfig => `${emojiConfig.emoji} ${emojiConfig.description}`).join('\n\n'),
           }
@@ -92,9 +91,7 @@ function buildBasicMessageCommand(configInput) {
       if (config.embeds) {
         reply.embeds = config.embeds.map(embedConfig => ({
           ...embedConfig,
-          color: config.messageType ?
-            COLORS_BY_MESSAGE_TYPE[config.messageType] :
-            config.color,
+          color: COLORS_BY_MESSAGE_TYPE[messageType]
         }));
       }
 

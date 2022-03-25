@@ -2,7 +2,6 @@ module.exports = {
   explainTokenTypes: {
     name: 'explainTokenTypes',
     config: {
-      messageType: 'prompt',
       title: 'Now, what kind of token again?',
       embeds: [
         {

@@ -2,7 +2,6 @@ module.exports = {
   addCW20: {
     name: 'addCW20',
     config: {
-      messageType: 'prompt',
       title: 'Tell us about your token',
       emojiOptions: [
         {
