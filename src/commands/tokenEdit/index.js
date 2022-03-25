@@ -29,6 +29,9 @@ module.exports = {
           embeds: [{ title, description, footer }],
           ephemeral: true,
           next: 'editCheck',
+          prompt: {
+            type: 'input',
+          }
         }
       }
     },

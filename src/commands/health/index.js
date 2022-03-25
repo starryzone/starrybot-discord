@@ -93,26 +93,23 @@ module.exports = {
       const permissionsResults = await checkAllPermissions(guild);
 
       return {
-        messageType: 'success',
-        embeds: [
-          {
-            title: 'Diagnostics results 🌟',
-            description: 'This info describes what starrybot needs to work correctly',
-            fields: [
-              // Shouldn't be possible for these two arrays to be empty, but
-              // the message won't send at all if this value is undefined
-              {
-                name: 'Network statuses',
-                value: networkResults.join('\n') || '',
-              },
-              {
-                name: 'Role permissions',
-                value: permissionsResults.join('\n') || '',
-              },
-            ],
-            footer: `If there are any 🔴 above, please note that starrybot may not work as expected!`,
-          }
-        ],
+        done: {
+          title: 'Diagnostics results 🌟',
+          message: 'This info describes what starrybot needs to work correctly',
+          fields: [
+            // Shouldn't be possible for these two arrays to be empty, but
+            // the message won't send at all if this value is undefined
+            {
+              name: 'Network statuses',
+              value: networkResults.join('\n') || '',
+            },
+            {
+              name: 'Role permissions',
+              value: permissionsResults.join('\n') || '',
+            },
+          ],
+          footer: `If there are any 🔴 above, please note that starrybot may not work as expected!`,
+        }
       }
     }
   }

@@ -46,7 +46,9 @@ module.exports = {
       await rolesDelete(guildId, selectedRoleName);
     
       return {
-        doneMessage: `${selectedRoleName} has been renamed to ${newRoleName} (min: ${has_minimum_of / (10 ** decimals)}).\n\nEnjoy, traveller!`
+        done: {
+          message: `${selectedRoleName} has been renamed to ${newRoleName} (min: ${has_minimum_of / (10 ** decimals)}).\n\nEnjoy, traveller!`
+        },
       }
     }
   }

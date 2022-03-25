@@ -14,6 +14,9 @@ module.exports = {
         }
       ],
       next: 'promptTokenAmount',
+      prompt: {
+        type: 'input',
+      }
     }
   }
 }

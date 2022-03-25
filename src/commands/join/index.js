@@ -19,15 +19,15 @@ module.exports = {
 					let url = `${validatorURL}?traveller=${results.traveller}`
 
 					return {
-						embeds: [{
+						ephemeral: true,
+						done: {
 							author: [`starrybot`, `https://i.imgur.com/AfFp7pu.png`, `https://discord.js.org`],
-							description: results.saganism,
+							message: results.saganism,
 							footer: [`Put your helmet on`, `https://i.imgur.com/AfFp7pu.png`],
 							title: `Please visit ${url}`,
 							thumbnailUrl: `https://i.imgur.com/AfFp7pu.png`,
 							url,
-						}],
-						ephemeral: true,
+						}
 					}
 				}
 			} catch (error) {

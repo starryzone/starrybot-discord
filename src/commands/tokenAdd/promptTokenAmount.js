@@ -45,6 +45,9 @@ module.exports = {
           }
         ],
         next: 'promptTokenName',
+        prompt: {
+          type: 'input',
+        }
       }
     }
   }

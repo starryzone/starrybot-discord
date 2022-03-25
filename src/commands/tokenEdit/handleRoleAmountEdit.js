@@ -32,7 +32,9 @@ module.exports = {
       await rolesSet(guildId, selectedRoleName, token_type, token_address, network, true, userId, amountOfTokensNeeded, decimals);
 
       return {
-        doneMessage: `${selectedRoleName} has been updated to require ${amountOfTokensNeeded / (10 ** decimals)} tokens moving forward. Please note that this change will not apply to current hodlers of the role. \n\nEnjoy, traveller!`
+        done: {
+          message: `${selectedRoleName} has been updated to require ${amountOfTokensNeeded / (10 ** decimals)} tokens moving forward. Please note that this change will not apply to current hodlers of the role. \n\nEnjoy, traveller!`
+        }
       }
     }
   }
