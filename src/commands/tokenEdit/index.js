@@ -15,7 +15,7 @@ module.exports = {
       let roles = await rolesGet(guildId);
       if (roles.length === 0) {
         return {
-          content: 'No roles exist to edit!',
+          message: 'No roles exist to edit!',
         }
       } else {
         const title = `Current token rules`;

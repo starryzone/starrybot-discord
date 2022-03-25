@@ -17,7 +17,7 @@ module.exports = {
         args.selectedRoleName = selectedRole;
         args.selectedRole = role;
         return {
-          content: `What would you like to edit for ${selectedRole}?`,
+          message: `What would you like to edit for ${selectedRole}?`,
           buttons: [
             {
               next: 'editRoleName',

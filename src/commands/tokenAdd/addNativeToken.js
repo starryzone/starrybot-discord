@@ -9,7 +9,7 @@ module.exports = {
       decimals: 6,
     },
     config: {
-      content: 'Please choose from the supported Cosmos chains:',
+      message: 'Please choose from the supported Cosmos chains:',
       buttons: [
         ...networkPrefixes.map(prefix => ({
           next: `nativeToken${prefix.toUpperCase()}`,

@@ -13,7 +13,7 @@ module.exports = {
 			}
 		
 			return {
-				content: `Are you sure you want to delete ${selectedRole}?`,
+				message: `Are you sure you want to delete ${selectedRole}?`,
 				buttons: [
 					{
 						next: 'removeConfirmation',

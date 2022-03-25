@@ -85,8 +85,8 @@ function buildBasicMessageCommand(configInput) {
       next(getCommandName);
 
     } else {
-      if (config.content) {
-        reply.content = config.content;
+      if (config.message) {
+        reply.content = config.message;
       }
 
       if (config.embeds) {
@@ -103,7 +103,6 @@ function buildBasicMessageCommand(configInput) {
       }
       
       if (reply.content || reply.embeds || reply.components) {
-        console.log(reply);
         await interactionTarget.reply(createMessage(reply));
       }
 
