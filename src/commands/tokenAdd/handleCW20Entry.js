@@ -4,7 +4,7 @@ const { isDaoDaoAddress, getCW20InputFromDaoDaoDao } = require('../../astrolabe/
 module.exports = {
   handleCW20Entry: {
     name: 'handleCW20Entry',
-    config: async (req, ctx, next) => {
+    config: async (ctx) => {
       const userInput = ctx.userInput;
       // If user has done something else (like emoji reaction) do nothing
       if (!userInput) return;

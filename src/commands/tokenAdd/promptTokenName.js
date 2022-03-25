@@ -3,7 +3,7 @@ const { rolesSet } = require("../../db");
 module.exports = {
   promptTokenName: {
     name: 'promptTokenName',
-    config: async (req, ctx, next) => {
+    config: async (ctx) => {
       const { userId, guild, guildId, userInput: content } = ctx;
 
       let roleToCreate = content;

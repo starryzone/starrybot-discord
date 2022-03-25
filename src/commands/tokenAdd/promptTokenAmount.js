@@ -1,7 +1,7 @@
 module.exports = {
   promptTokenAmount: {
     name: 'promptTokenAmount',
-    config: async (req, ctx, next) => {
+    config: async (ctx) => {
       let amountOfTokensNeeded = ctx.userInput;
 
       if (

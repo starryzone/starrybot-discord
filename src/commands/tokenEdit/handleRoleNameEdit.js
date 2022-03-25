@@ -3,7 +3,7 @@ const { rolesSet, rolesDelete } = require("../../db");
 module.exports = {
   handleRoleNameEdit: {
     name: 'handleRoleNameEdit',
-    config: async (req, ctx, next) => {
+    config: async (ctx) => {
       const { userId, guild, guildId, userInput: content } = ctx;
 
       let newRoleName = content;

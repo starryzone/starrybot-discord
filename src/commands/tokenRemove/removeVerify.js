@@ -3,7 +3,7 @@ const { roleGet } = require("../../db");
 module.exports = {
 	removeVerify: {
 		name: 'removeVerify',
-		config: async (req, ctx, next) => {
+		config: async (ctx) => {
 			const { guildId, userInput: selectedRole } = ctx;
 			// Save the selection in ctx for removeConfirmation
 			ctx.selectedRole = selectedRole;

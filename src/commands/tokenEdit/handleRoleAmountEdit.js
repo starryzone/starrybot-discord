@@ -3,7 +3,7 @@ const { rolesSet } = require("../../db");
 module.exports = {
   handleRoleAmountEdit: {
     name: 'handleRoleAmountEdit',
-    config: async (req, ctx, next) => {
+    config: async (ctx) => {
       const { userId, guildId, userInput: amountOfTokensNeeded } = ctx;
 
       if (

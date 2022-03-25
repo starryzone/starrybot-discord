@@ -123,7 +123,7 @@ async function initiateCommandChain(firstCommandName, interaction) {
         };
       }
 
-      return await command.execute(req, ctx, getCommandName => {
+      return await command.execute(ctx, getCommandName => {
         globalCommandChains.set(
           ctx.commandChainKey,
           async interaction => {

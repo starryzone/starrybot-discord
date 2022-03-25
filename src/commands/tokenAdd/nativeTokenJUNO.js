@@ -1,7 +1,7 @@
 module.exports = {
   nativeTokenJUNO: {
     name: 'nativeTokenJUNO',
-    config: async (req, ctx, next) => {
+    config: async (ctx) => {
       ctx.tokenAddress = 'juno'
       ctx.tokenSymbol = 'juno'
       ctx.network = 'mainnet'

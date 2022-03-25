@@ -7,7 +7,7 @@ module.exports = {
 	starryCommandJoin: {
 		name: 'join',
 		description: 'Get link to verify your account with Keplr',
-		config: async (req, ctx, next) => {
+		config: async (ctx) => {
 			try {
 				let results = await logic.hoistRequest({
 					guildId: ctx.guildId,

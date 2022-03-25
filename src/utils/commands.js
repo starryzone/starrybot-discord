@@ -1,13 +1,13 @@
 const { createButton, createMessageActionRow, createEmbed } = require("../utils/messages");
 
 function buildBasicMessageCommand(configInput) {
-  return async (req, ctx, next) => {
+  return async (ctx, next) => {
     const config = typeof configInput === 'object' ?
-      configInput : await configInput(req, ctx, next);
+      configInput : await configInput(ctx);
     if (!config) { return; } // might have had error
 
-    const { interaction } = req;
-    // TO-DO: Was the interaction from a slash command, message
+    const { interaction } = ctx;
+    // TO-DO: Was the interaction from a slash command,n message
     // or emoji?
     const interactionTarget = interaction.reply ? interaction : interaction.message;
 
