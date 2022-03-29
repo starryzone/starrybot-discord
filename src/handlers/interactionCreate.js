@@ -1,4 +1,4 @@
-const { continueCommandChain } = require("../commands");
+const { continueWizard } = require("../wizardware");
 // Useful dependencies to inject through the steps
 const astrolabe = require("../astrolabe");
 const daodao = require("../astrolabe/daodao");
@@ -39,7 +39,7 @@ async function interactionCreate(interaction) {
 		return handleGuildCommands(interaction);
 	} else {
 		// text input, emoji reactions, or something else
-		await continueCommandChain({sourceAction: interaction});
+		await continueWizard({sourceAction: interaction});
 	}
 }
 

@@ -1,8 +1,8 @@
-const { continueCommandChain } = require("../commands/index.js");
+const { continueWizard } = require("../wizardware");
 
 async function messageCreate(interaction) {
 	if (interaction.author.bot) return;
-	await continueCommandChain({sourceAction: interaction});
+	await continueWizard({sourceAction: interaction});
 }
 
 module.exports = {

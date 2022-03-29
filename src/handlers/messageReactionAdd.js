@@ -1,9 +1,9 @@
-const { continueCommandChain } = require("../commands");
+const { continueWizard } = require("../wizardware");
 
 // A user may have sent an emoji - we are very interested in these
 async function messageReactionAdd(reaction, user) {
 	if (user.bot) return; // don't care about bot's emoji reactions
-	await continueCommandChain({sourceAction: reaction, user});
+	await continueWizard({sourceAction: reaction, user});
 
 	// When a reaction is received, check if the structure is partial
 	if (reaction.partial) {
