@@ -1,11 +1,5 @@
-const { continueWizard } = require("../wizardware");
-// Useful dependencies to inject through the steps
-const astrolabe = require("../astrolabe");
-const daodao = require("../astrolabe/daodao");
-const db = require("../db");
-const logic = require("../logic");
-const networks = require("../astrolabe/networks");
-const stargaze = require("../astrolabe/stargaze");
+const { wizardController } = require("../commands");
+
 ///
 /// A user has a command for us - resolve
 ///
@@ -19,7 +13,7 @@ async function handleGuildCommands(interaction) {
 
 	try {
 		// Called whenever you do any /starry * command
-		await command.execute(interaction, { astrolabe, daodao, db, logic, networks, stargaze });
+		await command.execute(interaction);
 	} catch (e) {
 		console.warn(e);
 		await interaction.reply({
@@ -39,7 +33,10 @@ async function interactionCreate(interaction) {
 		return handleGuildCommands(interaction);
 	} else {
 		// text input, emoji reactions, or something else
-		await continueWizard({sourceAction: interaction});
+		await wizardController.continue(
+			`${interaction.guildId}-${interaction.user.id}`,
+			{ interaction }
+		);
 	}
 }
 

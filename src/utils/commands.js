@@ -8,17 +8,15 @@ const { COLORS_BY_MESSAGE_TYPE, createMessage, createPrivateError } = require(".
  */
 
 function buildCommandExecute(command) {
-  return async (args, context, next) => {
+  return async (state, context, next, end) => {
     const config = command.getConfig ?
-      await command.getConfig(args, context) :
+      await command.getConfig(state, context) :
       command;
 
     if (!config) { return; } // might have had error
 
-    const { interaction } = args;
-    // TO-DO: Was the interaction from a slash command,n message
-    // or emoji?
-    const interactionTarget = interaction.reply ? interaction : interaction.message;
+    const { interaction, reaction } = state;
+    const interactionTarget = reaction ? reaction.message : interaction;
 
     if (config.error) {
       console.warn(config.error);
@@ -29,7 +27,7 @@ function buildCommandExecute(command) {
           config.error.toString()
         )
       );
-      args.endChain();
+      end();
       return;
     }
 
@@ -72,7 +70,7 @@ function buildCommandExecute(command) {
             title: config.title,
           }));
 
-          const getNextCommandNameFromEmoji = reaction => {
+          const getNextCommandNameFromEmoji = ({ reaction }) => {
             const emojiName = reaction?._emoji?.name;
             if(!emojiName) return;
             else {
@@ -93,7 +91,7 @@ function buildCommandExecute(command) {
           }));
           await interactionTarget.reply(createMessage(reply));
           // Go to the step designated by the clicked button's ID
-          next(interaction => interaction.customId);
+          next(({ interaction }) => interaction.customId);
           break;
 
         case 'input':
@@ -139,11 +137,11 @@ function buildCommandExecute(command) {
           ]
         }));
         // Chain is over, clean up
-        args.endChain();
+        end();
       } else {
         // We don't know what to do next, but we're sure
         // as heck not waiting on anything anymore
-        args.endChain();
+        end();
       }
     }
   }

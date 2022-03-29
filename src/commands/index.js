@@ -7,8 +7,9 @@ const { starryCommandTokenEdit } = require('./tokenEdit');
 const { starryCommandTokenRemove } = require('./tokenRemove');
 
 const { buildCommandData } = require('../utils/commands');
+const { createPrivateError } = require("../utils/messages");
+const { WizardController } = require("../wizardware");
 
-const { initiateWizard } = require("../wizardware");
 const { flattenedCommandMap, commandData } = buildCommandData([
   {
     name: 'token-rule',
@@ -25,13 +26,29 @@ const { flattenedCommandMap, commandData } = buildCommandData([
   starryCommandFarewell,
 ]);
 
+const wizardController = new WizardController({
+  flattenedWizardSteps: flattenedCommandMap,
+  handleError: createPrivateError,
+})
+
 module.exports = {
+  wizardController,
+
   starryCommand: {
     data: commandData,
     async execute (interaction) {
       const subcommandName = interaction.options.getSubcommand();
       if (flattenedCommandMap[subcommandName]) {
-        await initiateWizard(subcommandName, interaction, flattenedCommandMap);
+        await wizardController.initiate(
+          `${interaction.guildId}-${interaction.user.id}`,
+          subcommandName,
+          {
+            interaction,
+            guild: interaction.guild,
+            guildId: interaction.guildId,
+            userId: interaction.user.id,
+          },
+        );
       } else {
         await interaction.reply('starrybot does not understand this command.');
       }

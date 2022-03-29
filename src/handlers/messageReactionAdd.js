@@ -1,9 +1,13 @@
-const { continueWizard } = require("../wizardware");
+const { wizardController } = require("../commands");
 
 // A user may have sent an emoji - we are very interested in these
 async function messageReactionAdd(reaction, user) {
 	if (user.bot) return; // don't care about bot's emoji reactions
-	await continueWizard({sourceAction: reaction, user});
+
+	await wizardController.continue(
+		`${reaction.message.guildId}-${user.id}`,
+		{ reaction, user }
+	);
 
 	// When a reaction is received, check if the structure is partial
 	if (reaction.partial) {
