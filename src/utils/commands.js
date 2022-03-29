@@ -8,9 +8,9 @@ const { COLORS_BY_MESSAGE_TYPE, createMessage, createPrivateError } = require(".
  */
 
 function buildCommandExecute(command) {
-  return async (args, db, next) => {
+  return async (args, context, next) => {
     const config = command.getConfig ?
-      await command.getConfig(args, db) :
+      await command.getConfig(args, context) :
       command;
 
     if (!config) { return; } // might have had error
