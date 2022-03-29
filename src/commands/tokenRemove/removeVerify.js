@@ -18,7 +18,6 @@ module.exports = {
 						{
 							next: 'removeConfirmation',
 							label: 'Yes please!',
-							style: 'PRIMARY',
 						},
 						{
 							next: 'removeRejection',

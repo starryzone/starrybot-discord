@@ -22,12 +22,10 @@ module.exports = {
               {
                 next: 'editRoleName',
                 label: 'Role Name',
-                style: 'PRIMARY',
               },
               {
                 next: 'editRoleAmount',
                 label: 'Role Amount',
-                style: 'PRIMARY',
               }
             ]
           },

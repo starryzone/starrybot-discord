@@ -14,7 +14,6 @@ module.exports = {
 					{
 						next: 'farewellConfirmation',
 						label: 'I understand',
-						style: 'PRIMARY',
 					},
 					{
 						next: 'farewellRejection',

@@ -87,6 +87,7 @@ function buildBasicMessageCommand(configInput) {
           reply.buttons = config.prompt.options.map(buttonConfig => ({
             ...buttonConfig,
             customId: buttonConfig.next,
+            style: buttonConfig.style ||  'PRIMARY'
           }));
           await interactionTarget.reply(createMessage(reply));
           // Go to the step designated by the clicked button's ID
