@@ -31,16 +31,12 @@ module.exports = {
       }
 
       return {
-        embeds: [
-          {
-            title: 'What is the role name?',
-            description: `Please enter the name of the role that should be given to users with at least 1 NFT from this collection.`,
-            footer: 'Note: this role will be created automatically',
-          }
-        ],
         next: 'promptTokenName',
         prompt: {
           type: 'input',
+          title: 'What is the role name?',
+          description: `Please enter the name of the role that should be given to users with at least 1 NFT from this collection.`,
+          footer: 'Note: this role will be created automatically',
         }
       }
     }

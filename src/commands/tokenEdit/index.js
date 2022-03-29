@@ -26,11 +26,13 @@ module.exports = {
         const footer = 'Please type a token rule to edit';
 
         return {
-          embeds: [{ title, description, footer }],
           ephemeral: true,
           next: 'editCheck',
           prompt: {
             type: 'input',
+            title,
+            description,
+            footer,
           }
         }
       }

@@ -32,15 +32,11 @@ module.exports = {
       }
 
       return {
-        embeds: [
-          {
-            title: 'How many tokens?',
-            description: 'Please enter the number of tokens a user must have to get a special role.',
-          }
-        ],
         next: 'promptTokenAmount',
         prompt: {
           type: 'input',
+          title: 'How many tokens?',
+          description: 'Please enter the number of tokens a user must have to get a special role.',
         }
       }
     }

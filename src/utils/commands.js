@@ -31,113 +31,117 @@ function buildBasicMessageCommand(configInput) {
       return;
     }
 
-    const promptType = config.prompt?.type;
-    let messageColor; // Error message color currently handled separately
-    if (promptType) {
-      messageColor = COLORS_BY_MESSAGE_TYPE['prompt'];
-    } else if (config.done) {
-      messageColor = COLORS_BY_MESSAGE_TYPE['success'];
-    }
-
     const reply = {
       ephemeral: config.ephemeral,
       content: config.message,
     };
 
-    switch(promptType) {
-      case 'reaction':
-        const msg = await interactionTarget.reply(createMessage(
-          {
-            embeds: [{
-              color: messageColor,
-              title: 'One moment…',
-              description: 'Loading choices, fren.',
-            }],
-            // Necessary in order to react to the message
-            fetchReply: true
-          })
-        );
+    if (config.prompt) {
+      const { type: promptType } = config.prompt;
+      const messageColor = COLORS_BY_MESSAGE_TYPE['prompt'];
 
-        for (var i = 0; i < config.prompt.options.length; i++) {
-          await msg.react(config.prompt.options[i].emoji);
-        }
-
-        msg.edit(createMessage({
-          embeds: [
-            ...(config.embeds || []),
+      switch(promptType) {
+        case 'reaction':
+          const msg = await interactionTarget.reply(createMessage(
             {
-              color: messageColor,
-              title: config.prompt.title,
-              description: config.prompt.options.map(emojiConfig => `${emojiConfig.emoji} ${emojiConfig.description}`).join('\n\n'),
-            }
-          ],
-          title: config.title,
-        }));
+              embeds: [{
+                color: messageColor,
+                title: 'One moment…',
+                description: 'Loading choices, fren.',
+              }],
+              // Necessary in order to react to the message
+              fetchReply: true
+            })
+          );
 
-        const getNextCommandNameFromEmoji = reaction => {
-          const emojiName = reaction?._emoji?.name;
-          if(!emojiName) return;
-          else {
-            return config.prompt.options.find(emojiConfig => emojiConfig.emoji === emojiName).next;
+          for (var i = 0; i < config.prompt.options.length; i++) {
+            await msg.react(config.prompt.options[i].emoji);
           }
-        }
 
-        // Go to the step designated by the selected emoji's config
-        next(getNextCommandNameFromEmoji);
-        break;
-
-      case 'button':
-        reply.content = config.prompt.title;
-        reply.buttons = config.prompt.options.map(buttonConfig => ({
-          ...buttonConfig,
-          customId: buttonConfig.next,
-        }));
-        await interactionTarget.reply(createMessage(reply));
-        // Go to the step designated by the clicked button's ID
-        next(interaction => interaction.customId);
-        break;
-
-      case 'input':
-        // TO-DO: add embed for config.prompt.embeds
-        reply.embeds = config.embeds?.map(embedConfig => ({
-          ...embedConfig,
-          color: messageColor,
-        }));
-        await interactionTarget.reply(createMessage(reply));
-        next(config.next);
-        break;
-
-      default:
-        reply.embeds = config.embeds?.map(embedConfig => ({
-          ...embedConfig,
-          color: messageColor,
-        }));
-
-        if (reply.content || reply.embeds?.length > 0) {
-          await interactionTarget.reply(createMessage(reply));
-        }
-
-        if (config.next) {
-          next(config.next);
-        } else if (config.done) {
-          const { title = 'Finished! 🌟', message: description, ...props } = config.done;
-          await interactionTarget.reply(createMessage({
+          msg.edit(createMessage({
             embeds: [
+              ...(config.embeds || []),
               {
                 color: messageColor,
-                title,
-                description,
-                ...props
+                title: config.prompt.title,
+                description: config.prompt.options.map(emojiConfig => `${emojiConfig.emoji} ${emojiConfig.description}`).join('\n\n'),
               }
-            ]
+            ],
+            title: config.title,
           }));
-          // Chain is over, clean up
-          args.endChain();
-        } else {
-          // We don't know what to do next, but we're sure
-          // as heck not waiting on anything anymore
-          args.endChain();
-        }
+
+          const getNextCommandNameFromEmoji = reaction => {
+            const emojiName = reaction?._emoji?.name;
+            if(!emojiName) return;
+            else {
+              return config.prompt.options.find(emojiConfig => emojiConfig.emoji === emojiName).next;
+            }
+          }
+
+          // Go to the step designated by the selected emoji's config
+          next(getNextCommandNameFromEmoji);
+          break;
+
+        case 'button':
+          reply.content = config.prompt.title;
+          reply.buttons = config.prompt.options.map(buttonConfig => ({
+            ...buttonConfig,
+            customId: buttonConfig.next,
+          }));
+          await interactionTarget.reply(createMessage(reply));
+          // Go to the step designated by the clicked button's ID
+          next(interaction => interaction.customId);
+          break;
+
+        case 'input':
+        default:
+          const { title, description, ...props } = config.prompt;
+          reply.embeds = [
+          ...(config.embeds || []),
+            {
+              color: messageColor,
+              title,
+              description,
+              ...props
+            }
+          ];
+          await interactionTarget.reply(createMessage(reply));
+          next(config.next);
+          break;
+      }
+    }
+    else {
+      const messageColor = config.done && COLORS_BY_MESSAGE_TYPE['success'];
+      reply.embeds = config.embeds?.map(embedConfig => ({
+        ...embedConfig,
+        color: messageColor,
+      }));
+
+      if (reply.content || reply.embeds?.length > 0) {
+        await interactionTarget.reply(createMessage(reply));
+      }
+
+      if (config.next) {
+        next(config.next);
+      } else if (config.done) {
+        const { title = 'Finished! 🌟', message: description, ...props } = config.done;
+        await interactionTarget.reply(createMessage({
+          embeds: [
+            {
+              color: messageColor,
+              title,
+              description,
+              ...props
+            }
+          ]
+        }));
+        // Chain is over, clean up
+        args.endChain();
+      } else {
+        // We don't know what to do next, but we're sure
+        // as heck not waiting on anything anymore
+        args.endChain();
+      }
     }
   }
 }

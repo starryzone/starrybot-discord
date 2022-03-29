@@ -37,16 +37,12 @@ module.exports = {
       }
 
       return {
-        embeds: [
-          {
-            title: 'What is the role name?',
-            description: `Please enter the name of the role that should be given to users with at least ${noun}.`,
-            footer: 'Note: this role will be created automatically',
-          }
-        ],
         next: 'promptTokenName',
         prompt: {
           type: 'input',
+          title: 'What is the role name?',
+          description: `Please enter the name of the role that should be given to users with at least ${noun}.`,
+          footer: 'Note: this role will be created automatically',
         }
       }
     }
