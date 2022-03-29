@@ -7,10 +7,12 @@ const { COLORS_BY_MESSAGE_TYPE, createMessage, createPrivateError } = require(".
  * { title: }
  */
 
-function buildBasicMessageCommand(configInput) {
+function buildCommandExecute(command) {
   return async (args, db, next) => {
-    const config = typeof configInput === 'object' ?
-      configInput : await configInput(args, db);
+    const config = command.getConfig ?
+      await command.getConfig(args, db) :
+      command;
+
     if (!config) { return; } // might have had error
 
     const { interaction } = args;
@@ -156,13 +158,13 @@ function registerSubcommand(flattenedCommandMap, mainCommand, subcommand) {
   );
   flattenedCommandMap[name] = {
     ...subcommand,
-    execute: subcommand.execute ? subcommand.execute : buildBasicMessageCommand(subcommand.config)
+    execute: subcommand.execute ? subcommand.execute : buildCommandExecute(subcommand)
   };
   
   subcommand.steps?.forEach(step => {
     flattenedCommandMap[step.name] = {
       ...step,
-      execute: step.execute ? step.execute : buildBasicMessageCommand(step.config),
+      execute: step.execute ? step.execute : buildCommandExecute(step),
     }
   });
 }
@@ -199,7 +201,6 @@ function buildCommandData(definedCommands) {
 }
 
 module.exports = {
-  buildBasicMessageCommand,
   buildCommandData,
 
   COLORS_BY_MESSAGE_TYPE,

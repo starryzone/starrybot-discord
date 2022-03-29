@@ -6,7 +6,7 @@ module.exports = {
       // According to Meow, all native tokens have 6 decimals
       decimals: 6,
     },
-    config: async ({}, { networks: { networkPrefixes }}) => ({
+    getConfig: async ({}, { networks: { networkPrefixes }}) => ({
       prompt: {
         type: 'button',
         title: 'Please choose from the supported Cosmos chains:',

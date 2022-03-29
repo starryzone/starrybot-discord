@@ -2,7 +2,7 @@ module.exports = {
 	starryCommandJoin: {
 		name: 'join',
 		description: 'Get link to verify your account with Keplr',
-		config: async (
+		getConfig: async (
 			{ guildId, userId: authorId },
 			{
 				db: { myConfig: { VALIDATOR: validatorURL } },

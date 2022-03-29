@@ -1,7 +1,7 @@
 module.exports = {
   editCheck: {
     name: 'editCheck',
-    config: async (args, { db: { roleGet } }) => {
+    getConfig: async (args, { db: { roleGet } }) => {
       const { guildId, userInput: selectedRole } = args;
 
       // Make sure we recognize the selected role

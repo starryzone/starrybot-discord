@@ -1,7 +1,7 @@
 module.exports = {
   editRoleName: {
     name: 'editRoleName',
-    config: async ({ selectedRoleName }) => {
+    getConfig: async ({ selectedRoleName }) => {
       return {
         next: 'handleRoleNameEdit',
         prompt: {

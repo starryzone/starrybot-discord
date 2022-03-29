@@ -3,7 +3,7 @@ module.exports = {
     adminOnly: true,
     name: 'health',
     description: 'Run diagnostics for starrybot',
-    config: async (
+    getConfig: async (
       { guild },
       {
         db: { rolesGet },

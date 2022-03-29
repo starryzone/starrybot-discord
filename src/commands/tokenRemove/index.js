@@ -7,7 +7,7 @@ module.exports = {
     adminOnly: true,
     name: 'remove',
     description: 'Remove token rule',
-    config: async ({ guildId }, { db: { rolesGet } }) => {
+    getConfig: async ({ guildId }, { db: { rolesGet } }) => {
       let roles = await rolesGet(guildId);
       if (roles.length === 0) {
         // Nothing to actually delete

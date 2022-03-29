@@ -1,7 +1,7 @@
 module.exports = {
   handleCW20Entry: {
     name: 'handleCW20Entry',
-    config: async (
+    getConfig: async (
       args,
       {
         astrolabe: { getTokenDetails },

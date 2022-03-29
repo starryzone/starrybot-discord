@@ -1,7 +1,7 @@
 module.exports = {
   promptTokenName: {
     name: 'promptTokenName',
-    config: async (
+    getConfig: async (
       {
         userId,
         guild,

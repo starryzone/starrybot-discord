@@ -9,7 +9,7 @@ module.exports = {
     adminOnly: true,
     name: 'edit',
     description: "Edit a token rule's name or amount",
-    config: async ({ guildId }, { db: { rolesGet } }) => {
+    getConfig: async ({ guildId }, { db: { rolesGet } }) => {
       let roles = await rolesGet(guildId);
       if (roles.length === 0) {
         return {
