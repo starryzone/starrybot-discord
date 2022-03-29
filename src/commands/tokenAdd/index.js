@@ -46,7 +46,7 @@ module.exports = {
 				}
 			]
 		},
-		steps: [
+		steps: {
 			addCW20,
 			addCW721,
 			addNativeToken,
@@ -63,6 +63,6 @@ module.exports = {
 			promptTokenAmount,
 			promptTokenName,
 			stargaze,
-		]
+		}
 	}
 }

@@ -1,6 +1,5 @@
 module.exports = {
   editCheck: {
-    name: 'editCheck',
     getConfig: async (args, { db: { roleGet } }) => {
       const { guildId, userInput: selectedRole } = args;
 

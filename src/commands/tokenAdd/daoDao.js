@@ -1,6 +1,5 @@
 module.exports = {
   daoDao: {
-    name: 'daoDao',
     next: 'handleCW20Entry',
     prompt: {
       type: 'input',

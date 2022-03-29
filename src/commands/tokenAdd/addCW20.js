@@ -1,6 +1,5 @@
 module.exports = {
   addCW20: {
-    name: 'addCW20',
     prompt: {
       type: 'reaction',
       title: 'Tell us about your token',

@@ -21,9 +21,9 @@ module.exports = {
 				}
 			]
 		},
-		steps: [
+		steps: {
 			farewellConfirmation,
 			farewellRejection,
-		]
+		}
 	}
 }

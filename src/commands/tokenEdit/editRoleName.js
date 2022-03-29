@@ -1,6 +1,5 @@
 module.exports = {
   editRoleName: {
-    name: 'editRoleName',
     getConfig: async ({ selectedRoleName }) => {
       return {
         next: 'handleRoleNameEdit',

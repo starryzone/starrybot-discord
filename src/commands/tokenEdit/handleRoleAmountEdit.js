@@ -1,6 +1,5 @@
 module.exports = {
   handleRoleAmountEdit: {
-    name: 'handleRoleAmountEdit',
     getConfig: async (
       {
         userId,

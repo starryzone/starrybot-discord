@@ -1,6 +1,5 @@
 module.exports = {
   editRoleAmount: {
-    name: 'editRoleAmount',
     getConfig: async ({
       selectedRoleName,
       selectedRole: { decimals, has_minimum_of }

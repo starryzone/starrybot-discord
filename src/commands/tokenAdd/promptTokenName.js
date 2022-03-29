@@ -1,6 +1,5 @@
 module.exports = {
   promptTokenName: {
-    name: 'promptTokenName',
     getConfig: async (
       {
         userId,

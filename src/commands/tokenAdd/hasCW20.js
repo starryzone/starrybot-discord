@@ -1,6 +1,5 @@
 module.exports = {
   hasCW20: {
-    name: 'hasCW20',
     next: 'handleCW20Entry',
     prompt: {
       type: 'input',

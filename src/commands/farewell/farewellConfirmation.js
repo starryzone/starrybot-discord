@@ -3,7 +3,6 @@ const { Routes } = require("discord-api-types/v9");
 
 module.exports = {
   farewellConfirmation: {
-    name: 'farewellConfirmation',
     execute: async (
       { guild, guildId, interaction },
       { db: { myConfig, rolesGetForCleanUp, rolesDeleteGuildAll } }

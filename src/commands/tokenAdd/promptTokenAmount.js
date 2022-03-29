@@ -1,6 +1,5 @@
 module.exports = {
   promptTokenAmount: {
-    name: 'promptTokenAmount',
     getConfig: async (args) => {
       let { userInput: amountOfTokensNeeded } = args;
 

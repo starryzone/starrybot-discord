@@ -1,6 +1,5 @@
 module.exports = {
   stargaze: {
-    name: 'stargaze',
     next: 'handleCW721Entry',
     prompt: {
       type: 'input',

@@ -35,10 +35,10 @@ module.exports = {
         }
       }
     },
-    steps: [
+    steps: {
       removeConfirmation,
       removeRejection,
       removeVerify,
-    ]
+    }
   }
 }

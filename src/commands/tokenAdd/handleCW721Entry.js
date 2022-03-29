@@ -1,6 +1,5 @@
 module.exports = {
   handleCW721Entry: {
-    name: 'handleCW721Entry',
     getConfig: async (
       args,
       {

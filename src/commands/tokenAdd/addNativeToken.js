@@ -1,6 +1,5 @@
 module.exports = {
   addNativeToken: {
-    name: 'addNativeToken',
     setArgs: {
       tokenType: 'native',
       // According to Meow, all native tokens have 6 decimals

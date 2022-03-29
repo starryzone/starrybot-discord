@@ -1,6 +1,5 @@
 module.exports = {
   handleCW20Entry: {
-    name: 'handleCW20Entry',
     getConfig: async (
       args,
       {

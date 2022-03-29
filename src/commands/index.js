@@ -65,17 +65,17 @@ async function initiateCommandChain(firstCommandName, interaction) {
     args.currentIndex += 1;
     args.steps.push(commandName);
 
-    // A way for steps to set constant arg values for
-    // other steps downstream (i.e. indicators of which
-    // path was taken in a sequence)
-    if (command.setArgs) {
-      Object.keys(command.setArgs).forEach(
-        key => args[key] = command.setArgs[key]
-      );
-    }
-
     let cancelTimeout;
     if (command) {
+      // A way for steps to set constant arg values for
+      // other steps downstream (i.e. indicators of which
+      // path was taken in a sequence)
+      if (command.setArgs) {
+        Object.keys(command.setArgs).forEach(
+          key => args[key] = command.setArgs[key]
+        );
+      }
+
       // Verify if the user is allowed to use this step.
       // We'd ordinarily prefer the built-in Discord permission
       // system, but it's a work in progress. See for more info:

@@ -37,12 +37,12 @@ module.exports = {
         }
       }
     },
-    steps: [
+    steps: {
       editCheck,
       editRoleAmount,
       editRoleName,
       handleRoleAmountEdit,
       handleRoleNameEdit,
-    ]
+    }
   }
 }

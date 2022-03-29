@@ -161,12 +161,15 @@ function registerSubcommand(flattenedCommandMap, mainCommand, subcommand) {
     execute: subcommand.execute ? subcommand.execute : buildCommandExecute(subcommand)
   };
   
-  subcommand.steps?.forEach(step => {
-    flattenedCommandMap[step.name] = {
-      ...step,
-      execute: step.execute ? step.execute : buildCommandExecute(step),
-    }
-  });
+  if (subcommand.steps) {
+    Object.entries(subcommand.steps).forEach(([ name, step ]) => {
+      flattenedCommandMap[name] = {
+        ...step,
+        name,
+        execute: step.execute ? step.execute : buildCommandExecute(step),
+      }
+    });
+  }
 }
 
 function registerSubcommandGroup(flattenedCommandMap, mainCommand, subcommandGroup) {

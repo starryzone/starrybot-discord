@@ -1,6 +1,5 @@
 module.exports = {
   explainTokenTypes: {
-    name: 'explainTokenTypes',
     embeds: [
       {
         title: "✨Pardon, lemme explain",

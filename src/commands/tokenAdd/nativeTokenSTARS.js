@@ -1,6 +1,5 @@
 module.exports = {
   nativeTokenSTARS: {
-    name: 'nativeTokenSTARS',
     setArgs: {
       tokenAddress: 'stars',
       tokenSymbol: 'stars',
