@@ -70,9 +70,9 @@ async function initiateCommandChain(firstCommandName, interaction) {
       // A way for steps to set constant arg values for
       // other steps downstream (i.e. indicators of which
       // path was taken in a sequence)
-      if (command.setArgs) {
-        Object.keys(command.setArgs).forEach(
-          key => args[key] = command.setArgs[key]
+      if (command.updatedArgs) {
+        Object.keys(command.updatedArgs).forEach(
+          key => args[key] = command.updatedArgs[key]
         );
       }
 
