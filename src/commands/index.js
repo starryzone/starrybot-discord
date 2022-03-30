@@ -62,6 +62,8 @@ module.exports = {
           subcommandName,
           {
             interaction,
+            // Reply directly to the slash command message
+            interactionTarget: interaction,
             guild: interaction.guild,
             guildId: interaction.guildId,
             userId: interaction.user.id,

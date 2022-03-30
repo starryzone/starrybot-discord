@@ -9,8 +9,7 @@ function buildCommandExecute(command) {
 
     if (!config) { return; } // might have had error
 
-    const { interaction, reaction } = state;
-    const interactionTarget = reaction ? reaction.message : interaction;
+    const { interactionTarget } = state;
 
     if (config.error) {
       console.warn(config.error);

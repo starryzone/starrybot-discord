@@ -5,7 +5,12 @@ async function messageCreate(interaction) {
 
 	await wizardware.continue(
 		`${interaction.guildId}-${interaction.author.id}`,
-		{ interaction, userInput: interaction.content }
+		{
+			interaction,
+			// Reply to the message sent by the user
+			interactionTarget: interaction,
+			userInput: interaction.content
+		}
 	);
 }
 

@@ -6,7 +6,12 @@ async function messageReactionAdd(reaction, user) {
 
 	await wizardware.continue(
 		`${reaction.message.guildId}-${user.id}`,
-		{ reaction, user }
+		{
+			// Reply to the message the user reacted to
+			interactionTarget: reaction.message,
+			reaction,
+			user
+		}
 	);
 
 	// When a reaction is received, check if the structure is partial
