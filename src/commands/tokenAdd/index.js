@@ -1,4 +1,21 @@
-const { createEmbed } = require("../utils/messages");
+const { addCW20 } = require('../tokenAdd/addCW20');
+const { addCW721 } = require('./addCW721');
+const { addNativeToken } = require('./addNativeToken');
+const { daoDao } = require('./daoDao');
+const { explainTokenTypes } = require('./explainTokenTypes');
+const { handleCW20Entry } = require('./handleCW20Entry');
+const { handleCW721Entry } = require('./handleCW721Entry');
+const { hasCW20 } = require('./hasCW20');
+const { hasCW721 } = require('./hasCW721');
+const { needsCW20 } = require('./needsCW20');
+const { nativeTokenJUNO } = require('../tokenAdd/nativeTokenJUNO');
+const { nativeTokenSTARS } = require('./nativeTokenSTARS');
+const { nativeTokenSuggestion } = require('./nativeTokenSuggestion');
+const { promptTokenAmount } = require('./promptTokenAmount');
+const { promptTokenName } = require('./promptTokenName');
+const { stargaze } = require('./stargaze');
+
+const { createEmbed } = require("../../utils/messages");
 
 // Add
 async function starryCommandTokenAdd(req, res, ctx, next) {
@@ -61,5 +78,23 @@ module.exports = {
 		name: 'add',
 		description: '(Admin only) Add a new token rule',
 		execute: starryCommandTokenAdd,
+		steps: {
+			addCW20,
+			addCW721,
+			addNativeToken,
+			daoDao,
+			explainTokenTypes,
+			handleCW20Entry,
+			handleCW721Entry,
+			hasCW20,
+			hasCW721,
+			nativeTokenJUNO,
+			nativeTokenSTARS,
+			nativeTokenSuggestion,
+			needsCW20,
+			promptTokenAmount,
+			promptTokenName,
+			stargaze
+		}
 	}
 }

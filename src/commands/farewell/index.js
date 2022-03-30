@@ -1,3 +1,5 @@
+const { farewellConfirmation } = require('./farewellConfirmation');
+const { farewellRejection } = require('./farewellRejection');
 const { createButton, createMessageActionRow } = require("../../utils/messages");
 
 // Farewell
@@ -33,5 +35,9 @@ module.exports = {
 		name: 'farewell',
 		description: '(Admin only) Kick starrybot itself from your guild',
 		execute: starryCommandFarewell,
+		steps: {
+			farewellConfirmation,
+			farewellRejection,
+		},
 	}
 }

@@ -1,5 +1,5 @@
-const { rolesGet } = require("../db");
-const { createEmbed } = require("../utils/messages");
+const { rolesGet } = require("../../db");
+const { createEmbed } = require("../../utils/messages");
 
 async function starryCommandTokenList(req, res, ctx, next) {
   const { interaction } = req;

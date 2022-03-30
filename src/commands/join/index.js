@@ -1,7 +1,7 @@
-const db = require("../db")
-const logic = require("../logic")
+const db = require("../../db")
+const logic = require("../../logic")
 
-const { createEmbed } = require("../utils/messages");
+const { createEmbed } = require("../../utils/messages");
 
 let validatorURL = db.myConfig.VALIDATOR
 function createJoinEmbed(traveller, saganism) {

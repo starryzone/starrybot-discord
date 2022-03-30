@@ -1,5 +1,9 @@
-const { createEmbed } = require("../utils/messages");
-const { rolesGet } = require("../db");
+const { removeConfirmation } = require('./removeConfirmation');
+const { removeRejection } = require('./removeRejection');
+const { removeVerify } = require('./removeVerify');
+
+const { createEmbed } = require("../../utils/messages");
+const { rolesGet } = require("../../db");
 
 async function starryCommandTokenRemove(req, res, ctx, next) {
   const { interaction } = req;
@@ -44,5 +48,10 @@ module.exports = {
     name: 'remove',
     description: '(Admin only) Remove token rule',
     execute: starryCommandTokenRemove,
+    steps: {
+      removeConfirmation,
+      removeRejection,
+      removeVerify,
+    },
   }
 }
