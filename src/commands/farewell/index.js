@@ -1,4 +1,4 @@
-const { createButton, createMessageActionRow } = require("../utils/messages");
+const { createButton, createMessageActionRow } = require("../../utils/messages");
 
 // Farewell
 async function starryCommandFarewell(req, res, ctx, next) {
