@@ -10,8 +10,27 @@ const { buildCommandData } = require('../utils/commands');
 const { createPrivateError } = require("../utils/messages");
 const { WizardController } = require("../wizardware");
 
+// Useful dependencies to inject through the steps
+const astrolabe = require("../astrolabe");
+const daodao = require("../astrolabe/daodao");
+const db = require("../db");
+const logic = require("../logic");
+const networks = require("../astrolabe/networks");
+const stargaze = require("../astrolabe/stargaze");
+
 const wizardController = new WizardController({
+  // How we want errors thrown by the wizard to be handled
   handleError: createPrivateError,
+
+  // Dependencies that each step should have access to
+  dependencies: {
+    astrolabe,
+    daodao,
+    db,
+    logic,
+    networks,
+    stargaze
+  }
 })
 
 const commandData = buildCommandData([

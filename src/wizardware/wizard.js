@@ -1,14 +1,5 @@
 const { memberHasRole } = require('../utils/auth');
 
-// Useful dependencies to inject through the steps
-const astrolabe = require("../astrolabe");
-const daodao = require("../astrolabe/daodao");
-const db = require("../db");
-const logic = require("../logic");
-const networks = require("../astrolabe/networks");
-const stargaze = require("../astrolabe/stargaze");
-
-
 class Wizard {
   wizardController;
   createdAt;
@@ -82,7 +73,7 @@ class Wizard {
 
     return await command.execute(
       this.state,
-      { astrolabe, daodao, db, logic, networks, stargaze },
+      this.wizardController.dependencies,
       getCommandName => {
         this.getNextStep = getCommandName;
         this.wizardController.activeWizards.set(this.uniqueKey, this);

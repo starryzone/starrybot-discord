@@ -3,14 +3,22 @@ const { Wizard } = require("./wizard");
 class WizardController {
   activeWizards = new Map();
 
+  dependencies = {};
+
   registeredSteps = new Map();
 
   handleError;
 
   timeoutDuration = 360000;
 
-  constructor({ handleError, timeoutDuration }) {
-    this.handleError = handleError;
+  constructor({ dependencies, handleError, timeoutDuration }) {
+    if (handleError) {
+      this.handleError = handleError;
+    }
+
+    if (dependencies) {
+      this.dependencies = Object.assign(this.dependencies, dependencies);
+    }
 
     if (timeoutDuration) {
       this.timeoutDuration = timeoutDuration;
