@@ -7,13 +7,13 @@ class Wizardware {
 
   registeredSteps = new Map();
 
-  handleError;
+  onError;
 
   timeoutDuration = 360000;
 
-  constructor({ dependencies, handleError, timeoutDuration }) {
-    if (handleError) {
-      this.handleError = handleError;
+  constructor({ dependencies, onError, timeoutDuration }) {
+    if (onError) {
+      this.onError = onError;
     }
 
     if (dependencies) {
@@ -51,7 +51,7 @@ class Wizardware {
   }
 
   async error (uniqueKey, errorMessage) {
-    await this.handleError(errorMessage);
+    await this.onError(errorMessage);
     this.end(uniqueKey);
   }
 }

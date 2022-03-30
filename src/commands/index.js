@@ -20,7 +20,7 @@ const stargaze = require("../astrolabe/stargaze");
 
 const wizardware = new Wizardware({
   // How we want errors thrown by the wizard to be handled
-  handleError: createPrivateError,
+  onError: createPrivateError,
 
   // Dependencies that each step should have access to
   dependencies: {
