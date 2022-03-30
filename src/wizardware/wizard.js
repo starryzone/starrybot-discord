@@ -44,12 +44,12 @@ class Wizard {
     this.state = Object.assign(this.state, state);
     this.steps.push(commandName);
 
-    if (command.updatedArgs) {
+    if (command.stateOnEnter) {
       // A way for steps to set constant arg values for
       // other steps downstream (i.e. indicators of which
       // path was taken in a sequence)
-      Object.keys(command.updatedArgs).forEach(
-        key => this.state[key] = command.updatedArgs[key]
+      Object.keys(command.stateOnEnter).forEach(
+        key => this.state[key] = command.stateOnEnter[key]
       );
     }
 

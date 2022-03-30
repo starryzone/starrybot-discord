@@ -1,8 +1,7 @@
 module.exports = {
   editCheck: {
-    getConfig: async (args, { db: { roleGet } }) => {
-      console.log(args);
-      const { guildId, userInput: selectedRole } = args;
+    getConfig: async (state, { db: { roleGet } }) => {
+      const { guildId, userInput: selectedRole } = state;
 
       // Make sure we recognize the selected role
       const role = await roleGet(guildId, selectedRole);
@@ -11,9 +10,9 @@ module.exports = {
           error: 'Invalid role. Remember: first you copy, then you paste.'
         };
       } else {
-        // Save the selection in args for later steps
-        args.selectedRoleName = selectedRole;
-        args.selectedRole = role;
+        // Save the selection in state for later steps
+        state.selectedRoleName = selectedRole;
+        state.selectedRole = role;
         return {
           prompt: {
             type: 'button',

@@ -1,6 +1,6 @@
 module.exports = {
   nativeTokenJUNO: {
-    updatedArgs: {
+    stateOnEnter: {
       tokenAddress: 'juno',
       tokenSymbol: 'juno',
       network: 'mainnet',

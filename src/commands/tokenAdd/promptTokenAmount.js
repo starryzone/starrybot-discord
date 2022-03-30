@@ -1,7 +1,7 @@
 module.exports = {
   promptTokenAmount: {
-    getConfig: async (args) => {
-      let { userInput: amountOfTokensNeeded } = args;
+    getConfig: async (state) => {
+      let { userInput: amountOfTokensNeeded } = state;
 
       if (
         !Number.isInteger(parseInt(amountOfTokensNeeded)) ||
@@ -14,17 +14,17 @@ module.exports = {
       }
 
       // Multiply by the decimals for native and fungible tokens
-      if (args.tokenType === 'native' || args.tokenType === 'cw20') {
-        console.log('Multiplying by the number of decimals', args.decimals)
-        args.minimumTokensNeeded = amountOfTokensNeeded * (10 ** args.decimals)
-        console.log('New amount needed', args.minimumTokensNeeded)
+      if (state.tokenType === 'native' || state.tokenType === 'cw20') {
+        console.log('Multiplying by the number of decimals', state.decimals)
+        state.minimumTokensNeeded = amountOfTokensNeeded * (10 ** state.decimals)
+        console.log('New amount needed', state.minimumTokensNeeded)
       }
 
       // Building the user friendly name for what they're making
       let noun = `${amountOfTokensNeeded} `;
-      switch (args.tokenType) {
+      switch (state.tokenType) {
         case('native'):
-          noun = `${noun} ${args.tokenSymbol}`;
+          noun = `${noun} ${state.tokenSymbol}`;
           break;
         case('cw20'):
           noun = `${noun} cw20 token(s)`;

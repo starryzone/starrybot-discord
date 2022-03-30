@@ -1,6 +1,6 @@
 module.exports = {
   addNativeToken: {
-    updatedArgs: {
+    stateOnEnter: {
       tokenType: 'native',
       // According to Meow, all native tokens have 6 decimals
       decimals: 6,

@@ -1,6 +1,6 @@
 module.exports = {
   nativeTokenSTARS: {
-    updatedArgs: {
+    stateOnEnter: {
       tokenAddress: 'stars',
       tokenSymbol: 'stars',
       network: 'mainnet',
