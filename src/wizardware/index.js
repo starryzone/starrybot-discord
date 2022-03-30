@@ -1,6 +1,6 @@
 const { Wizard } = require("./wizard");
 
-class WizardController {
+class Wizardware {
   activeWizards = new Map();
 
   dependencies = {};
@@ -32,7 +32,7 @@ class WizardController {
   async initiate(uniqueKey, commandName, initialState) {
     const newWizard = new Wizard({
       uniqueKey,
-      wizardController: this,
+      wizardware: this,
     });
     newWizard.execute(commandName, initialState);
   }
@@ -57,5 +57,5 @@ class WizardController {
 }
 
 module.exports = {
-  WizardController,
+  Wizardware,
 }

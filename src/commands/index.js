@@ -8,7 +8,7 @@ const { starryCommandTokenRemove } = require('./tokenRemove');
 
 const { buildCommandData } = require('../utils/commands');
 const { createPrivateError } = require("../utils/messages");
-const { WizardController } = require("../wizardware");
+const { Wizardware } = require("../wizardware");
 
 // Useful dependencies to inject through the steps
 const astrolabe = require("../astrolabe");
@@ -18,7 +18,7 @@ const logic = require("../logic");
 const networks = require("../astrolabe/networks");
 const stargaze = require("../astrolabe/stargaze");
 
-const wizardController = new WizardController({
+const wizardware = new Wizardware({
   // How we want errors thrown by the wizard to be handled
   handleError: createPrivateError,
 
@@ -47,17 +47,17 @@ const commandData = buildCommandData([
   starryCommandHealth,
   starryCommandJoin,
   starryCommandFarewell,
-], wizardController);
+], wizardware);
 
 module.exports = {
-  wizardController,
+  wizardware,
 
   starryCommand: {
     data: commandData,
     async execute (interaction) {
       const subcommandName = interaction.options.getSubcommand();
-      if (wizardController.registeredSteps.has(subcommandName)) {
-        await wizardController.initiate(
+      if (wizardware.registeredSteps.has(subcommandName)) {
+        await wizardware.initiate(
           `${interaction.guildId}-${interaction.user.id}`,
           subcommandName,
           {

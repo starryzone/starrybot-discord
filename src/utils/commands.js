@@ -147,14 +147,14 @@ function buildCommandExecute(command) {
   }
 }
 
-function registerSubcommand(wizardController, mainCommand, subcommand) {
+function registerSubcommand(wizardware, mainCommand, subcommand) {
   const { adminOnly, name, description } = subcommand;
   mainCommand.addSubcommand(
     sub => sub
       .setName(name)
       .setDescription(`${adminOnly && '(Admin only) '}${description}`)
   );
-  wizardController.registerStep(name, {
+  wizardware.registerStep(name, {
     ...subcommand,
     execute: subcommand.execute ? subcommand.execute : buildCommandExecute(subcommand)
   });
@@ -162,7 +162,7 @@ function registerSubcommand(wizardController, mainCommand, subcommand) {
   if (subcommand.steps) {
     Object.entries(subcommand.steps).forEach(([ name, step ]) => {
 
-      wizardController.registerStep(name, {
+      wizardware.registerStep(name, {
         ...step,
         name,
         execute: step.execute ? step.execute : buildCommandExecute(step),
@@ -171,30 +171,30 @@ function registerSubcommand(wizardController, mainCommand, subcommand) {
   }
 }
 
-function registerSubcommandGroup(wizardController, mainCommand, subcommandGroup) {
+function registerSubcommandGroup(wizardware, mainCommand, subcommandGroup) {
   const { adminOnly, name, description, options } = subcommandGroup;
   mainCommand.addSubcommandGroup(subgroup => {
     const subGroup = subgroup
       .setName(name)
       .setDescription(`${adminOnly && '(Admin only) '}${description}`);
-    options.forEach(opt => registerSubcommand(wizardController, subGroup, opt));
+    options.forEach(opt => registerSubcommand(wizardware, subGroup, opt));
     return subGroup;
   });
 }
 
-function registerStep(wizardController, mainCommand, command) {
+function registerStep(wizardware, mainCommand, command) {
   if (command.options) {
-    registerSubcommandGroup(wizardController, mainCommand, command);
+    registerSubcommandGroup(wizardware, mainCommand, command);
   } else {
-    registerSubcommand(wizardController, mainCommand, command);
+    registerSubcommand(wizardware, mainCommand, command);
   }
 }
 
-function buildCommandData(definedCommands, wizardController) {
+function buildCommandData(definedCommands, wizardware) {
   const mainCommand = new SlashCommandBuilder()
     .setName('starry')
     .setDescription('Use starrybot (starrybot.xyz)');
-  definedCommands.forEach(command => registerStep(wizardController, mainCommand, command));
+  definedCommands.forEach(command => registerStep(wizardware, mainCommand, command));
   return mainCommand;
 }
 

@@ -1,4 +1,4 @@
-const { wizardController } = require("../commands");
+const { wizardware } = require("../commands");
 
 ///
 /// A user has a command for us - resolve
@@ -33,7 +33,7 @@ async function interactionCreate(interaction) {
 		return handleGuildCommands(interaction);
 	} else {
 		// text input, emoji reactions, or something else
-		await wizardController.continue(
+		await wizardware.continue(
 			`${interaction.guildId}-${interaction.user.id}`,
 			{ interaction }
 		);

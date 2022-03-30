@@ -1,9 +1,9 @@
-const { wizardController } = require("../commands");
+const { wizardware } = require("../commands");
 
 async function messageCreate(interaction) {
 	if (interaction.author.bot) return;
 
-	await wizardController.continue(
+	await wizardware.continue(
 		`${interaction.guildId}-${interaction.author.id}`,
 		{ interaction, userInput: interaction.content }
 	);

@@ -1,7 +1,7 @@
 const { memberHasRole } = require('../utils/auth');
 
 class Wizard {
-  wizardController;
+  wizardware;
   createdAt;
   uniqueKey;
 
@@ -20,9 +20,9 @@ class Wizard {
   // Function that will return the next wizard step
   getNextStep;
 
-  constructor({ uniqueKey, wizardController }) {
+  constructor({ uniqueKey, wizardware }) {
     this.createdAt = Date.now();
-    this.wizardController = wizardController;
+    this.wizardware = wizardware;
     this.uniqueKey = uniqueKey;
 
     this.index = 0;
@@ -31,7 +31,7 @@ class Wizard {
   }
 
   async execute(commandName, state) {
-    const command = this.wizardController.registeredSteps.get(commandName);
+    const command = this.wizardware.registeredSteps.get(commandName);
     if (!command) {
       return this.error('Could not find a matching command')
     }
@@ -65,7 +65,7 @@ class Wizard {
 
     if (!allowed) {
       console.warn('Canceling a wizard from insufficient permissions');
-      this.wizardController.error(
+      this.wizardware.error(
         this.uniqueKey,
         'Sorry, you must be an admin to use this command :/',
       )
@@ -73,15 +73,15 @@ class Wizard {
 
     return await command.execute(
       this.state,
-      this.wizardController.dependencies,
+      this.wizardware.dependencies,
       getCommandName => {
         this.getNextStep = getCommandName;
-        this.wizardController.activeWizards.set(this.uniqueKey, this);
+        this.wizardware.activeWizards.set(this.uniqueKey, this);
 
         // Timeout if it's taking too long
         this.cancelTimeout = setTimeout(
           this.end,
-          this.wizardController.timeoutDuration
+          this.wizardware.timeoutDuration
         );
       },
       this.end,
@@ -90,7 +90,7 @@ class Wizard {
 
   async end() {
     if (this) {
-      this.wizardController.end(this.uniqueKey);
+      this.wizardware.end(this.uniqueKey);
     }
   }
 }

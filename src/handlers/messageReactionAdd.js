@@ -1,10 +1,10 @@
-const { wizardController } = require("../commands");
+const { wizardware } = require("../commands");
 
 // A user may have sent an emoji - we are very interested in these
 async function messageReactionAdd(reaction, user) {
 	if (user.bot) return; // don't care about bot's emoji reactions
 
-	await wizardController.continue(
+	await wizardware.continue(
 		`${reaction.message.guildId}-${user.id}`,
 		{ reaction, user }
 	);
