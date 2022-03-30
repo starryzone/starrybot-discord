@@ -147,58 +147,55 @@ function buildCommandExecute(command) {
   }
 }
 
-function registerSubcommand(flattenedCommandMap, mainCommand, subcommand) {
+function registerSubcommand(wizardController, mainCommand, subcommand) {
   const { adminOnly, name, description } = subcommand;
   mainCommand.addSubcommand(
     sub => sub
       .setName(name)
       .setDescription(`${adminOnly && '(Admin only) '}${description}`)
   );
-  flattenedCommandMap[name] = {
+  wizardController.registerStep(name, {
     ...subcommand,
     execute: subcommand.execute ? subcommand.execute : buildCommandExecute(subcommand)
-  };
+  });
   
   if (subcommand.steps) {
     Object.entries(subcommand.steps).forEach(([ name, step ]) => {
-      flattenedCommandMap[name] = {
+
+      wizardController.registerStep(name, {
         ...step,
         name,
         execute: step.execute ? step.execute : buildCommandExecute(step),
-      }
+      });
     });
   }
 }
 
-function registerSubcommandGroup(flattenedCommandMap, mainCommand, subcommandGroup) {
+function registerSubcommandGroup(wizardController, mainCommand, subcommandGroup) {
   const { adminOnly, name, description, options } = subcommandGroup;
   mainCommand.addSubcommandGroup(subgroup => {
     const subGroup = subgroup
       .setName(name)
       .setDescription(`${adminOnly && '(Admin only) '}${description}`);
-    options.forEach(opt => registerSubcommand(flattenedCommandMap, subGroup, opt));
+    options.forEach(opt => registerSubcommand(wizardController, subGroup, opt));
     return subGroup;
   });
 }
 
-function registerCommand(flattenedCommandMap, mainCommand, command) {
+function registerStep(wizardController, mainCommand, command) {
   if (command.options) {
-    registerSubcommandGroup(flattenedCommandMap, mainCommand, command);
+    registerSubcommandGroup(wizardController, mainCommand, command);
   } else {
-    registerSubcommand(flattenedCommandMap, mainCommand, command);
+    registerSubcommand(wizardController, mainCommand, command);
   }
 }
 
-function buildCommandData(definedCommands) {
+function buildCommandData(definedCommands, wizardController) {
   const mainCommand = new SlashCommandBuilder()
     .setName('starry')
     .setDescription('Use starrybot (starrybot.xyz)');
-  const flattenedCommandMap = {};
-  definedCommands.forEach(command => registerCommand(flattenedCommandMap, mainCommand, command));
-  return {
-    flattenedCommandMap,
-    commandData: mainCommand
-  };
+  definedCommands.forEach(command => registerStep(wizardController, mainCommand, command));
+  return mainCommand;
 }
 
 module.exports = {

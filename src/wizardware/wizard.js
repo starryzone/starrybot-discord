@@ -40,7 +40,7 @@ class Wizard {
   }
 
   async execute(commandName, state) {
-    const command = this.wizardController.flattenedWizardSteps[commandName];
+    const command = this.wizardController.registeredSteps.get(commandName);
     if (!command) {
       return this.error('Could not find a matching command')
     }
@@ -51,7 +51,6 @@ class Wizard {
 
     this.index = this.index + 1;
     this.state = Object.assign(this.state, state);
-    console.log(this.state);
     this.steps.push(commandName);
 
     if (command.updatedArgs) {

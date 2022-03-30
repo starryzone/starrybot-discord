@@ -3,19 +3,22 @@ const { Wizard } = require("./wizard");
 class WizardController {
   activeWizards = new Map();
 
-  flattenedWizardSteps;
+  registeredSteps = new Map();
 
   handleError;
 
   timeoutDuration = 360000;
 
-  constructor({ flattenedWizardSteps, handleError, timeoutDuration }) {
-    this.flattenedWizardSteps = flattenedWizardSteps;
+  constructor({ handleError, timeoutDuration }) {
     this.handleError = handleError;
 
     if (timeoutDuration) {
       this.timeoutDuration = timeoutDuration;
     }
+  }
+
+  registerStep(name, definition) {
+    this.registeredSteps.set(name, definition);
   }
 
   async initiate(uniqueKey, commandName, initialState) {

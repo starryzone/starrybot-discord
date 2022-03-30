@@ -10,7 +10,11 @@ const { buildCommandData } = require('../utils/commands');
 const { createPrivateError } = require("../utils/messages");
 const { WizardController } = require("../wizardware");
 
-const { flattenedCommandMap, commandData } = buildCommandData([
+const wizardController = new WizardController({
+  handleError: createPrivateError,
+})
+
+const commandData = buildCommandData([
   {
     name: 'token-rule',
     description: 'Do things with your token rules',
@@ -24,12 +28,7 @@ const { flattenedCommandMap, commandData } = buildCommandData([
   starryCommandHealth,
   starryCommandJoin,
   starryCommandFarewell,
-]);
-
-const wizardController = new WizardController({
-  flattenedWizardSteps: flattenedCommandMap,
-  handleError: createPrivateError,
-})
+], wizardController);
 
 module.exports = {
   wizardController,
@@ -38,7 +37,7 @@ module.exports = {
     data: commandData,
     async execute (interaction) {
       const subcommandName = interaction.options.getSubcommand();
-      if (flattenedCommandMap[subcommandName]) {
+      if (wizardController.registeredSteps.has(subcommandName)) {
         await wizardController.initiate(
           `${interaction.guildId}-${interaction.user.id}`,
           subcommandName,
