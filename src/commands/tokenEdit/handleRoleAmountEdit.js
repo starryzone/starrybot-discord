@@ -32,7 +32,7 @@ module.exports = {
 
       return {
         done: {
-          message: `${selectedRoleName} has been updated to require ${amountOfTokensNeeded / (10 ** decimals)} tokens moving forward. Please note that this change will not apply to current hodlers of the role. \n\nEnjoy, traveller!`
+          description: `${selectedRoleName} has been updated to require ${amountOfTokensNeeded / (10 ** decimals)} tokens moving forward. Please note that this change will not apply to current hodlers of the role. \n\nEnjoy, traveller!`
         }
       }
     }

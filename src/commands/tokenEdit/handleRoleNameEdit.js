@@ -46,7 +46,7 @@ module.exports = {
 
       return {
         done: {
-          message: `${selectedRoleName} has been renamed to ${newRoleName} (min: ${has_minimum_of / (10 ** decimals)}).\n\nEnjoy, traveller!`
+          description: `${selectedRoleName} has been renamed to ${newRoleName} (min: ${has_minimum_of / (10 ** decimals)}).\n\nEnjoy, traveller!`
         },
       }
     }

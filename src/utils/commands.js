@@ -118,7 +118,7 @@ function buildCommandExecute(command) {
       if (config.next) {
         next(config.next);
       } else if (config.done) {
-        const { title = 'Finished! 🌟', message: description, ...props } = config.done;
+        const { title = 'Finished! 🌟', description, ...props } = config.done;
         await interactionTarget.reply(createMessage({
           embeds: [
             {

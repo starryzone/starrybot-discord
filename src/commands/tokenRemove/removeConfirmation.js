@@ -26,7 +26,7 @@ module.exports = {
       // Let them know we've succeeded!
       return {
         done: {
-          message: `${selectedRole} has been successfully removed!`
+          description: `${selectedRole} has been successfully removed!`
         }
       }
     }

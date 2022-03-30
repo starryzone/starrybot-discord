@@ -22,7 +22,7 @@ module.exports = {
             ephemeral: true,
             done: {
               author: [`starrybot`, `https://i.imgur.com/AfFp7pu.png`, `https://discord.js.org`],
-              message: results.saganism,
+              description: results.saganism,
               footer: [`Put your helmet on`, `https://i.imgur.com/AfFp7pu.png`],
               title: `Please visit ${url}`,
               thumbnailUrl: `https://i.imgur.com/AfFp7pu.png`,
