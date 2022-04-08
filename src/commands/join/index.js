@@ -5,7 +5,7 @@ const { createEmbed } = require("../../utils/messages");
 
 let validatorURL = db.myConfig.VALIDATOR
 function createJoinEmbed(traveller, saganism) {
-	let url = `${validatorURL}?traveller=${traveller}`
+  let url = `${validatorURL}?traveller=${traveller}`
     return createEmbed({
         author: [`starrybot`, `https://i.imgur.com/AfFp7pu.png`, `https://discord.js.org`],
         description: saganism,
@@ -17,26 +17,26 @@ function createJoinEmbed(traveller, saganism) {
 }
 
 async function starryCommandJoin(req, res, ctx, next) {
-	const { interaction } = req;
+  const { interaction } = req;
 
-	try {
-		let results = await logic.hoistRequest({guildId: interaction.guildId, authorId: interaction.member.user.id})
-		if (results.error || !results.traveller || !results.saganism) {
-			await res.error(results.error || "Internal error");
-		} else {
-			// We reply "privately" instead of sending a DM here
-			await interaction.reply({embeds:[createJoinEmbed(results.traveller,results.saganism)], ephemeral: true})
-			res.done();
-		}
-	} catch(err) {
-		await res.error(err, "Internal error adding you")
-	}
+  try {
+    let results = await logic.hoistRequest({guildId: interaction.guildId, authorId: interaction.member.user.id})
+    if (results.error || !results.traveller || !results.saganism) {
+      await res.error(results.error || "Internal error");
+    } else {
+      // We reply "privately" instead of sending a DM here
+      await interaction.reply({embeds:[createJoinEmbed(results.traveller,results.saganism)], ephemeral: true})
+      res.done();
+    }
+  } catch(err) {
+    await res.error(err, "Internal error adding you")
+  }
 }
 
 module.exports = {
-	starryCommandJoin: {
-		name: 'join',
-		description: 'Get link to verify your account with Keplr',
-		execute: starryCommandJoin,
-	}
+  starryCommandJoin: {
+    name: 'join',
+    description: 'Get link to verify your account with Keplr',
+    execute: starryCommandJoin,
+  }
 }

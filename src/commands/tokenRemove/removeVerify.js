@@ -6,7 +6,7 @@ const { createButton, createMessageActionRow } = require("../../utils/messages")
 ///
 
 async function removeVerify(req, res, ctx, next) {
-	const { interaction } = req;
+  const { interaction } = req;
   const { guildId } = interaction;
   const selectedRole = interaction.content;
   // Save the selection in ctx for removeConfirmation
@@ -18,29 +18,29 @@ async function removeVerify(req, res, ctx, next) {
     return await res.error('Invalid role. Remember: first you copy, then you paste.')
   }
 
-	const row = createMessageActionRow({
-		components: [
-			createButton({
-				customId: 'removeConfirmation',
-				label: 'Yes please!',
-				style: 'PRIMARY',
-			}),
-			createButton({
-				customId: 'removeRejection',
-				label: 'Cancel',
-				style: 'SECONDARY',
-			}),
-		]
-	});
+  const row = createMessageActionRow({
+    components: [
+      createButton({
+        customId: 'removeConfirmation',
+        label: 'Yes please!',
+        style: 'PRIMARY',
+      }),
+      createButton({
+        customId: 'removeRejection',
+        label: 'Cancel',
+        style: 'SECONDARY',
+      }),
+    ]
+  });
 
-	await interaction.reply({
-		content: `Are you sure you want to delete ${selectedRole}?`,
-		components: [row]
-	});
+  await interaction.reply({
+    content: `Are you sure you want to delete ${selectedRole}?`,
+    components: [row]
+  });
 
-	return next(interaction => interaction.customId);
+  return next(interaction => interaction.customId);
 }
 
 module.exports = {
-	removeVerify
+  removeVerify
 }

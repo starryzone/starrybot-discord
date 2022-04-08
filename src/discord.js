@@ -5,10 +5,10 @@ const { Client, Collection, Intents } = require('discord.js')
 const db = require("./db")
 const logger = require("./logger")
 const {
-    guildCreate,
-    interactionCreate,
-    messageCreate,
-    messageReactionAdd,
+  guildCreate,
+  interactionCreate,
+  messageCreate,
+  messageReactionAdd,
 } = require("./handlers")
 const { starryCommand } = require('./commands');
 
@@ -50,23 +50,23 @@ client.on('messageReactionAdd', messageReactionAdd );
 ///
 
 const login = async () => {
-	let token = db.myConfig.DISCORD_TOKEN || process.env.DISCORD_TOKEN;
-	const loggedInToken = await client.login(token)
-	if (loggedInToken !== token) {
-		logger.warn('There might be an issue with the Discord login')
-		return false
-	} else {
-		return true
-	}
+  let token = db.myConfig.DISCORD_TOKEN || process.env.DISCORD_TOKEN;
+  const loggedInToken = await client.login(token)
+  if (loggedInToken !== token) {
+    logger.warn('There might be an issue with the Discord login')
+    return false
+  } else {
+    return true
+  }
 }
 
 login().then((res) => {
-	if (res) {
-		logger.log('Connected to Discord')
-		client.user.setActivity('ya. starrybot.xyz', { type: 'LISTENING' })
-	} else {
-		logger.log('Issue connecting to Discord')
-	}
+  if (res) {
+    logger.log('Connected to Discord')
+    client.user.setActivity('ya. starrybot.xyz', { type: 'LISTENING' })
+  } else {
+    logger.log('Issue connecting to Discord')
+  }
 })
 
 module.exports = { client }
