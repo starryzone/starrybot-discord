@@ -10,6 +10,7 @@ const { fromBase64, Bech32} = require('@cosmjs/encoding')
 const { REST } = require("@discordjs/rest");
 const { Routes } = require("discord-api-types/v9");
 const { getTokenBalance } = require("./astrolabe");
+const {sumDelegationsForAccount} = require("./utils/tokens");
 
 // Returns a block with { memberId, saganism }
 // or on error either throws an error or returns { error }
@@ -122,6 +123,44 @@ const isCorrectSaganism = async (traveller, signed) => {
 	}
 }
 
+async function tokenRuleInfo(body, client) {
+	const { discordUserId, guildId } = body
+	let roleUpdateInfo = {}
+	const tokenInfo = await db.nativeTokensFromGuild({guildId})
+	const cosmosHubAddress = await db.getCosmosHubAddressFromDiscordId({discordUserId})
+	for (let tokenAddress of tokenInfo) {
+		const minimumOf = tokenAddress.has_minimum_of
+		const giveRole = tokenAddress.give_role
+		tokenAddress = tokenAddress.token_address
+		const decoded = Bech32.decode(cosmosHubAddress).data
+		const encodedAccount = Bech32.encode(tokenAddress, decoded)
+		const stakedAmount = await sumDelegationsForAccount(encodedAccount)
+
+		roleUpdateInfo[giveRole] = {}
+		roleUpdateInfo[giveRole]['tokenAddress'] = tokenAddress
+		roleUpdateInfo[giveRole]['minimumOf'] = minimumOf
+		roleUpdateInfo[giveRole]['staked'] = stakedAmount
+		if (parseInt(stakedAmount) >= parseInt(minimumOf)) {
+			// They should get the role
+			roleUpdateInfo[giveRole]['shouldGrant'] = true
+			// Note that we don't add roles, as we want people to use
+			// /starry join to make sure we capture their Cosmos Hub address
+		} else {
+			// They should not have the role
+			roleUpdateInfo[giveRole]['shouldGrant'] = false
+			// Remove Discord role if necessary
+
+			const guild = await client.guilds.fetch(guildId)
+			const member = await guild.members.fetch(discordUserId)
+			const role = guild.roles.cache.find(r => r.name === giveRole)
+			if (role && member.roles.cache.has(role.id)) {
+				// Member has the role and shouldn't (anymore), remove it
+				await member.roles.remove(role.id)
+			}
+		}
+	}
+	return roleUpdateInfo
+}
 
 // Finalize hoist
 async function hoistFinalize(blob, client) {
@@ -242,4 +281,4 @@ async function hoistFinalize(blob, client) {
 	return { success:"done" }
 }
 
-module.exports = { hoistRequest, hoistInquire, hoistDrop, hoistFinalize }
+module.exports = { hoistRequest, hoistInquire, hoistDrop, hoistFinalize, tokenRuleInfo }

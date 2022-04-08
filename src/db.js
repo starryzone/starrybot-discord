@@ -242,6 +242,17 @@ const memberByIdAndGuild = async ({authorId, guildId}) => {
 	return (members && members.length) ? members[0] : 0
 }
 
+const nativeTokensFromGuild = async({guildId}) => {
+	await ensureDatabaseInitialized()
+	let tokenTypes = await knex(myConfig.DB_TABLENAME_ROLES)
+		.where(
+		'token_type', 'like', '%native%')
+		.andWhere('discord_guild_id', guildId)
+		.select('token_address', 'has_minimum_of', 'give_role')
+
+	return tokenTypes
+}
+
 const memberAdd = async ({discord_account_id, discord_guild_id, saganism}) => {
 	await ensureDatabaseInitialized()
 	let session_token = SessionID()
@@ -273,4 +284,12 @@ const addCosmosHubAddress = async (guildId, discordAccountId, cosmosHubAddress) 
 		.update('cosmos_address', cosmosHubAddress)
 }
 
-module.exports = { membersAll, memberExists, memberBySessionToken, memberByIdAndGuild, memberAdd, memberDelete, myConfig, rolesGet, roleGet, rolesSet, rolesDelete, rolesDeleteGuildAll, rolesGetForCleanUp, inferPreferredNativeToken, addCosmosHubAddress }
+const getCosmosHubAddressFromDiscordId = async ({discordUserId}) => {
+	await ensureDatabaseInitialized()
+	let cosmosHubAddress = await knex(myConfig.DB_TABLENAME_MEMBERS)
+		.where('discord_account_id', discordUserId)
+		.distinct('cosmos_address')
+	return cosmosHubAddress[0].cosmos_address
+}
+
+module.exports = { membersAll, memberExists, memberBySessionToken, memberByIdAndGuild, memberAdd, memberDelete, myConfig, rolesGet, roleGet, rolesSet, rolesDelete, rolesDeleteGuildAll, rolesGetForCleanUp, inferPreferredNativeToken, addCosmosHubAddress, nativeTokensFromGuild, getCosmosHubAddressFromDiscordId }

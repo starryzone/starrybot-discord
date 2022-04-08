@@ -40,6 +40,16 @@ app.post('/keplr-signed', async (req, res) => {
 	}
 })
 
+app.post('/token-rule-info', async (req, res) => {
+	try {
+		let results = await logic.tokenRuleInfo(req.body, discord.client)
+		res.status((!results || results.error) ? 400 : 200).send(results)
+	} catch (err) {
+		logger.warn('Error hitting token-rule-info', err)
+		res.status(400).send({error:"error"})
+	}
+})
+
 app.get('/health-check', async (req, res) => {
 	res.status(200).send()
 })
