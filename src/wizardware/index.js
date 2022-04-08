@@ -34,7 +34,7 @@ class Wizardware {
       uniqueKey,
       wizardware: this,
     });
-    newWizard.execute(commandName, initialState);
+    await newWizard.execute(commandName, initialState);
   }
 
   async continue(uniqueKey, state) {
@@ -52,7 +52,7 @@ class Wizardware {
 
   async error (uniqueKey, errorMessage) {
     await this.onError(errorMessage);
-    this.end(uniqueKey);
+    await this.end(uniqueKey);
   }
 }
 
