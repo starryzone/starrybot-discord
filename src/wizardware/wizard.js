@@ -33,7 +33,7 @@ class Wizard {
   async execute(commandName, state) {
     const command = this.wizardware.registeredSteps.get(commandName);
     if (!command) {
-      return this.error('Could not find a matching command')
+      return this.wizardware.error('Could not find a matching command')
     }
 
     if (this.cancelTimeout) {
