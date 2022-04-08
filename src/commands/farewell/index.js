@@ -1,4 +1,6 @@
-const { createButton, createMessageActionRow } = require("../utils/messages");
+const { farewellConfirmation } = require('./farewellConfirmation');
+const { farewellRejection } = require('./farewellRejection');
+const { createButton, createMessageActionRow } = require("../../utils/messages");
 
 // Farewell
 async function starryCommandFarewell(req, res, ctx, next) {
@@ -33,5 +35,9 @@ module.exports = {
 		name: 'farewell',
 		description: '(Admin only) Kick starrybot itself from your guild',
 		execute: starryCommandFarewell,
+		steps: {
+			farewellConfirmation,
+			farewellRejection,
+		},
 	}
 }

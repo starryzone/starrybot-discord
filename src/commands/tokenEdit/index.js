@@ -1,5 +1,11 @@
-const { rolesGet } = require("../db");
-const { createEmbed } = require("../utils/messages");
+const { editCheck } = require('../tokenEdit/editCheck');
+const { editRoleAmount } = require('./editRoleAmount');
+const { editRoleName } = require('./editRoleName');
+const { handleRoleAmountEdit } = require('../tokenEdit/handleRoleAmountEdit');
+const { handleRoleNameEdit } = require('./handleRoleNameEdit');
+
+const { rolesGet } = require("../../db");
+const { createEmbed } = require("../../utils/messages");
 
 async function starryCommandTokenEdit(req, res, ctx, next) {
  const { interaction } = req;
@@ -38,5 +44,12 @@ module.exports = {
     name: 'edit',
     description: "(Admin only) Edit a token rule's name or amount",
     execute: starryCommandTokenEdit,
+    steps: {
+      editCheck,
+      editRoleAmount,
+      editRoleName,
+      handleRoleAmountEdit,
+      handleRoleNameEdit,
+    },
   }
 }

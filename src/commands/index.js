@@ -7,9 +7,8 @@ const { starryCommandTokenAdd } = require('./tokenAdd');
 const { starryCommandTokenList } = require('./tokenList');
 const { starryCommandTokenEdit } = require('./tokenEdit');
 const { starryCommandTokenRemove } = require('./tokenRemove');
-const { starrySteps } = require('./steps');
 
-const { memberHasRole, memberHasPermissions } = require('../utils/auth');
+const { memberHasRole } = require('../utils/auth');
 const { createEmbed } = require("../utils/messages");
 
 const globalCommandChains = new Map();
@@ -31,7 +30,12 @@ const definedCommands = [
   starryCommandFarewell,
 ];
 
-const flattenedCommandMap = starrySteps.reduce(
+const flattenedCommandMap = [
+  ...Object.values(starryCommandFarewell.steps),
+  ...Object.values(starryCommandTokenAdd.steps),
+  ...Object.values(starryCommandTokenEdit.steps),
+  ...Object.values(starryCommandTokenRemove.steps)
+].reduce(
   (commandMap, step) => {
     return {
       ...commandMap,

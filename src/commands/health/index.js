@@ -1,6 +1,6 @@
-const { rolesGet } = require("../db");
-const { checkRPCStatus, checkLCDStatus, networkInfo } = require("../astrolabe/networks");
-const { createEmbed } = require("../utils/messages");
+const { rolesGet } = require("../../db");
+const { checkRPCStatus, checkLCDStatus, networkInfo } = require("../../astrolabe/networks");
+const { createEmbed } = require("../../utils/messages");
 
 async function checkRPC(networkName, networkUrl) {
   const prefix = `${networkName} RPC status:`
