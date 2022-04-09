@@ -1,42 +1,41 @@
-const db = require("../../db")
-const logic = require("../../logic")
-
-const { createEmbed } = require("../../utils/messages");
-
-let validatorURL = db.myConfig.VALIDATOR
-function createJoinEmbed(traveller, saganism) {
-  let url = `${validatorURL}?traveller=${traveller}`
-    return createEmbed({
-        author: [`starrybot`, `https://i.imgur.com/AfFp7pu.png`, `https://discord.js.org`],
-        description: saganism,
-        footer: [`Put your helmet on`, `https://i.imgur.com/AfFp7pu.png`],
-        title: `Please visit ${url}`,
-        thumbnailUrl: `https://i.imgur.com/AfFp7pu.png`,
-        url,
-    });
-}
-
-async function starryCommandJoin(req, res, ctx, next) {
-  const { interaction } = req;
-
-  try {
-    let results = await logic.hoistRequest({guildId: interaction.guildId, authorId: interaction.member.user.id})
-    if (results.error || !results.traveller || !results.saganism) {
-      await res.error(results.error || "Internal error");
-    } else {
-      // We reply "privately" instead of sending a DM here
-      await interaction.reply({embeds:[createJoinEmbed(results.traveller,results.saganism)], ephemeral: true})
-      res.done();
-    }
-  } catch(err) {
-    await res.error(err, "Internal error adding you")
-  }
-}
-
 module.exports = {
   starryCommandJoin: {
     name: 'join',
     description: 'Get link to verify your account with Keplr',
-    execute: starryCommandJoin,
+    getConfig: async (
+      { guildId, userId: authorId },
+      {
+        db: { myConfig: { VALIDATOR: validatorURL } },
+        logic: { hoistRequest }
+      }
+    ) => {
+      try {
+        let results = await hoistRequest({ guildId, authorId });
+        if (results.error || !results.traveller || !results.saganism) {
+          return {
+            error: results.error || "Internal error",
+          };
+        } else {
+          let url = `${validatorURL}?traveller=${results.traveller}`
+
+          return {
+            ephemeral: true,
+            done: {
+              author: [`starrybot`, `https://i.imgur.com/AfFp7pu.png`, `https://discord.js.org`],
+              description: results.saganism,
+              footer: [`Put your helmet on`, `https://i.imgur.com/AfFp7pu.png`],
+              title: `Please visit ${url}`,
+              thumbnailUrl: `https://i.imgur.com/AfFp7pu.png`,
+              url,
+            }
+          }
+        }
+      } catch (error) {
+        return {
+          error,
+          channelError: "Internal error adding you"
+        }
+      }
+    }
   }
 }
