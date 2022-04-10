@@ -89,7 +89,7 @@ class Wizard {
   }
 
   async end() {
-    if (this) {
+    if (this && this.wizardware) {
       this.wizardware.end(this.uniqueKey);
     }
   }
