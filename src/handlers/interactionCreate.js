@@ -1,4 +1,4 @@
-const { continueCommandChain } = require("../commands");
+const { wizardware } = require("../commands");
 
 ///
 /// A user has a command for us - resolve
@@ -33,7 +33,17 @@ async function interactionCreate(interaction) {
 		return handleGuildCommands(interaction);
 	} else {
 		// text input, emoji reactions, or something else
-		await continueCommandChain({sourceAction: interaction});
+		await wizardware.continue(
+			`${interaction.guildId}-${interaction.user.id}`,
+			{
+				interaction,
+				// Reply directly to the button interaction, otherwise
+				// it will not know that we've responded and will display
+				// the loading animation before saying "interaction failed",
+				// even when we're continuing the wizard successfully
+				interactionTarget: interaction
+			}
+		);
 	}
 }
 

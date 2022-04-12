@@ -1,5 +1,3 @@
-const { SlashCommandBuilder } = require('@discordjs/builders');
-
 const { starryCommandFarewell } = require('./farewell');
 const { starryCommandHealth } = require('./health');
 const { starryCommandJoin } = require('./join');
@@ -7,15 +5,35 @@ const { starryCommandTokenAdd } = require('./tokenAdd');
 const { starryCommandTokenList } = require('./tokenList');
 const { starryCommandTokenEdit } = require('./tokenEdit');
 const { starryCommandTokenRemove } = require('./tokenRemove');
-const { starrySteps } = require('./steps');
 
-const { memberHasRole, memberHasPermissions } = require('../utils/auth');
-const { createEmbed } = require("../utils/messages");
+const { buildCommandData } = require('../utils/commands');
+const { createPrivateError } = require("../utils/messages");
+const { Wizardware } = require("../wizardware");
 
-const globalCommandChains = new Map();
-const TIMEOUT_DURATION = 360000; // 6 minutes in milliseconds
+// Useful dependencies to inject through the steps
+const astrolabe = require("../astrolabe");
+const daodao = require("../astrolabe/daodao");
+const db = require("../db");
+const logic = require("../logic");
+const networks = require("../astrolabe/networks");
+const stargaze = require("../astrolabe/stargaze");
 
-const definedCommands = [
+const wizardware = new Wizardware({
+  // How we want errors thrown by the wizard to be handled
+  onError: createPrivateError,
+
+  // Dependencies that each step should have access to
+  dependencies: {
+    astrolabe,
+    daodao,
+    db,
+    logic,
+    networks,
+    stargaze
+  }
+})
+
+const commandData = buildCommandData([
   {
     name: 'token-rule',
     description: 'Do things with your token rules',
@@ -29,202 +47,31 @@ const definedCommands = [
   starryCommandHealth,
   starryCommandJoin,
   starryCommandFarewell,
-];
-
-const flattenedCommandMap = starrySteps.reduce(
-  (commandMap, step) => {
-    return {
-      ...commandMap,
-      [step.name]: {
-        name: step.name,
-        execute: step
-      },
-    }
-  },
-  {}
-);
-const commandData = buildCommandData();
-
-function registerSubcommand(mainCommand, subcommand) {
-  const { name, description } = subcommand;
-  mainCommand.addSubcommand(sub => sub.setName(name).setDescription(description));
-  flattenedCommandMap[name] = subcommand;
-}
-
-function registerSubcommandGroup(mainCommand, subcommandGroup) {
-  const { name, description, options } = subcommandGroup;
-  mainCommand.addSubcommandGroup(subgroup => {
-    const subGroup = subgroup.setName(name).setDescription(description);
-    options.forEach(opt => registerSubcommand(subGroup, opt));
-    return subGroup;
-  });
-}
-
-function registerCommand(mainCommand, command) {
-  if (command.options) {
-    registerSubcommandGroup(mainCommand, command);
-  } else {
-    registerSubcommand(mainCommand, command);
-  }
-}
-
-function buildCommandData() {
-  const mainCommand = new SlashCommandBuilder()
-    .setName('starry')
-    .setDescription('Use starrybot (starrybot.xyz)');
-  definedCommands.forEach(command => registerCommand(mainCommand, command));
-  return mainCommand;
-}
-
-async function initiateCommandChain(firstCommandName, interaction) {
-  const uniqueCommandChainKey = `${interaction.guildId}-${interaction.user.id}`;
-  // Information about this initiated chain and how it's going
-  const req = {
-    currentIndex: 0,
-    interaction,
-    steps: [firstCommandName],
-  };
-  // Functions for resolving the chain
-  const res = {
-    done: async doneMessage => {
-      if (doneMessage) {
-        const replyTarget = req.interaction._emoji ?
-          req.interaction.message :
-          req.interaction;
-        await replyTarget.reply({
-          embeds: [
-            createEmbed({
-              color: '#7585FF',
-              title: 'Finished! 🌟',
-              description: doneMessage,
-            })
-          ]
-        });
-      }
-
-      globalCommandChains.delete(uniqueCommandChainKey);
-    },
-    error: async (consoleError, channelError) => {
-      console.warn(consoleError);
-      globalCommandChains.delete(uniqueCommandChainKey);
-
-      // Reply saying something's gone wrong
-      const replyTarget = req.interaction._emoji ?
-        req.interaction.message :
-        req.interaction;
-      await replyTarget.reply({
-        embeds: [
-          createEmbed({
-            color: '#be75a4',
-            title: 'Error (star might be in retrograde)',
-            description: channelError ? channelError.toString() : consoleError.toString(),
-          })
-        ],
-        ephemeral: true,
-      });
-    },
-    timeout: () => {
-      // TO-DO: Would be nice to edit the last message
-      // so it's less confusing when we stop responding
-
-      globalCommandChains.delete(uniqueCommandChainKey);
-    }
-  };
-  // A state that can be edited by any step in this chain
-  const ctx = {};
-  const runner = async (commandName) => {
-    const command = flattenedCommandMap[commandName]
-
-    req.currentIndex += 1;
-    req.steps.push(commandName);
-
-    let cancelTimeout;
-    if (command) {
-      // Verify if the user is allowed to use this step.
-      // We'd ordinarily prefer the built-in Discord permission
-      // system, but it's a work in progress. See for more info:
-      // https://github.com/discord/discord-api-docs/issues/2315
-      const allowed = command.adminOnly ?
-        await memberHasRole(interaction.member, 'admin') :
-        true;
-
-      if (!allowed) {
-        return await res.error(
-          'Canceling a command chain from insufficient permissions',
-          'Sorry, you must be an admin to use this command :/'
-        );
-      }
-
-      return await command.execute(req, res, ctx, getCommandName => {
-        globalCommandChains.set(
-          uniqueCommandChainKey,
-          async interaction => {
-            req.interaction = interaction;
-
-            // No need to timeout now
-            clearTimeout(cancelTimeout);
-
-            const commandName = getCommandName(interaction);
-            await runner(commandName);
-          },
-        );
-
-        // Timeout if it's taking too long
-        cancelTimeout = setTimeout(res.timeout, TIMEOUT_DURATION);
-      });
-    } else {
-      await res.error('Could not find a matching command');
-    }
-  }
-
-  // Pretend this is like a middleware :D
-  await runner(firstCommandName);
-}
+], wizardware);
 
 module.exports = {
+  wizardware,
+
   starryCommand: {
     data: commandData,
     async execute (interaction) {
       const subcommandName = interaction.options.getSubcommand();
-      if (flattenedCommandMap[subcommandName]) {
-        await initiateCommandChain(subcommandName, interaction);
+      if (wizardware.registeredSteps.has(subcommandName)) {
+        await wizardware.initiate(
+          `${interaction.guildId}-${interaction.user.id}`,
+          subcommandName,
+          {
+            interaction,
+            // Reply directly to the slash command message
+            interactionTarget: interaction,
+            guild: interaction.guild,
+            guildId: interaction.guildId,
+            userId: interaction.user.id,
+          },
+        );
       } else {
         await interaction.reply('starrybot does not understand this command.');
       }
     }
   },
-
-  continueCommandChain: async ({sourceAction, user}) => {
-    if (globalCommandChains.size === 0) return;
-
-    let interactionKey, channel;
-    if (sourceAction._emoji) {
-      const { guildId, interaction } = sourceAction.message;
-
-      if (!user) {
-        // Check to make sure this isn't an emoji reaction when a text input was expected
-        if (!interaction) {
-          console.error('Could not determine user for that interaction or reaction.')
-          return;
-        }
-        user = interaction.user
-      }
-      interactionKey = `${guildId}-${user.id}`;
-      channel = sourceAction.message.channel;
-    } else {
-      const { author, guildId, user } = sourceAction;
-      interactionKey = `${guildId}-${user?.id || author?.id}`;
-      channel = sourceAction.channel;
-    }
-
-    if (globalCommandChains.has(interactionKey)) {
-      try {
-        const nextCommand = globalCommandChains.get(interactionKey);
-        await nextCommand(sourceAction);
-      } catch (e) {
-        console.warn(e);
-        channel.send(`Something went wrong, please try again.`);
-      }
-    }
-  }
 }
