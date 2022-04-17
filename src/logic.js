@@ -9,7 +9,7 @@ const { Secp256k1, Secp256k1Signature, sha256 } = require('@cosmjs/crypto')
 const { fromBase64, Bech32} = require('@cosmjs/encoding')
 const { REST } = require("@discordjs/rest");
 const { Routes } = require("discord-api-types/v9");
-const { getTokenBalance } = require("./astrolabe");
+const { getTokenBalance, getStakedTokenBalance } = require("./astrolabe");
 const {sumDelegationsForAccount} = require("./utils/tokens");
 
 // Returns a block with { memberId, saganism }
@@ -125,41 +125,101 @@ const isCorrectSaganism = async (traveller, signed) => {
 
 async function tokenRuleInfo(body, client) {
 	const { discordUserId, guildId } = body
-	let roleUpdateInfo = {}
-	const tokenInfo = await db.nativeTokensFromGuild({guildId})
+  // Add/remove roles as necessary
 	const cosmosHubAddress = await db.getCosmosHubAddressFromDiscordId({discordUserId})
-	for (let tokenAddress of tokenInfo) {
-		const minimumOf = tokenAddress.has_minimum_of
-		const giveRole = tokenAddress.give_role
-		tokenAddress = tokenAddress.token_address
-		const decoded = Bech32.decode(cosmosHubAddress).data
-		const encodedAccount = Bech32.encode(tokenAddress, decoded)
-		const stakedAmount = await sumDelegationsForAccount(encodedAccount)
+  // Some folks who used starrybot early on didn't have their Cosmos address captured
+  if (!cosmosHubAddress) {
+    return { error: 'User must use "/starry login" to capture Cosmos Hub address'}
+  }
+  const addedRemovedRoleNames = await addRemoveRoles(discordUserId, guildId, cosmosHubAddress, client)
+  console.log('Added/removed role names', addedRemovedRoleNames)
 
-		roleUpdateInfo[giveRole] = {}
-		roleUpdateInfo[giveRole]['tokenAddress'] = tokenAddress
-		roleUpdateInfo[giveRole]['minimumOf'] = minimumOf
-		roleUpdateInfo[giveRole]['staked'] = stakedAmount
-		if (parseInt(stakedAmount) >= parseInt(minimumOf)) {
-			// They should get the role
-			roleUpdateInfo[giveRole]['shouldGrant'] = true
-			// Note that we don't add roles, as we want people to use
-			// /starry join to make sure we capture their Cosmos Hub address
-		} else {
-			// They should not have the role
-			roleUpdateInfo[giveRole]['shouldGrant'] = false
-			// Remove Discord role if necessary
+  return { success: addedRemovedRoleNames }
+}
 
-			const guild = await client.guilds.fetch(guildId)
-			const member = await guild.members.fetch(discordUserId)
-			const role = guild.roles.cache.find(r => r.name === giveRole)
-			if (role && member.roles.cache.has(role.id)) {
-				// Member has the role and shouldn't (anymore), remove it
-				await member.roles.remove(role.id)
-			}
-		}
-	}
-	return roleUpdateInfo
+async function addRemoveRoles(discordUserId, discordGuildId, cosmosAddress, client) {
+  let ret = {
+    'added': [],
+    'removed': []
+  }
+  // get all possible roles
+  let roles = await db.rolesGet(discordGuildId)
+  if (!roles || !roles.length) {
+    return { error: "Admin needs to setup roles to give out"}
+  }
+
+  // get guild
+  const guild = await client.guilds.fetch(discordGuildId)
+  if (!guild) {
+    logger.error("discord::hoist - cannot find guild");
+    return { error: "cannot find guild"}
+  }
+
+  // get user
+  const author = await client.users.fetch(discordUserId)
+  if (!author) {
+    logger.error("discord::hoist - cannot find participant")
+    return { error: "cannot find party"}
+  }
+
+  for (let role of roles) {
+    let roleName = role.give_role
+    let roleDiscord = guild.roles.cache.find(r => r.name === roleName)
+    const network = role.network;
+    const tokenAddress = role.token_address
+    const countStakedOnly = role.count_staked_only
+
+    let balance;
+    try {
+      if (countStakedOnly) {
+        balance = await getStakedTokenBalance({keplrAccount: cosmosAddress, tokenAddress, network, extra: { staking_contract: role.staking_contract }});
+      } else {
+        balance = await getTokenBalance({keplrAccount: cosmosAddress, tokenAddress, network, extra: { staking_contract: role.staking_contract }});
+      }
+    } catch(e) {
+      console.warn(e);
+      // even if this role fails, see if we can add any others
+      continue;
+    }
+
+    // Only proceed if the balance is greater than the minimum
+    console.log(`Comparing ${balance} against ${parseInt(role.has_minimum_of)}`);
+    const member = await guild.members.fetch(discordUserId)
+    const discordRole = guild.roles.cache.find(r => r.name === roleName)
+    if (balance < parseInt(role.has_minimum_of)) {
+      // Remove role if the have it, since they should no longer have it
+      if (discordRole && member.roles.cache.has(discordRole.id)) {
+        await member.roles.remove(discordRole.id)
+        ret.removed.push(roleName)
+      }
+      continue
+    }
+
+    // At this point, we're sure the user has given the role
+    const systemChannelId = guild.systemChannelId;
+    let systemChannel = await client.channels.fetch(systemChannelId);
+    if (!roleDiscord) {
+      systemChannel.send("Hmm, starrybot cannot find role " + roleName)
+    } else {
+      if (discordRole && !member.roles.cache.has(discordRole.id)) {
+        logger.log("Adding user to role " + roleName)
+        const rest = new REST().setToken(process.env.DISCORD_TOKEN);
+        try {
+          await rest.put(
+            Routes.guildMemberRole(guild.id, author.id, roleDiscord.id)
+          );
+          ret.added.push(roleName)
+        } catch (e) {
+          console.error('Error trying to add role', e)
+          systemChannel.send("starrybot was unable to give someone their role :(\nPlease make sure my permission is higher in the list than " + roleDiscord.name);
+          return;
+        }
+      } else {
+        console.log(`User already has role ${roleName}`)
+      }
+    }
+  }
+  return ret
 }
 
 // Finalize hoist
@@ -201,84 +261,10 @@ async function hoistFinalize(blob, client) {
   let cosmosHubAddress = Bech32.encode('cosmos', Bech32.decode(account.address).data)
   await db.addCosmosHubAddress(member.discord_guild_id, member.discord_account_id, cosmosHubAddress)
 
-  // get all possible roles
-  let roles = await db.rolesGet(member.discord_guild_id)
-  if (!roles || !roles.length) {
-    return { error: "Admin needs to setup roles to give out"}
-  }
+  // Add/remove roles as necessary
+  const addedRemovedRoleNames = await addRemoveRoles(member.discord_account_id, member.discord_guild_id, cosmosHubAddress, client)
 
-  // get guild
-  const guild = await client.guilds.fetch(member.discord_guild_id)
-  if (!guild) {
-    logger.error("discord::hoist - cannot find guild");
-    return { error: "cannot find guild"}
-  }
-
-  // get user
-  const author = await client.users.fetch(member.discord_account_id)
-  if (!author) {
-    logger.error("discord::hoist - cannot find participant")
-    return { error: "cannot find party"}
-  }
-  console.log('author', author)
-
-  //
-  // Add a role to user
-  //
-  // Notes:
-  // https://discordjs.guide/popular-topics/faq.html#how-do-i-unban-a-user
-  // const role = interaction.options.getRole('role');
-  // const member = interaction.options.getMember('target');
-  // member.roles.add(role);
-  //
-
-  for (let role of roles) {
-    const keplrAccount = account.address;
-
-    let roleName = role.give_role
-    let roleDiscord = guild.roles.cache.find(r => r.name === roleName)
-    const network = role.network;
-    const tokenAddress = role.token_address
-
-    let balance;
-    try {
-      balance = await getTokenBalance({keplrAccount, tokenAddress, network, extra: { staking_contract: role.staking_contract }});
-    } catch(e) {
-      console.warn(e);
-      // even if this role fails, see if we can add any others
-      continue;
-    }
-
-    // Only proceed if the balance is greater than the minimum
-    console.log(`Comparing ${balance} against ${parseInt(role.has_minimum_of)}`);
-    if (balance < parseInt(role.has_minimum_of)) {
-      continue
-    }
-
-    // At this point, we can be sure the user should be given the role
-    const systemChannelId = guild.systemChannelId;
-    let systemChannel = await client.channels.fetch(systemChannelId);
-    if (!roleDiscord) {
-      systemChannel.send("Hmm, starrybot cannot find role " + roleName)
-    } else {
-      logger.log("Adding user to role " + roleName)
-      const rest = new REST().setToken(process.env.DISCORD_TOKEN);
-      try {
-        await rest.put(
-          Routes.guildMemberRole(guild.id, author.id, roleDiscord.id)
-        );
-      } catch (e) {
-        console.error('Error trying to add role', e)
-        systemChannel.send("starrybot was unable to give someone their role :(\nPlease make sure my permission is higher in the list than " + roleDiscord.name);
-        return;
-      }
-
-      // TODO must ALSO set is_member in database
-      // TODO: make sure we remove this row
-    }
-  }
-
-  return { success:"done" }
+  return { success: addedRemovedRoleNames }
 }
 
-module.exports = { hoistRequest, hoistInquire, hoistDrop, hoistFinalize, tokenRuleInfo }
+module.exports = { hoistRequest, hoistInquire, hoistDrop, hoistFinalize, tokenRuleInfo, addRemoveRoles }

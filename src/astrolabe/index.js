@@ -42,12 +42,18 @@ const getTokenDetails = async ({tokenAddress, network}) => {
   return tokenDetails || {};
 }
 
-const getTokenBalance = async ({keplrAccount, tokenAddress, network, extra}) => {
+const getTokenBalance = async ({keplrAccount, tokenAddress, network, countStakedOnly, extra}) => {
   const tokenType = await getTokenType(tokenAddress, network);
-  return await tokenType.getTokenBalance({keplrAccount, tokenAddress, network, extra});
+  return await tokenType.getTokenBalance({keplrAccount, tokenAddress, network, countStakedOnly, extra});
+}
+
+const getStakedTokenBalance = async ({keplrAccount, tokenAddress, network, countStakedOnly, extra}) => {
+  const tokenType = await getTokenType(tokenAddress, network);
+  return await tokenType.getStakedTokenBalance({keplrAccount, tokenAddress, network, countStakedOnly, extra});
 }
 
 module.exports = {
   getTokenBalance,
   getTokenDetails,
+  getStakedTokenBalance
 }

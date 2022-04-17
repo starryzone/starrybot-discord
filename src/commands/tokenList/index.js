@@ -10,7 +10,7 @@ module.exports = {
             const roleName = role.give_role;
             const roleAmt = role.has_minimum_of;
             const roleDecimals = role.decimals;
-            return `★ ${roleName} (min: ${(roleAmt / (10 ** roleDecimals)) })\n`;
+            return `★ ${roleName}\n - min: ${(roleAmt / (10 ** roleDecimals)) }\n- count staked only: ${role.count_staked_only ?? false}\n`;
           }).join('')}` :
         `This will be way more exciting when roles are added :)`;
       return {

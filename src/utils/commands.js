@@ -79,9 +79,14 @@ function buildCommandExecute(command) {
           reply.content = config.prompt.title;
           reply.buttons = config.prompt.options.map(buttonConfig => ({
             ...buttonConfig,
+            // TODO: eventually I'd like to add this
+            // customId: buttonConfig.id ?? buttonConfig.next,
             customId: buttonConfig.next,
             style: buttonConfig.style ||  'PRIMARY'
           }));
+          if (config.prompt.description || config.prompt.footer) {
+            reply.embeds = [{description: config.prompt.description ?? 'Note:', footer: config.prompt.footer}]
+          }
           await interactionTarget.reply(createMessage(reply));
           // Go to the step designated by the clicked button's ID
           next(({ interaction }) => interaction.customId);
@@ -151,7 +156,7 @@ function registerSubcommand(wizardware, mainCommand, subcommand) {
     ...subcommand,
     execute: subcommand.execute ? subcommand.execute : buildCommandExecute(subcommand)
   });
-  
+
   if (subcommand.steps) {
     Object.entries(subcommand.steps).forEach(([ name, step ]) => {
 

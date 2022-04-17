@@ -1,8 +1,11 @@
 const { editCheck } = require('./editCheck');
 const { editRoleAmount } = require('./editRoleAmount');
 const { editRoleName } = require('./editRoleName');
+const { editRoleStakedOnly } = require('./editRoleStakedOnly');
 const { handleRoleAmountEdit } = require('./handleRoleAmountEdit');
 const { handleRoleNameEdit } = require('./handleRoleNameEdit');
+const { handleRoleStakedOnlyEditYes } = require('./handleRoleStakedOnlyEditYes');
+const { handleRoleStakedOnlyEditNo } = require('./handleRoleStakedOnlyEditNo');
 
 module.exports = {
   starryCommandTokenEdit: {
@@ -21,7 +24,7 @@ module.exports = {
           const roleName = role.give_role;
           const roleAmt = role.has_minimum_of;
           const roleDecimals = role.decimals;
-          return `★ ${roleName} (min: ${(roleAmt / (10 ** roleDecimals)) })\n`;
+          return `★ ${roleName}\n- min: ${(roleAmt / (10 ** roleDecimals)) }\n- count staked only: ${role.count_staked_only ?? false}\n`;
         }).join('')}`;
         const footer = 'Please type a token rule to edit';
 
@@ -41,8 +44,11 @@ module.exports = {
       editCheck,
       editRoleAmount,
       editRoleName,
+      editRoleStakedOnly,
       handleRoleAmountEdit,
       handleRoleNameEdit,
+      handleRoleStakedOnlyEditYes,
+      handleRoleStakedOnlyEditNo,
     }
   }
 }

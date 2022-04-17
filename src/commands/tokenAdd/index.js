@@ -13,6 +13,8 @@ const { nativeTokenSuggestion } = require('./nativeTokenSuggestion');
 const { needsCW20 } = require('./needsCW20');
 const { promptTokenAmount } = require('./promptTokenAmount');
 const { promptTokenName } = require('./promptTokenName');
+const { handleStakedOnlyNo } = require('./handleStakedOnlyNo');
+const { handleStakedOnlyYes } = require('./handleStakedOnlyYes');
 const { stargaze } = require('./stargaze');
 
 module.exports = {
@@ -63,6 +65,8 @@ module.exports = {
       promptTokenAmount,
       promptTokenName,
       stargaze,
+      handleStakedOnlyNo,
+      handleStakedOnlyYes,
     }
   }
 }

@@ -6,7 +6,7 @@ module.exports = {
         guildId,
         userInput: amountOfTokensNeeded,
         selectedRoleName,
-        selectedRole: { decimals, network, token_address, token_type }
+        selectedRole: { decimals, network, token_address, token_type, staking_contract, count_staked_only }
       },
       {
         db: { rolesSet }
@@ -28,7 +28,7 @@ module.exports = {
       }
 
       // Update the database row with the new amount + same rest of data
-      await rolesSet(guildId, selectedRoleName, token_type, token_address, network, true, userId, amountOfTokensNeeded, decimals);
+      await rolesSet(guildId, selectedRoleName, token_type, token_address, network, true, userId, amountOfTokensNeeded, decimals, staking_contract, count_staked_only);
 
       return {
         done: {

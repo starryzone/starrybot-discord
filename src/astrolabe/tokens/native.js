@@ -34,6 +34,18 @@ const getNativeTokenBalance = async ({keplrAccount, tokenAddress, network, extra
   return parseInt(matches[0].amount);
 }
 
+const getStakedNativeTokenBalance = async({keplrAccount, tokenAddress, network, extra}) => {
+  const decodedAccount = Bech32.decode(keplrAccount).data;
+  const encodedAccount = Bech32.encode(tokenAddress, decodedAccount);
+  let amount = 0
+  if (network === 'mainnet') {
+    amount = await sumDelegationsForAccount(encodedAccount)
+    console.log('Total staked', amount)
+  }
+
+  return amount;
+}
+
 const getNativeRpcEndpoint = (tokenAddress, network) => {
   return getConnectionFromPrefix(tokenAddress, 'rpc', network);
 }
@@ -52,5 +64,6 @@ module.exports = {
     // Note: other types require network calls, hence async
     isTokenType: async token => networkPrefixes.includes(token),
     getTokenBalance: getNativeTokenBalance,
+    getStakedTokenBalance: getStakedNativeTokenBalance,
   }
 }

@@ -47,6 +47,11 @@ const getCW721TokenDetails = async ({tokenAddress, network}) => {
   }
 }
 
+const getStakedCW721TokenBalance = async ({keplrAccount, tokenAddress, network, extra}) => {
+  // At the time of this writing, there is no NFT staking, so always return 0
+  return 0
+}
+
 const getCW721TokenBalance = async ({keplrAccount, tokenAddress, network, extra}) => {
   // Given the wallet address, NFT collection address,
   // and the network it's on, do the math for the following correctly
@@ -82,6 +87,7 @@ module.exports = {
     name: 'CW721',
     isTokenType: isCW721,
     getTokenBalance: getCW721TokenBalance,
+    getStakedTokenBalance: getStakedCW721TokenBalance,
     getTokenDetails: getCW721TokenDetails,
   }
 }

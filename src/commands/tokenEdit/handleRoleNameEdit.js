@@ -7,7 +7,7 @@ module.exports = {
         guildId,
         userInput: newRoleName,
         selectedRoleName,
-        selectedRole: { decimals, has_minimum_of, network, token_address, token_type }
+        selectedRole: { decimals, has_minimum_of, network, token_address, token_type, staking_contract, count_staked_only }
       },
       {
         db: { rolesSet, rolesDelete }
@@ -39,7 +39,7 @@ module.exports = {
       }
 
       // Add a new database row with the new name + same rest of data
-      await rolesSet(guildId, newRoleName, token_type, token_address, network, true, userId, has_minimum_of, decimals);
+      await rolesSet(guildId, newRoleName, token_type, token_address, network, true, userId, has_minimum_of, decimals, staking_contract, count_staked_only);
 
       // Delete the original one
       await rolesDelete(guildId, selectedRoleName);

@@ -3,6 +3,7 @@ module.exports = {
     getConfig: async (state) => {
       let { userInput: amountOfTokensNeeded } = state;
 
+      // TODO: add fix so they can enter .1 instead of 0.1 and have it work
       if (
         !Number.isInteger(parseInt(amountOfTokensNeeded)) ||
         amountOfTokensNeeded <= 0
@@ -20,7 +21,7 @@ module.exports = {
         console.log('New amount needed', state.minimumTokensNeeded)
       }
 
-      // Building the user friendly name for what they're making
+      // Building the user-friendly name for what they're making
       let noun = `${amountOfTokensNeeded} `;
       switch (state.tokenType) {
         case('native'):

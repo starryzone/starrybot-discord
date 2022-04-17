@@ -47,6 +47,25 @@ const getCW20TokenDetails = async ({tokenAddress, network}) => {
   }
 }
 
+const getStakedCW20TokenBalance = async ({keplrAccount, tokenAddress, network, extra}) => {
+  const decodedAccount = Bech32.decode(keplrAccount).data;
+  const prefix = getPrefixFromToken(tokenAddress);
+  if (!prefix) throw 'Could not determine prefix';
+  const encodedAccount = Bech32.encode(prefix, decodedAccount);
+  const rpcEndpoint = getConnectionFromPrefix(prefix, 'rpc', network);
+  const cosmClient = await CosmWasmClient.connect(rpcEndpoint);
+  let balance = 0
+  if (extra?.staking_contract) {
+    const stakedTokens = await cosmClient.queryContractSmart(extra['staking_contract'], {
+      staked_value: { address: encodedAccount},
+    })
+    console.log('Found staked tokens', stakedTokens.value)
+    balance = stakedTokens.value
+  }
+
+  return balance;
+}
+
 const getCW20TokenBalance = async ({keplrAccount, tokenAddress, network, extra}) => {
   const decodedAccount = Bech32.decode(keplrAccount).data;
   const prefix = getPrefixFromToken(tokenAddress);
@@ -107,6 +126,7 @@ module.exports = {
     name: 'CW20',
     isTokenType: isCW20,
     getTokenBalance: getCW20TokenBalance,
+    getStakedTokenBalance: getStakedCW20TokenBalance,
     getTokenDetails: getCW20TokenDetails,
   }
 }
