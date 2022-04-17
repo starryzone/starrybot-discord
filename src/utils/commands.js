@@ -150,7 +150,7 @@ function registerSubcommand(wizardware, mainCommand, subcommand) {
   mainCommand.addSubcommand(
     sub => sub
       .setName(name)
-      .setDescription(`${adminOnly && '(Admin only) '}${description}`)
+      .setDescription(`${adminOnly ? '(Admin only) ': ''}${description}`)
   );
   wizardware.registerStep(name, {
     ...subcommand,
@@ -174,7 +174,7 @@ function registerSubcommandGroup(wizardware, mainCommand, subcommandGroup) {
   mainCommand.addSubcommandGroup(subgroup => {
     const subGroup = subgroup
       .setName(name)
-      .setDescription(`${adminOnly && '(Admin only) '}${description}`);
+      .setDescription(`${adminOnly ? '(Admin only) ': ''}${description}`);
     options.forEach(opt => registerSubcommand(wizardware, subGroup, opt));
     return subGroup;
   });
