@@ -97,7 +97,7 @@ const rolesGet = async (guildId) => {
 
 	const roles = await knex(myConfig.DB_TABLENAME_ROLES)
 		.where('discord_guild_id', guildId)
-		.select('discord_guild_id','token_address','has_minimum_of','created_at','created_by_discord_id','give_role', 'network', 'token_type', 'decimals', 'staking_contract')
+		.select('discord_guild_id','token_address','has_minimum_of','created_at','created_by_discord_id','give_role', 'network', 'token_type', 'decimals', 'staking_contract', 'count_staked_only')
 
 	return roles
 }
@@ -110,7 +110,7 @@ const roleGet = async (guildId, roleName) => {
 		'discord_guild_id': guildId,
 		'give_role': roleName,
 	})
-	.select('discord_guild_id','token_address','has_minimum_of','created_at','created_by_discord_id','give_role', 'network', 'token_type', 'decimals', 'staking_contract')
+	.select('discord_guild_id','token_address','has_minimum_of','created_at','created_by_discord_id','give_role', 'network', 'token_type', 'decimals', 'staking_contract', 'count_staked_only')
 
 	return role[0];
 }
@@ -124,7 +124,7 @@ const rolesGetForCleanUp = async (guildId) => {
 	return roles
 }
 
-const rolesSet = async (guildId, role, tokenType, tokenAddress, network, removeInCleanup, createdByDiscordId, hasMinimumOf, decimals, stakingContract) => {
+const rolesSet = async (guildId, role, tokenType, tokenAddress, network, removeInCleanup, createdByDiscordId, hasMinimumOf, decimals, stakingContract, countStakedOnly) => {
 	await ensureDatabaseInitialized()
 
 	let discord_guild_id = guildId;
@@ -133,6 +133,7 @@ const rolesSet = async (guildId, role, tokenType, tokenAddress, network, removeI
 	let token_address = tokenAddress
 	let created_by_discord_id = createdByDiscordId
 	let has_minimum_of = hasMinimumOf
+	let count_staked_only = countStakedOnly
 	const staking_contract = stakingContract
 
 	// If this role for this guild already exists, return
@@ -152,7 +153,8 @@ const rolesSet = async (guildId, role, tokenType, tokenAddress, network, removeI
 			give_role,
 			network,
 			remove_in_cleanup: removeInCleanup,
-			staking_contract
+			staking_contract,
+			count_staked_only
 		}).where('id', existingRows[0].id)
 	} else {
 		results = await knex(myConfig.DB_TABLENAME_ROLES).insert({
@@ -165,7 +167,8 @@ const rolesSet = async (guildId, role, tokenType, tokenAddress, network, removeI
 			give_role,
 			network,
 			remove_in_cleanup: removeInCleanup,
-			staking_contract
+			staking_contract,
+			count_staked_only
 		})
 	}
 }
@@ -242,6 +245,17 @@ const memberByIdAndGuild = async ({authorId, guildId}) => {
 	return (members && members.length) ? members[0] : 0
 }
 
+const nativeTokensFromGuild = async({guildId}) => {
+	await ensureDatabaseInitialized()
+	let tokenTypes = await knex(myConfig.DB_TABLENAME_ROLES)
+		.where(
+		'token_type', 'like', '%native%')
+		.andWhere('discord_guild_id', guildId)
+		.select('token_address', 'has_minimum_of', 'give_role')
+
+	return tokenTypes
+}
+
 const memberAdd = async ({discord_account_id, discord_guild_id, saganism}) => {
 	await ensureDatabaseInitialized()
 	let session_token = SessionID()
@@ -273,4 +287,12 @@ const addCosmosHubAddress = async (guildId, discordAccountId, cosmosHubAddress) 
 		.update('cosmos_address', cosmosHubAddress)
 }
 
-module.exports = { membersAll, memberExists, memberBySessionToken, memberByIdAndGuild, memberAdd, memberDelete, myConfig, rolesGet, roleGet, rolesSet, rolesDelete, rolesDeleteGuildAll, rolesGetForCleanUp, inferPreferredNativeToken, addCosmosHubAddress }
+const getCosmosHubAddressFromDiscordId = async ({discordUserId}) => {
+	await ensureDatabaseInitialized()
+	let cosmosHubAddress = await knex(myConfig.DB_TABLENAME_MEMBERS)
+		.where('discord_account_id', discordUserId)
+		.distinct('cosmos_address')
+	return cosmosHubAddress[0].cosmos_address
+}
+
+module.exports = { membersAll, memberExists, memberBySessionToken, memberByIdAndGuild, memberAdd, memberDelete, myConfig, rolesGet, roleGet, rolesSet, rolesDelete, rolesDeleteGuildAll, rolesGetForCleanUp, inferPreferredNativeToken, addCosmosHubAddress, nativeTokensFromGuild, getCosmosHubAddressFromDiscordId }

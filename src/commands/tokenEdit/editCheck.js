@@ -25,6 +25,10 @@ module.exports = {
               {
                 next: 'editRoleAmount',
                 label: 'Role Amount',
+              },
+              {
+                next: 'editRoleStakedOnly',
+                label: 'Whether to only count staked tokens',
               }
             ]
           },
