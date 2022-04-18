@@ -80,11 +80,11 @@ class Wizard {
 
         // Timeout if it's taking too long
         this.cancelTimeout = setTimeout(
-          this.end,
+          () => this.end(),
           this.wizardware.timeoutDuration
         );
       },
-      this.end,
+      () => this.end(),
     )
   }
 
