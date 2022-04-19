@@ -133,7 +133,9 @@ async function tokenRuleInfo(body, client) {
   }
   const addedRemovedRoleNames = await addRemoveRoles(discordUserId, guildId, cosmosHubAddress, client)
   console.log('Added/removed role names', addedRemovedRoleNames)
-
+  if (addedRemovedRoleNames.error) {
+    return addedRemovedRoleNames
+  }
   return { success: addedRemovedRoleNames }
 }
 
