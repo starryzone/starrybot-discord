@@ -46,7 +46,15 @@ class Wizardware {
     const nextStep = typeof wizard.getNextStep === 'string' ?
       wizard.getNextStep :
       await wizard.getNextStep(state);
-    await wizard.execute(nextStep, state);
+    // It's possible for nextStep to be undefined in some valid
+    // cases, i.e. the user got excited and picked an invalid
+    // emoji reaction for a step expecting an emoji. In this
+    // case, we'll permit their excitement and patiently wait
+    // for them to pick something valid. If that never happens,
+    // the bot will time out appropriately.
+    if (nextStep) {
+      await wizard.execute(nextStep, state);
+    }
   }
 
   async end (uniqueKey) {

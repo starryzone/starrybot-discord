@@ -67,7 +67,9 @@ function buildCommandExecute(command) {
             const emojiName = reaction?._emoji?.name;
             if(!emojiName) return;
             else {
-              return config.prompt.options.find(emojiConfig => emojiConfig.emoji === emojiName).next;
+              // If there is no match, the wizard will keep waiting for user interactions
+              // until a valid emoji is selected.
+              return config.prompt.options.find(emojiConfig => emojiConfig.emoji === emojiName)?.next;
             }
           }
 
