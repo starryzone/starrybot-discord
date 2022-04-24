@@ -29,6 +29,7 @@
 		"@discordjs/builders": "^0.9.0",
 		"@discordjs/rest": "^0.1.0-canary.0",
 		"@google-cloud/logging-winston": "^4.0.0",
+		"@logtail/node": "^0.1.10",
 		"cors": "^2.8.5",
 		"discord-api-types": "^0.25.2",
 		"discord.js": "^13.3.1",

@@ -23,9 +23,7 @@ client.commands = new Collection();
 // starryCommand has the execute function
 client.commands.set(starryCommand.data.name, starryCommand);
 
-///
-/// Handle inbound events from discord
-///
+// Handle inbound events from discord
 
 // Handler for discord bot server starting
 client.on("ready", async () => { logger.info(`starrybot has star(ry)ted.`) });
@@ -43,12 +41,7 @@ client.on('messageCreate', messageCreate);
 // Handler for emoji reactions on discord messages from our bot
 client.on('messageReactionAdd', messageReactionAdd );
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-///
-/// Register with discord
-///
-
+// Register with discord
 const login = async () => {
   let token = db.myConfig.DISCORD_TOKEN || process.env.DISCORD_TOKEN;
   const loggedInToken = await client.login(token)
