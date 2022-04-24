@@ -7,15 +7,9 @@ class Wizardware {
 
   registeredSteps = new Map();
 
-  onError;
-
   timeoutDuration = 360000;
 
-  constructor({ dependencies, onError, timeoutDuration }) {
-    if (onError) {
-      this.onError = onError;
-    }
-
+  constructor({ dependencies, timeoutDuration }) {
     if (dependencies) {
       this.dependencies = Object.assign(this.dependencies, dependencies);
     }
@@ -48,11 +42,6 @@ class Wizardware {
 
   async end (uniqueKey) {
     this.activeWizards.delete(uniqueKey);
-  }
-
-  async error (uniqueKey, errorMessage) {
-    await this.onError(errorMessage);
-    await this.end(uniqueKey);
   }
 }
 

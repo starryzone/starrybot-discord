@@ -1,4 +1,5 @@
 const { memberHasRole } = require('../utils/auth');
+const { createPrivateError } = require("../utils/messages");
 
 class Wizard {
   wizardware;
@@ -32,8 +33,13 @@ class Wizard {
 
   async execute(commandName, state) {
     const command = this.wizardware.registeredSteps.get(commandName);
+    const { interactionTarget } = state;
     if (!command) {
-      return this.wizardware.error('Could not find a matching command')
+      console.warn('Could not find a matching command');
+      await interactionTarget.reply(
+        createPrivateError('Could not find a matching command')
+      )
+      return this.wizardware.end(this.uniqueKey);
     }
 
     if (this.cancelTimeout) {
@@ -63,29 +69,30 @@ class Wizard {
       await memberHasRole(state.interaction.member, 'admin') :
       true;
 
-    if (!allowed) {
-      console.warn('Canceling a wizard from insufficient permissions');
-      this.wizardware.error(
-        this.uniqueKey,
-        'Sorry, you must be an admin to use this command :/',
+    if (allowed) {
+      return await command.execute(
+        this.state,
+        this.wizardware.dependencies,
+        getCommandName => {
+          this.getNextStep = getCommandName;
+          this.wizardware.activeWizards.set(this.uniqueKey, this);
+
+          // Timeout if it's taking too long
+          this.cancelTimeout = setTimeout(
+            () => this.end(),
+            this.wizardware.timeoutDuration
+          );
+        },
+        () => this.end(),
       )
     }
-
-    return await command.execute(
-      this.state,
-      this.wizardware.dependencies,
-      getCommandName => {
-        this.getNextStep = getCommandName;
-        this.wizardware.activeWizards.set(this.uniqueKey, this);
-
-        // Timeout if it's taking too long
-        this.cancelTimeout = setTimeout(
-          () => this.end(),
-          this.wizardware.timeoutDuration
-        );
-      },
-      () => this.end(),
-    )
+    else {
+      console.warn('Canceling a wizard from insufficient permissions');
+      await interactionTarget.reply(
+        createPrivateError('Sorry, you must be an admin to use this command :/')
+      )
+      return this.wizardware.end(this.uniqueKey);
+    }
   }
 
   async end() {
