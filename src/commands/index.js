@@ -7,7 +7,6 @@ const { starryCommandTokenEdit } = require('./tokenEdit');
 const { starryCommandTokenRemove } = require('./tokenRemove');
 
 const { buildCommandData } = require('../utils/commands');
-const { createPrivateError } = require("../utils/messages");
 const { Wizardware } = require("../wizardware");
 
 // Useful dependencies to inject through the steps
@@ -19,8 +18,6 @@ const networks = require("../astrolabe/networks");
 const stargaze = require("../astrolabe/stargaze");
 
 const wizardware = new Wizardware({
-  // How we want errors thrown by the wizard to be handled
-  onError: createPrivateError,
 
   // Dependencies that each step should have access to
   dependencies: {
