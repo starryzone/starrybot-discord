@@ -31,9 +31,18 @@ class Wizardware {
     await newWizard.execute(commandName, initialState);
   }
 
-  async continue(uniqueKey, state) {
+  async continue(uniqueKey, promptType, state) {
     if (!this.activeWizards.has(uniqueKey)) return;
     const wizard = this.activeWizards.get(uniqueKey);
+
+    const { currentPromptType } = wizard;
+    if (promptType !== currentPromptType) {
+      // The user has not responded with the same type we prompted
+      // for (i.e. we're waiting for a reaction and they typed
+      // a message instead), so don't do anything for now.
+      return;
+    }
+
     const nextStep = typeof wizard.getNextStep === 'string' ?
       wizard.getNextStep :
       await wizard.getNextStep(state);

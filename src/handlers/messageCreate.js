@@ -5,6 +5,7 @@ async function messageCreate(interaction) {
 
 	await wizardware.continue(
 		`${interaction.guildId}-${interaction.author.id}`,
+		'input',
 		{
 			interaction,
 			// Reply to the message sent by the user

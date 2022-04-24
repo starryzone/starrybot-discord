@@ -20,6 +20,9 @@ class Wizard {
 
   // Function that will return the next wizard step
   getNextStep;
+  // String that describes what type of action we're waiting
+  // on the user to take next.
+  currentPromptType;
 
   constructor({ uniqueKey, wizardware }) {
     this.createdAt = Date.now();
@@ -73,8 +76,9 @@ class Wizard {
       return await command.execute(
         this.state,
         this.wizardware.dependencies,
-        getCommandName => {
+        (getCommandName, currentPromptType) => {
           this.getNextStep = getCommandName;
+          this.currentPromptType = currentPromptType;
           this.wizardware.activeWizards.set(this.uniqueKey, this);
 
           // Timeout if it's taking too long

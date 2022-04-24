@@ -72,7 +72,7 @@ function buildCommandExecute(command) {
           }
 
           // Go to the step designated by the selected emoji's config
-          next(getNextCommandNameFromEmoji);
+          next(getNextCommandNameFromEmoji, 'reaction');
           break;
 
         case 'button':
@@ -89,7 +89,7 @@ function buildCommandExecute(command) {
           }
           await interactionTarget.reply(createMessage(reply));
           // Go to the step designated by the clicked button's ID
-          next(({ interaction }) => interaction.customId);
+          next(({ interaction }) => interaction.customId, 'button');
           break;
 
         case 'input':
@@ -105,7 +105,7 @@ function buildCommandExecute(command) {
             }
           ];
           await interactionTarget.reply(createMessage(reply));
-          next(config.next);
+          next(config.next, config.prompt?.type);
           break;
       }
     }
@@ -121,7 +121,7 @@ function buildCommandExecute(command) {
       }
 
       if (config.next) {
-        next(config.next);
+        next(config.next, config.prompt?.type);
       } else if (config.done) {
         const { title = 'Finished! 🌟', description, ...props } = config.done;
         await interactionTarget.reply(createMessage({
