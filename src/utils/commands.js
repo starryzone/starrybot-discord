@@ -67,7 +67,8 @@ function buildCommandExecute(command) {
             const emojiName = reaction?._emoji?.name;
             if(!emojiName) return;
             else {
-              return config.prompt.options.find(emojiConfig => emojiConfig.emoji === emojiName).next;
+              const option = config.prompt.options.find(emojiConfig => emojiConfig.emoji === emojiName)
+              if (option) return option.next
             }
           }
 
