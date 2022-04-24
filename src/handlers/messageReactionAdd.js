@@ -6,6 +6,7 @@ async function messageReactionAdd(reaction, user) {
 
 	await wizardware.continue(
 		`${reaction.message.guildId}-${user.id}`,
+		'reaction',
 		{
 			// Reply to the message the user reacted to
 			interactionTarget: reaction.message,

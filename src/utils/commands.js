@@ -67,12 +67,14 @@ function buildCommandExecute(command) {
             const emojiName = reaction?._emoji?.name;
             if(!emojiName) return;
             else {
-              return config.prompt.options.find(emojiConfig => emojiConfig.emoji === emojiName).next;
+              // If there is no match, the wizard will keep waiting for user interactions
+              // until a valid emoji is selected.
+              return config.prompt.options.find(emojiConfig => emojiConfig.emoji === emojiName)?.next;
             }
           }
 
           // Go to the step designated by the selected emoji's config
-          next(getNextCommandNameFromEmoji);
+          next(getNextCommandNameFromEmoji, 'reaction');
           break;
 
         case 'button':
@@ -89,7 +91,7 @@ function buildCommandExecute(command) {
           }
           await interactionTarget.reply(createMessage(reply));
           // Go to the step designated by the clicked button's ID
-          next(({ interaction }) => interaction.customId);
+          next(({ interaction }) => interaction.customId, 'button');
           break;
 
         case 'input':
@@ -105,7 +107,7 @@ function buildCommandExecute(command) {
             }
           ];
           await interactionTarget.reply(createMessage(reply));
-          next(config.next);
+          next(config.next, config.prompt?.type);
           break;
       }
     }
@@ -121,7 +123,7 @@ function buildCommandExecute(command) {
       }
 
       if (config.next) {
-        next(config.next);
+        next(config.next, config.prompt?.type);
       } else if (config.done) {
         const { title = 'Finished! 🌟', description, ...props } = config.done;
         await interactionTarget.reply(createMessage({

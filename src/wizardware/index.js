@@ -31,13 +31,30 @@ class Wizardware {
     await newWizard.execute(commandName, initialState);
   }
 
-  async continue(uniqueKey, state) {
+  async continue(uniqueKey, promptType, state) {
     if (!this.activeWizards.has(uniqueKey)) return;
     const wizard = this.activeWizards.get(uniqueKey);
+
+    const { currentPromptType } = wizard;
+    if (promptType !== currentPromptType) {
+      // The user has not responded with the same type we prompted
+      // for (i.e. we're waiting for a reaction and they typed
+      // a message instead), so don't do anything for now.
+      return;
+    }
+
     const nextStep = typeof wizard.getNextStep === 'string' ?
       wizard.getNextStep :
       await wizard.getNextStep(state);
-    await wizard.execute(nextStep, state);
+    // It's possible for nextStep to be undefined in some valid
+    // cases, i.e. the user got excited and picked an invalid
+    // emoji reaction for a step expecting an emoji. In this
+    // case, we'll permit their excitement and patiently wait
+    // for them to pick something valid. If that never happens,
+    // the bot will time out appropriately.
+    if (nextStep) {
+      await wizard.execute(nextStep, state);
+    }
   }
 
   async end (uniqueKey) {

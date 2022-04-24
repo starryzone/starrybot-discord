@@ -35,6 +35,7 @@ async function interactionCreate(interaction) {
 		// text input, emoji reactions, or something else
 		await wizardware.continue(
 			`${interaction.guildId}-${interaction.user.id}`,
+			'button',
 			{
 				interaction,
 				// Reply directly to the button interaction, otherwise
