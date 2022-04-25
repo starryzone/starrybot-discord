@@ -4,7 +4,7 @@ module.exports = {
       {
         userId,
         guildId,
-        userInput: amountOfTokensNeeded,
+        userInput,
         selectedRoleName,
         selectedRole: { decimals, network, token_address, token_type, staking_contract, count_staked_only }
       },
@@ -12,8 +12,10 @@ module.exports = {
         db: { rolesSet }
       }
     ) => {
+      let amountOfTokensNeeded = parseInt(userInput)
+      console.log('aloha parseInt(amountOfTokensNeeded)', amountOfTokensNeeded)
       if (
-        !Number.isInteger(parseInt(amountOfTokensNeeded)) ||
+        !Number.isInteger(amountOfTokensNeeded) ||
         amountOfTokensNeeded <= 0
       ) {
         // Invalid reply

@@ -1,11 +1,12 @@
 module.exports = {
   promptTokenAmount: {
     getConfig: async (state) => {
-      let { userInput: amountOfTokensNeeded } = state;
+      let { userInput } = state;
 
+      let amountOfTokensNeeded = parseInt(userInput)
       // TODO: add fix so they can enter .1 instead of 0.1 and have it work
       if (
-        !Number.isInteger(parseInt(amountOfTokensNeeded)) ||
+        !Number.isInteger(amountOfTokensNeeded) ||
         amountOfTokensNeeded <= 0
       ) {
         // Invalid reply
