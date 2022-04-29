@@ -6,7 +6,7 @@ module.exports = {
     getConfig: async (
       { guild },
       {
-        db: { rolesGet },
+        db: { rolesGet, syncDetails },
         networks: { checkRPCStatus, checkLCDStatus, networkInfo }
       }
     ) => {
@@ -51,7 +51,7 @@ module.exports = {
           }
         });
         return await Promise.all(networkPromises);
-      };
+      }
 
       async function checkAllPermissions(guild) {
         const allDBRoles = await rolesGet(guild.id);
@@ -86,11 +86,30 @@ module.exports = {
           }
         });
         return await Promise.all(permissionPromises);
-      };
+      }
+
+      // This checks to see if this guild has recently synced all the member's roles
+      async function checkSyncDetails(guild) {
+        const syncInfo = await syncDetails(guild.id)
+        let msg
+        if (syncInfo.length === 0) {
+          msg = 'This guild has not been set up for recurring syncs.'
+        } else {
+          msg = `Last sync started on: ${new Date(syncInfo[0]['began_update']).toLocaleString()}`
+          if (syncInfo[0]['finished_update']) {
+            msg += `\nand finished on ${new Date(syncInfo[0]['finished_update']).toLocaleString()}`
+          } else {
+            msg += "\nand hasn't yet finished."
+          }
+        }
+        return msg
+      }
 
       // TO-DO: No reason this can't be in astrolabe
       const networkResults = await checkAllNetworks();
       const permissionsResults = await checkAllPermissions(guild);
+      const syncResults = await checkSyncDetails(guild)
+      console.log('syncResults', syncResults)
 
       return {
         done: {
@@ -106,6 +125,10 @@ module.exports = {
             {
               name: 'Role permissions',
               value: permissionsResults.join('\n') || '',
+            },
+            {
+              name: 'Sync info',
+              value: syncResults,
             },
           ],
           footer: `If there are any 🔴 above, please note that starrybot may not work as expected!`,

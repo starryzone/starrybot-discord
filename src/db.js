@@ -17,6 +17,7 @@ const myConfig = {
 	"DB_TABLENAME": process.env.DB_TABLENAME,
 	"DB_TABLENAME_MEMBERS": process.env.DB_TABLENAME_MEMBERS,
 	"DB_TABLENAME_ROLES": process.env.DB_TABLENAME_ROLES,
+	"DB_TABLENAME_SYNC": process.env.DB_TABLENAME_SYNC,
 	"DB_SOCKET_PATH": process.env.DB_SOCKET_PATH,
 	"INSTANCE_CONNECTION_NAME": process.env.INSTANCE_CONNECTION_NAME,
 	"DB_KEY": process.env.DB_KEY,
@@ -218,6 +219,14 @@ const memberExists = async (uuid, guildId) => {
 	}).select('id')
 }
 
+const syncDetails = async(guildId) => {
+	await ensureDatabaseInitialized()
+	let res = await knex(myConfig.DB_TABLENAME_SYNC)
+		.where('discord_guild_id', guildId)
+		.select()
+	return res
+}
+
 const inferPreferredNativeToken = async (guildId) => {
 	await ensureDatabaseInitialized()
 	let nativeTokens = await knex(myConfig.DB_TABLENAME_ROLES)
@@ -295,4 +304,4 @@ const getCosmosHubAddressFromDiscordId = async ({discordUserId}) => {
 	return cosmosHubAddress[0].cosmos_address
 }
 
-module.exports = { membersAll, memberExists, memberBySessionToken, memberByIdAndGuild, memberAdd, memberDelete, myConfig, rolesGet, roleGet, rolesSet, rolesDelete, rolesDeleteGuildAll, rolesGetForCleanUp, inferPreferredNativeToken, addCosmosHubAddress, nativeTokensFromGuild, getCosmosHubAddressFromDiscordId }
+module.exports = { membersAll, memberExists, memberBySessionToken, memberByIdAndGuild, memberAdd, memberDelete, myConfig, rolesGet, roleGet, rolesSet, rolesDelete, rolesDeleteGuildAll, rolesGetForCleanUp, inferPreferredNativeToken, addCosmosHubAddress, nativeTokensFromGuild, getCosmosHubAddressFromDiscordId, syncDetails }
