@@ -17,6 +17,8 @@ const myConfig = {
 	"DB_TABLENAME": process.env.DB_TABLENAME,
 	"DB_TABLENAME_MEMBERS": process.env.DB_TABLENAME_MEMBERS,
 	"DB_TABLENAME_ROLES": process.env.DB_TABLENAME_ROLES,
+	"DB_TABLENAME_SYNC": process.env.DB_TABLENAME_SYNC,
+	"DB_TABLENAME_SYNC_LOGS": process.env.DB_TABLENAME_SYNC_LOGS,
 	"DB_SOCKET_PATH": process.env.DB_SOCKET_PATH,
 	"INSTANCE_CONNECTION_NAME": process.env.INSTANCE_CONNECTION_NAME,
 	"DB_KEY": process.env.DB_KEY,
@@ -218,6 +220,14 @@ const memberExists = async (uuid, guildId) => {
 	}).select('id')
 }
 
+const syncDetails = async(guildId) => {
+	await ensureDatabaseInitialized()
+	let res = await knex(myConfig.DB_TABLENAME_SYNC)
+		.where('discord_guild_id', guildId)
+		.select()
+	return res
+}
+
 const inferPreferredNativeToken = async (guildId) => {
 	await ensureDatabaseInitialized()
 	let nativeTokens = await knex(myConfig.DB_TABLENAME_ROLES)
@@ -289,10 +299,12 @@ const addCosmosHubAddress = async (guildId, discordAccountId, cosmosHubAddress) 
 
 const getCosmosHubAddressFromDiscordId = async ({discordUserId}) => {
 	await ensureDatabaseInitialized()
-	let cosmosHubAddress = await knex(myConfig.DB_TABLENAME_MEMBERS)
+	let cosmosHubAddresses = await knex(myConfig.DB_TABLENAME_MEMBERS)
 		.where('discord_account_id', discordUserId)
 		.distinct('cosmos_address')
-	return cosmosHubAddress[0].cosmos_address
+		// This orderBy is because some members have multiple rows, and the old ones may have a null cosmos address
+		.orderBy('cosmos_address', 'asc')
+	return cosmosHubAddresses[0].cosmos_address
 }
 
-module.exports = { membersAll, memberExists, memberBySessionToken, memberByIdAndGuild, memberAdd, memberDelete, myConfig, rolesGet, roleGet, rolesSet, rolesDelete, rolesDeleteGuildAll, rolesGetForCleanUp, inferPreferredNativeToken, addCosmosHubAddress, nativeTokensFromGuild, getCosmosHubAddressFromDiscordId }
+module.exports = { membersAll, memberExists, memberBySessionToken, memberByIdAndGuild, memberAdd, memberDelete, myConfig, rolesGet, roleGet, rolesSet, rolesDelete, rolesDeleteGuildAll, rolesGetForCleanUp, inferPreferredNativeToken, addCosmosHubAddress, nativeTokensFromGuild, getCosmosHubAddressFromDiscordId, syncDetails }

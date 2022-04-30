@@ -13,7 +13,6 @@ module.exports = {
       }
     ) => {
       let amountOfTokensNeeded = parseInt(userInput)
-      console.log('aloha parseInt(amountOfTokensNeeded)', amountOfTokensNeeded)
       if (
         !Number.isInteger(amountOfTokensNeeded) ||
         amountOfTokensNeeded <= 0
