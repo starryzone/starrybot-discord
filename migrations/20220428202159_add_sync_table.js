@@ -11,6 +11,12 @@ exports.up = function(knex) {
       table.timestamp('finished_update')
       table.bigInteger('times_updated').defaultTo(0)
     })
+    .createTable(myConfig.DB_TABLENAME_SYNC_LOGS, function (table) {
+      table.increments('lid')
+      table.string('discord_guild_id').notNullable()
+      table.integer('members_updated').notNullable()
+      table.timestamp('completed_at').defaultTo(knex.fn.now())
+    })
 };
 
 exports.down = function(knex) {

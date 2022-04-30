@@ -46,7 +46,10 @@ app.post('/token-rule-info', async (req, res) => {
 		res.status((!results || results.error) ? 400 : 200).send(results)
 	} catch (err) {
 		logger.warn('Error hitting token-rule-info', err)
-		res.status(400).send({error:"error"})
+		res.status(400).send({error: {
+      message: err.message,
+      code: err.code
+    }})
 	}
 })
 
