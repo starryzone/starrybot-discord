@@ -1,7 +1,17 @@
 const { wizardware } = require("../commands");
+const logger = require("../logger")
 
 // A user may have sent an emoji - we are very interested in these
 async function messageReactionAdd(reaction, user) {
+	// console.log('aloha top of messageReactionAdd. reaction', reaction)
+	logger.info('messageReactionAdd', {
+		meta: 'discordFlow',
+		info: {
+			reaction: JSON.stringify(reaction),
+			user: JSON.stringify(user)
+		}
+	})
+	console.log('aloha after messageReactionAdd log')
 	if (user.bot) return; // don't care about bot's emoji reactions
 
 	await wizardware.continue(

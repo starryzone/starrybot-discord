@@ -1,4 +1,5 @@
 const { wizardware } = require("../commands");
+const logger = require("../logger")
 
 ///
 /// A user has a command for us - resolve
@@ -28,6 +29,12 @@ async function handleGuildCommands(interaction) {
 ///
 
 async function interactionCreate(interaction) {
+	logger.info('interactionCreate', {
+		meta: 'discordFlow',
+		info: {
+			interaction: JSON.stringify(interaction)
+		}
+	})
 	if (interaction.isCommand()) {
 		// our slash commands
 		return handleGuildCommands(interaction);

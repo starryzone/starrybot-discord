@@ -4,6 +4,7 @@ const db = require("../db");
 const { myConfig } = db;
 const { starryCommand } = require("../commands");
 const { createEmbed } = require("../utils/messages");
+const logger = require("../logger")
 
 // If the bot was added to the server with the correct scope, it should
 // have the authorization to add commands already.
@@ -30,6 +31,12 @@ async function registerGuildCommands(appId, guildId) {
 
 // When starrybot joins a new guild, let's say hello and let them know they can use /starry now
 async function guildCreate(guild) {
+  logger.info('guildCreate', {
+    meta: 'discordFlow',
+    info: {
+      guild: JSON.stringify(guild)
+    }
+  })
   const systemChannelId = guild.systemChannelId;
   const { client } = guild;
   let systemChannel = await client.channels.fetch(systemChannelId);
