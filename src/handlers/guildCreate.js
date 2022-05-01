@@ -30,8 +30,20 @@ async function registerGuildCommands(appId, guildId) {
 
 // When starrybot joins a new guild, let's say hello and let them know they can use /starry now
 async function guildCreate(guild) {
-  const systemChannelId = guild.systemChannelId;
+  let systemChannelId = guild.systemChannelId;
   const { client } = guild;
+  if (systemChannelId === null) {
+    // Create a "starrybot" channel or get it
+    let existingStarryBotChannel = client.channels.cache.find(c => c.name === 'starrybot');
+    if (existingStarryBotChannel) {
+      systemChannelId = existingStarryBotChannel.id
+    } else {
+      // Did not find an existing channel, create one
+      const creationRes = await guild.channels.create('starrybot')
+      systemChannelId = creationRes.id
+    }
+  }
+
   let systemChannel = await client.channels.fetch(systemChannelId);
   try {
     await registerGuildCommands(client.application.id, guild.id);
