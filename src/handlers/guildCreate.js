@@ -34,7 +34,7 @@ async function guildCreate(guild) {
   const { client } = guild;
   if (systemChannelId === null) {
     // Create a "starrybot" channel or get it
-    let existingStarryBotChannel = client.channels.cache.find(c => c.name === 'starrybot');
+    let existingStarryBotChannel = guild.channels.cache.find(c => c.name === 'starrybot');
     if (existingStarryBotChannel) {
       systemChannelId = existingStarryBotChannel.id
     } else {
