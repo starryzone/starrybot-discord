@@ -198,13 +198,13 @@ async function addRemoveRoles(discordUserId, discordGuildId, cosmosAddress, clie
     }
 
     // At this point, we're sure the user has given the role
-    const systemChannelId = guild.systemChannelId;
-    let systemChannel = await client.channels.fetch(systemChannelId);
     if (!roleDiscord) {
-      systemChannel.send("Hmm, starrybot cannot find role " + roleName)
+      logger.error('Could not find role', { data: {
+        roleName
+      }})
     } else {
       if (discordRole && !member.roles.cache.has(discordRole.id)) {
-        logger.log("Adding user to role " + roleName)
+        logger.log(`Adding user ${author.id} to role ${roleName}`)
         const rest = new REST().setToken(process.env.DISCORD_TOKEN);
         try {
           await rest.put(
@@ -212,8 +212,7 @@ async function addRemoveRoles(discordUserId, discordGuildId, cosmosAddress, clie
           );
           ret.added.push(roleName)
         } catch (e) {
-          console.error('Error trying to add role', e)
-          systemChannel.send("starrybot was unable to give someone their role :(\nPlease make sure my permission is higher in the list than " + roleDiscord.name);
+          logger.error('Error trying to add role', e)
           return;
         }
       } else {
