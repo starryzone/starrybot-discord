@@ -3,4 +3,3 @@ slashcommands.js
 package-lock.json
 node_modules
 winston.json
-.env
