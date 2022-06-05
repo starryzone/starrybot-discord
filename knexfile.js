@@ -15,7 +15,7 @@ module.exports = {
       database: myConfig.DB_NAME,
       host: myConfig.DB_HOSTIP,
       port: myConfig.DB_HOSTPORT,
-      ssl: enableSSL
+      ssl: { rejectUnauthorized: false }
     },
     pool: {
       min: 2,
