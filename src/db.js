@@ -1,6 +1,7 @@
 // Initialize process.env with variables set in .env
 require('dotenv').config({ path:__dirname+'/../.env' });
 
+const { production } = require("../knexfile")
 const logger = require("./logger")
 
 // const defaultConfig = require("./auth-local.json");
@@ -29,27 +30,8 @@ const myConfig = {
 	"VALIDATOR": process.env.VALIDATOR
 }
 
-const enableSSL = !['localhost', '127.0.0.1'].includes(myConfig.DB_HOSTIP);
 
-const knex = require('knex')({
-	client: 'pg',
-	connection: {
-		user: myConfig.DB_USER,
-		password: myConfig.DB_PASS,
-		database: myConfig.DB_NAME,
-		host: myConfig.DB_HOSTIP,
-		port: myConfig.DB_HOSTPORT,
-		ssl: enableSSL
-	},
-	pool: {
-		max: 5,
-		min: 5,
-		acquireTimeoutMillis: 60000,
-		createTimeoutMillis: 30000,
-		idleTimeoutMillis: 600000,
-		createRetryIntervalMillis: 200,
-	}
-});
+const knex = require('knex')(production);
 
 let knex_initialized = false
 
@@ -75,13 +57,18 @@ const ensureDatabaseInitialized = async () => {
 			await knex.schema.createTable(myConfig.DB_TABLENAME_ROLES, table => {
 				table.increments('id').primary()
 				table.string('discord_guild_id').notNullable()
-				table.string('discord_role_id').notNullable()
+				//table.string('discord_role_id').notNullable()
 				table.string('token_address').notNullable()
 				table.string('token_type').notNullable()
 				table.string('has_minimum_of').notNullable()
 				table.timestamp('created_at').defaultTo(knex.fn.now())
 				table.string('created_by_discord_id').notNullable()
 				table.string('give_role').notNullable()
+				table.boolean("count_staked_only").notNullable()
+				table.string("decimals")
+				table.string("network")
+				table.string("staking_contract")
+				table.boolean("remove_in_cleanup").notNullable()
 			})
 		}
 	} catch(err) {

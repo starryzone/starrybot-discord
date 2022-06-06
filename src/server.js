@@ -10,7 +10,9 @@ const cors = require('cors')
 const app = express()
 app.use(express.static('public'))
 
-app.use(cors())
+app.use(cors({
+  origin: 'https://warcats-cosmos-webapp.vercel.app/'
+}))
 
 app.enable('trust proxy')
 app.use(express.urlencoded({extended: false}))
