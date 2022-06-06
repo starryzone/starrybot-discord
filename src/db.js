@@ -50,7 +50,7 @@ const ensureDatabaseInitialized = async () => {
 				table.string('session_token').notNullable()
 				table.text('saganism', 'mediumtext').notNullable()
 				table.boolean('is_member')
-				table.string("cosmos_address").notNullable()
+				table.string("cosmos_address")
 			})
 		}
 		hasTable = await knex.schema.hasTable(myConfig.DB_TABLENAME_ROLES)
