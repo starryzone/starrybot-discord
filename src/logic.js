@@ -179,7 +179,7 @@ async function addRemoveRoles(discordUserId, discordGuildId, cosmosAddress, clie
         console.log("getting staked token balance")
       } else {
         balance = await getTokenBalance({keplrAccount: cosmosAddress, tokenAddress, network, extra: { staking_contract: role.staking_contract }});
-        console.log("getting regular balance")
+        console.log("getting regular balance", {keplrAccount: cosmosAddress, tokenAddress, network, extra: { staking_contract: role.staking_contract }})
       }
     } catch(e) {
       console.warn(e);
