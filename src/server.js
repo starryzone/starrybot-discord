@@ -11,7 +11,7 @@ const app = express()
 app.use(express.static('public'))
 
 app.use(cors({
-  origin: 'https://warcats-cosmos-webapp.vercel.app'
+  origin: process.env.VALIDATOR
 }))
 
 app.enable('trust proxy')
