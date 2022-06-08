@@ -39,7 +39,6 @@ const ensureDatabaseInitialized = async () => {
 	if (knex_initialized) return
 	knex_initialized = true
 	try {
-		// Reminder: we have database migrations in the "migrations" directory at the project root
 		let hasTable = await knex.schema.hasTable(myConfig.DB_TABLENAME_MEMBERS)
 		if (!hasTable) {
 			await knex.schema.createTable(myConfig.DB_TABLENAME_MEMBERS, table => {
@@ -50,7 +49,6 @@ const ensureDatabaseInitialized = async () => {
 				table.string('session_token').notNullable()
 				table.text('saganism', 'mediumtext').notNullable()
 				table.boolean('is_member')
-				table.string("cosmos_address")
 			})
 		}
 		hasTable = await knex.schema.hasTable(myConfig.DB_TABLENAME_ROLES)
@@ -58,18 +56,13 @@ const ensureDatabaseInitialized = async () => {
 			await knex.schema.createTable(myConfig.DB_TABLENAME_ROLES, table => {
 				table.increments('id').primary()
 				table.string('discord_guild_id').notNullable()
-				//table.string('discord_role_id').notNullable()
+				table.string('discord_role_id').notNullable()
 				table.string('token_address').notNullable()
 				table.string('token_type').notNullable()
 				table.string('has_minimum_of').notNullable()
 				table.timestamp('created_at').defaultTo(knex.fn.now())
 				table.string('created_by_discord_id').notNullable()
 				table.string('give_role').notNullable()
-				table.boolean("count_staked_only").notNullable()
-				table.string("decimals")
-				table.string("network")
-				table.string("staking_contract")
-				table.boolean("remove_in_cleanup").notNullable()
 			})
 		}
 	} catch(err) {
