@@ -126,7 +126,8 @@ const isCorrectSaganism = async (traveller, signed) => {
 async function tokenRuleInfo(body, client) {
 	const { discordUserId, guildId } = body
   // Add/remove roles as necessary
-	const cosmosHubAddress = await db.getCosmosHubAddressFromDiscordId({discordUserId})
+  const cosmosHubAddress = await db.getCosmosHubAddress({guildId, discordUserId})
+  console.log(`Guild ${guildId} has user ${discordUserId} whose Cosmos Hub address is ${cosmosHubAddress}`);
   // Some folks who used starrybot early on didn't have their Cosmos address captured
   if (!cosmosHubAddress) {
     return { error: 'User must use "/starry login" to capture Cosmos Hub address'}
