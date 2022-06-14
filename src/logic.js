@@ -213,7 +213,7 @@ async function addRemoveRoles(discordUserId, discordGuildId, cosmosAddress, clie
           );
           ret.added.push(roleName)
         } catch (e) {
-          logger.error('Error trying to add role', e)
+          logger.error(`Error trying to add role. Guild: ${guild.id}, User: ${author.id}`, e)
           return;
         }
       } else {
