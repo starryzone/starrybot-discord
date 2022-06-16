@@ -126,16 +126,20 @@ function buildCommandExecute(command) {
         next(config.next, config.prompt?.type);
       } else if (config.done) {
         const { title = 'Finished! 🌟', description, ...props } = config.done;
-        await interactionTarget.reply(createMessage({
-          embeds: [
-            {
-              color: messageColor,
-              title,
-              description,
-              ...props
-            }
-          ]
-        }));
+        try {
+          await interactionTarget.reply(createMessage({
+            embeds: [
+              {
+                color: messageColor,
+                title,
+                description,
+                ...props
+              }
+            ]
+          }));
+        } catch (e) {
+          console.error('Discord had an issue with interaction', e);
+        }
         // Chain is over, clean up
         end();
       } else {
