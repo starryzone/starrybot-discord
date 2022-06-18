@@ -15,18 +15,15 @@ const { starryCommand } = require('./commands');
 const intents = new Intents([ Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILD_MEMBERS, Intents.FLAGS.GUILD_INTEGRATIONS, Intents.FLAGS.GUILD_MESSAGE_REACTIONS ]);
 const client = new Client({intents: intents })
 
-/// Install commands
+// Install commands
 client.commands = new Collection();
-/// Install /starry command, which includes the actual commands for this bot
+// Install /starry command, which includes the actual commands for this bot
 // as subcommands and subcommand groups, as configured in src/commands/index.js
 // starryCommand.data.name is "starry"
 // starryCommand has the execute function
 client.commands.set(starryCommand.data.name, starryCommand);
 
-///
-/// Handle inbound events from discord
-///
-
+// Handle inbound events from Discord
 // Handler for discord bot server starting
 client.on("ready", async () => { logger.info(`starrybot has star(ry)ted.`) });
 
@@ -43,12 +40,7 @@ client.on('messageCreate', messageCreate);
 // Handler for emoji reactions on discord messages from our bot
 client.on('messageReactionAdd', messageReactionAdd );
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-///
-/// Register with discord
-///
-
+// Register with discord
 const login = async () => {
   let token = db.myConfig.DISCORD_TOKEN || process.env.DISCORD_TOKEN;
   const loggedInToken = await client.login(token)
