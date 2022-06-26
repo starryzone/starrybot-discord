@@ -43,7 +43,8 @@ function buildCommandExecute(command) {
                 description: 'Loading choices, fren.',
               }],
               // Necessary in order to react to the message
-              fetchReply: true
+              fetchReply: true,
+              ephemeral: config.ephemeral
             })
           );
 
@@ -61,6 +62,7 @@ function buildCommandExecute(command) {
               }
             ],
             title: config.title,
+            ephemeral: config.ephemeral
           }));
 
           const getNextCommandNameFromEmoji = ({ reaction }) => {
