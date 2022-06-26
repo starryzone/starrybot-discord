@@ -110,8 +110,7 @@ function buildCommandExecute(command) {
           next(config.next, config.prompt?.type);
           break;
       }
-    }
-    else {
+    } else {
       const messageColor = config.done && COLORS_BY_MESSAGE_TYPE['success'];
       reply.embeds = config.embeds?.map(embedConfig => ({
         ...embedConfig,
@@ -126,7 +125,7 @@ function buildCommandExecute(command) {
         next(config.next, config.prompt?.type);
       } else if (config.done) {
         const { title = 'Finished! 🌟', description, ...props } = config.done;
-        await interactionTarget.reply(createMessage({
+        const embed = createMessage({
           embeds: [
             {
               color: messageColor,
@@ -134,8 +133,10 @@ function buildCommandExecute(command) {
               description,
               ...props
             }
-          ]
-        }));
+          ],
+          ephemeral: reply.ephemeral
+        })
+        await interactionTarget.reply(embed);
         // Chain is over, clean up
         end();
       } else {
