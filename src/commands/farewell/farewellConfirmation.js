@@ -25,7 +25,7 @@ module.exports = {
       await rolesDeleteGuildAll(guildId)
 
       // confirm
-      await interaction.reply('Bye!')
+      await interaction.reply({content: 'Bye!', ephemeral: true})
 
       // leave
       await interaction.guild.leave()
