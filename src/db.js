@@ -104,6 +104,14 @@ const rolesGet = async (guildId) => {
 	return roles
 }
 
+const cosmosAddressesForGuild = async (guildId) => {
+	const cosmosHubAddresses = await knex(myConfig.DB_TABLENAME_MEMBERS)
+		.select('cosmos_address').distinct('cosmos_address')
+		.whereNotNull('cosmos_address',)
+		.andWhere('discord_guild_id', guildId)
+	return cosmosHubAddresses
+}
+
 const roleGet = async (guildId, roleName) => {
 	await ensureDatabaseInitialized()
 
@@ -308,4 +316,4 @@ const getCosmosHubAddress = async ({guildId, discordUserId}) => {
 	return cosmosHubAddresses[0].cosmos_address
 }
 
-module.exports = { membersAll, memberExists, memberBySessionToken, memberByIdAndGuild, memberAdd, memberDelete, myConfig, rolesGet, roleGet, rolesSet, rolesDelete, rolesDeleteGuildAll, rolesGetForCleanUp, inferPreferredNativeToken, addCosmosHubAddress, nativeTokensFromGuild, getCosmosHubAddress, syncDetails }
+module.exports = { membersAll, memberExists, memberBySessionToken, memberByIdAndGuild, memberAdd, memberDelete, myConfig, rolesGet, roleGet, rolesSet, rolesDelete, rolesDeleteGuildAll, rolesGetForCleanUp, inferPreferredNativeToken, addCosmosHubAddress, nativeTokensFromGuild, getCosmosHubAddress, syncDetails, cosmosAddressesForGuild }
