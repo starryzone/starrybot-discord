@@ -10,10 +10,12 @@ function buildCommandExecute(command) {
     if (!config) { return; } // might have had error
 
     const { interactionTarget } = state;
+    // This will allow us to have more than 3 seconds to respond
+    await interactionTarget.deferReply({ephemeral: true})
 
     if (config.error) {
       console.warn(config.error);
-      await interactionTarget.reply(
+      await interactionTarget.editReply(
         createPrivateError(
           config.channelError ?
           config.channelError.toString() :
@@ -35,7 +37,7 @@ function buildCommandExecute(command) {
 
       switch(promptType) {
         case 'reaction':
-          const msg = await interactionTarget.reply(createMessage(
+          const msg = await interactionTarget.editReply(createMessage(
             {
               embeds: [{
                 color: messageColor,
@@ -89,7 +91,7 @@ function buildCommandExecute(command) {
           if (config.prompt.description || config.prompt.footer) {
             reply.embeds = [{description: config.prompt.description ?? 'Note:', footer: config.prompt.footer}]
           }
-          await interactionTarget.reply(createMessage(reply));
+          await interactionTarget.editReply(createMessage(reply));
           // Go to the step designated by the clicked button's ID
           next(({ interaction }) => interaction.customId, 'button');
           break;
@@ -106,7 +108,7 @@ function buildCommandExecute(command) {
               ...props
             }
           ];
-          await interactionTarget.reply(createMessage(reply));
+          await interactionTarget.editReply(createMessage(reply));
           next(config.next, config.prompt?.type);
           break;
       }
@@ -118,25 +120,29 @@ function buildCommandExecute(command) {
       }));
 
       if (reply.content || reply.embeds?.length > 0) {
-        await interactionTarget.reply(createMessage(reply));
+        await interactionTarget.editReply(createMessage(reply));
       }
 
       if (config.next) {
         next(config.next, config.prompt?.type);
       } else if (config.done) {
         const { title = 'Finished! 🌟', description, ...props } = config.done;
-        const embed = createMessage({
+        let embed = createMessage({
           embeds: [
             {
               color: messageColor,
               title,
               description,
               ...props
-            }
+            },
           ],
-          ephemeral: reply.ephemeral
+          ephemeral: reply.ephemeral,
+
         })
-        await interactionTarget.reply(embed);
+        if (props.attachments) {
+          embed.files = props.attachments
+        }
+        await interactionTarget.editReply(embed);
         // Chain is over, clean up
         end();
       } else {
