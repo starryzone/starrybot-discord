@@ -57,6 +57,11 @@ app.get('/health-check', async (req, res) => {
   res.status(200).send()
 })
 
+app.get('/metrics', async (req, res) => {
+  const metrics = await db.metrics()
+  res.status(200).send(metrics)
+})
+
 // TODO arguably config could be separate from db so that db would not need to be included here
 const PORT = db.myConfig.PORT || process.env.PORT || 80;
 const server = app.listen(PORT, () => {
