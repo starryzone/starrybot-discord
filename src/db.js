@@ -286,6 +286,24 @@ const memberAdd = async ({discord_account_id, discord_guild_id, saganism}) => {
 	return session_token
 }
 
+const metrics = async() => {
+	let totalGuilds = await knex(myConfig.DB_TABLENAME_ROLES).countDistinct('discord_guild_id')
+	totalGuilds = parseInt(totalGuilds[0].count)
+	let totalRoles = {}
+	for (const tokenType of ['native', 'cw20', 'cw721']) {
+		const tokenCount = await knex(myConfig.DB_TABLENAME_ROLES).where('token_type', tokenType).count('*')
+		totalRoles[tokenType] = parseInt(tokenCount[0].count)
+	}
+	let totalMembers = await knex(myConfig.DB_TABLENAME_MEMBERS).whereNotNull('cosmos_address').countDistinct('cosmos_address')
+	totalMembers = parseInt(totalMembers[0].count)
+
+	return {
+		totalGuilds,
+		totalRoles,
+		totalMembers
+	}
+}
+
 const memberDelete = async ({authorId, guildId}) => {
 	await ensureDatabaseInitialized()
 	try {
@@ -316,4 +334,4 @@ const getCosmosHubAddress = async ({guildId, discordUserId}) => {
 	return cosmosHubAddresses[0].cosmos_address
 }
 
-module.exports = { membersAll, memberExists, memberBySessionToken, memberByIdAndGuild, memberAdd, memberDelete, myConfig, rolesGet, roleGet, rolesSet, rolesDelete, rolesDeleteGuildAll, rolesGetForCleanUp, inferPreferredNativeToken, addCosmosHubAddress, nativeTokensFromGuild, getCosmosHubAddress, syncDetails, cosmosAddressesForGuild }
+module.exports = { membersAll, memberExists, memberBySessionToken, memberByIdAndGuild, memberAdd, memberDelete, myConfig, rolesGet, roleGet, rolesSet, rolesDelete, rolesDeleteGuildAll, rolesGetForCleanUp, inferPreferredNativeToken, addCosmosHubAddress, nativeTokensFromGuild, getCosmosHubAddress, syncDetails, cosmosAddressesForGuild, metrics }

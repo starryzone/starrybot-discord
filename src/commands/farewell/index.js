@@ -4,6 +4,7 @@ const { farewellRejection } = require('./farewellRejection');
 module.exports = {
   starryCommandFarewell: {
     adminOnly: true,
+    ephemeral: true,
     name: 'farewell',
     description: 'Kick starrybot itself from your guild',
     prompt: {

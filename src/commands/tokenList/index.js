@@ -14,6 +14,7 @@ module.exports = {
           }).join('')}` :
         `This will be way more exciting when roles are added :)`;
       return {
+        ephemeral: true,
         done: { title, description }
       };
     }
