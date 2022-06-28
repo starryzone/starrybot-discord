@@ -8,20 +8,24 @@ function buildCommandExecute(command) {
       command;
 
     if (!config) { return; } // might have had error
-
     const { interactionTarget } = state;
     // This will allow us to have more than 3 seconds to respond
-    await interactionTarget.deferReply({ephemeral: true})
+    if (interactionTarget.deferReply) {
+      await interactionTarget.deferReply({ephemeral: command.ephemeral})
+    }
 
     if (config.error) {
       console.warn(config.error);
-      await interactionTarget.editReply(
-        createPrivateError(
-          config.channelError ?
-          config.channelError.toString() :
-          config.error.toString()
-        )
-      );
+      const reply = createPrivateError(
+        config.channelError ?
+        config.channelError.toString() :
+        config.error.toString()
+      )
+      if (interactionTarget.deferReply) {
+        await interactionTarget.editReply(reply);
+      } else {
+        await interactionTarget.reply(reply);
+      }
       end();
       return;
     }
@@ -37,20 +41,25 @@ function buildCommandExecute(command) {
 
       switch(promptType) {
         case 'reaction':
-          const msg = await interactionTarget.editReply(createMessage(
+          const reactionReply = createMessage(
             {
-              embeds: [{
-                color: messageColor,
-                title: 'One moment…',
-                description: 'Loading choices, fren.',
-              }],
-              // Necessary in order to react to the message
-              fetchReply: true,
-              ephemeral: config.ephemeral
-            })
-          );
+            embeds: [{
+              color: messageColor,
+              title: 'One moment…',
+              description: 'Loading choices, fren.',
+            }],
+            // Necessary in order to react to the message
+            fetchReply: true,
+            ephemeral: config.ephemeral
+          })
+          let msg
+          if (interactionTarget.deferReply) {
+            msg = await interactionTarget.editReply(reactionReply);
+          } else {
+            msg = await interactionTarget.reply(reactionReply);
+          }
 
-          for (var i = 0; i < config.prompt.options.length; i++) {
+          for (let i = 0; i < config.prompt.options.length; i++) {
             await msg.react(config.prompt.options[i].emoji);
           }
 
@@ -93,7 +102,11 @@ function buildCommandExecute(command) {
           if (config.prompt.description || config.prompt.footer) {
             reply.embeds = [{description: config.prompt.description ?? 'Note:', footer: config.prompt.footer}]
           }
-          await interactionTarget.editReply(createMessage(reply));
+          if (interactionTarget.deferReply) {
+            await interactionTarget.editReply(createMessage(reply));
+          } else {
+            await interactionTarget.reply(createMessage(reply));
+          }
           // Go to the step designated by the clicked button's ID
           next(({ interaction }) => interaction.customId, 'button');
           break;
@@ -110,7 +123,11 @@ function buildCommandExecute(command) {
               ...props
             }
           ];
-          await interactionTarget.editReply(createMessage(reply));
+          if (interactionTarget.deferReply) {
+            await interactionTarget.editReply(createMessage(reply));
+          } else {
+            await interactionTarget.reply(createMessage(reply));
+          }
           next(config.next, config.prompt?.type);
           break;
       }
@@ -122,7 +139,11 @@ function buildCommandExecute(command) {
       }));
 
       if (reply.content || reply.embeds?.length > 0) {
-        await interactionTarget.editReply(createMessage(reply));
+        if (interactionTarget.deferReply) {
+          await interactionTarget.editReply(createMessage(reply));
+        } else {
+          await interactionTarget.reply(createMessage(reply));
+        }
       }
 
       if (config.next) {
@@ -144,7 +165,11 @@ function buildCommandExecute(command) {
         if (props.attachments) {
           embed.files = props.attachments
         }
-        await interactionTarget.editReply(embed);
+        if (interactionTarget.deferReply) {
+          await interactionTarget.editReply(embed);
+        } else {
+          await interactionTarget.reply(embed);
+        }
         // Chain is over, clean up
         end();
       } else {
