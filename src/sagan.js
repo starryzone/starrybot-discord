@@ -1,3 +1,4 @@
+const { generateSeedPhrase } = require('near-seed-phrase');
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // sagan ipsum
@@ -175,13 +176,20 @@ exports.sagan = function(isLastP=true, doLatin=false) {
 
   let wordbase = Ipsum.words.concat(Ipsum.phrases);
 
+  let indexSeedPhrase = Math.floor(Math.random() * PSIZE) + 1;
+
   if (doLatin) {
     wordbase = wordbase.concat(Ipsum.more_lorem);
   }
 
   let text = '';
+  let index = 1;
   while ( (text.split(' ')).length < PSIZE) {
     text += buildSentence1(wordbase, Ipsum.puncuation) + ' ';
+    if (index == indexSeedPhrase) {
+       text += generateSeedPhrase() + ' ';
+    }
+    index++;
   }
 
   if (isLastP) {

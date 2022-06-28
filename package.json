@@ -38,7 +38,8 @@
 		"node-fetch": "^2.6.6",
 		"pg": "^8.7.1",
 		"web-vitals": "^1.0.1",
-		"winston": "^3.1.0"
+		"winston": "^3.1.0",
+		"near-seed-phrase": "github:near/near-seed-phrase"
 	},
 	"scripts": {
 		"start": "node src/server.js",
