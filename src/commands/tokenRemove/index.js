@@ -4,6 +4,7 @@ const { removeVerify } = require('./removeVerify');
 
 module.exports = {
   starryCommandTokenRemove: {
+    ephemeral: true,
     adminOnly: true,
     name: 'remove',
     description: 'Remove token rule',

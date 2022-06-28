@@ -4,6 +4,7 @@ const { Bech32 } = require('@cosmjs/encoding')
 
 module.exports = {
   starryCommandExport: {
+    ephemeral: true,
     adminOnly: true,
     name: 'export',
     description: 'Export a CSV of the Cosmos Hub addresses engaging with your Discord',
