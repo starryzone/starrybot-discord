@@ -4,3 +4,5 @@ package-lock.json
 node_modules
 winston.json
 .env
+exports/*
+!exports/.gitkeep

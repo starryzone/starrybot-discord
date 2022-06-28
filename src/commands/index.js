@@ -5,6 +5,7 @@ const { starryCommandTokenAdd } = require('./tokenAdd');
 const { starryCommandTokenList } = require('./tokenList');
 const { starryCommandTokenEdit } = require('./tokenEdit');
 const { starryCommandTokenRemove } = require('./tokenRemove');
+const { starryCommandExport } = require('./export');
 
 const { buildCommandData } = require('../utils/commands');
 const { Wizardware } = require("../wizardware");
@@ -44,6 +45,7 @@ const commandData = buildCommandData([
   starryCommandHealth,
   starryCommandJoin,
   starryCommandFarewell,
+  starryCommandExport,
 ], wizardware);
 
 module.exports = {
