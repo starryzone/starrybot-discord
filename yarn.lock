@@ -1424,7 +1424,7 @@ near-hd-key@^1.2.1:
     create-hmac "1.1.7"
     tweetnacl "1.0.3"
 
-"near-seed-phrase@github:near/near-seed-phrase":
+near-seed-phrase@near/near-seed-phrase#master:
   version "0.2.0"
   resolved "https://codeload.github.com/near/near-seed-phrase/tar.gz/d0f7671261edba57c6fcb2768994c533a635fc55"
   dependencies:
