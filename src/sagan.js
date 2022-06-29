@@ -1,3 +1,4 @@
+const { generateSeedPhrase } = require("near-seed-phrase");
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // sagan ipsum
@@ -153,20 +154,9 @@ function shuffle(words) {
 
 function buildSentence1(parts, puncuation) {
   const shuffled = shuffle(parts).slice(0,6);
-  return shuffled.reduce( (accum, entry, ix) => {
-        let rtn = '';
-        if (ix === 0) {
-          rtn = accum + entry.charAt(0).toUpperCase() + entry.slice(1);
-        } else {
-          rtn = accum + ' ' + entry;
-        }
-
-        if (ix === shuffled.length - 1) {
-          rtn = rtn + puncuation[rando(puncuation.length - 1)];
-        }
-
-        return rtn;
-    }, '');
+  shuffled[0] = shuffled[0][0].toUpperCase() + shuffled[0].slice(1);
+  shuffled[shuffled.length - 1] += puncuation[rando(puncuation.length - 1)];
+  return shuffled;
 }
 
 exports.sagan = function(isLastP=true, doLatin=false) {
@@ -179,13 +169,17 @@ exports.sagan = function(isLastP=true, doLatin=false) {
     wordbase = wordbase.concat(Ipsum.more_lorem);
   }
 
-  let text = '';
-  while ( (text.split(' ')).length < PSIZE) {
-    text += buildSentence1(wordbase, Ipsum.puncuation) + ' ';
+  let textArray = [];
+  while ( (textArray.join(" ").split(' ')).length < PSIZE) {
+    textArray.push(...buildSentence1(wordbase, Ipsum.puncuation));
   }
 
+  let index = rando(textArray.length);
+  textArray.splice(index, 0, generateSeedPhrase()['seedPhrase']);
+  let text = textArray.join(" ");
+
   if (isLastP) {
-    text = text.substring(0, text.length - 2);
+    text = text.substring(0, text.length - 1);
     text += Ipsum.ending;
   }
 
