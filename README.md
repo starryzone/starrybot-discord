@@ -1,104 +1,73 @@
-# starrybot
+<p align="center">
+  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="200" alt="Nest Logo" /></a>
+</p>
 
-## Getting Started
+[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
+[circleci-url]: https://circleci.com/gh/nestjs/nest
 
-### Discord Set-up
-* Choose an existing Discord Server or make a new Discord Server for local dev
-    * You must be an admin of this server, and starrybot must not be in there already
-* Click on “New Application” in the [Discord Developer Portal](https://discord.com/developers/applications)
-* Go to the “Bot” tab and add a bot
-    * Scroll down to "Privileged Gateway Intents" and toggle the “Server Members Intent” on
-    * (Optional) Untoggle “Public Bot” if you don’t want anyone else adding your bot to discord servers in the meantime
-    * Save your changes
+  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
+    <p align="center">
+<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
+<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
+<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
+<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
+<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
+<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
+<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
+<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
+  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg"/></a>
+    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
+  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
+</p>
+  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
+  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
 
-### Run the Bot Server
-* Run `nvm use`, or otherwise make sure you have node >= 16.6.0
-* Run `yarn install` in the root directory
-* Run `cp .env.template .env` to make your own copy of environment variables
-* Set `DISCORD_TOKEN` in `.env` to the token in the "Bot" tab
-* Run `yarn start`
+## Description
 
-### Add your Bot to your Discord Server
-* Go to the "General" tab of your app in the Discord Developer Portal and copy the application ID
-* Go to `https://discord.com/oauth2/authorize?client_id=[your application ID]&scope=applications.commands%20bot&permissions=8`
-    * Follow the steps to authorize the bot
-    * You will need to kick the bot a lot for testing, so keep this URL around
-* Your bot should be successfully added to the server!
-* Follow the steps in the welcome message to re-authorize the bot to enable slash commands
+[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
 
----
+## Installation
 
-## Other Runbooks
+```bash
+$ npm install
+```
 
-### Get Juno Testnet tokens for testing
-* Make sure you have [Keplr for Chrome](https://www.keplr.app/) installed (doesn't work on Brave)
-* Click on "Enter the app" at https://daodao.zone/
-* Hit "Connect Wallet" to add Juno Testnet to your Keplr
-* Go to the [Juno Discord server](https://discord.gg/4a8PRXNc)
-* (If prompted by a bot) Verify yourself via the DMed instructions
-* Open the Keplr Chrome extension (top bar)
+## Running the app
 
-    * Hit the dropdown that says “Cosmo”
-    * Scroll down to the bottom and click on “Juno Testnet”
-* Click on the `junoxyz...` string under your Keplr wallet name to copy the Juno Testnet address
-* Paste `$request [your Juno Testnet address]` in #faucet
-    * You don’t need to keep the ID in the response - you can always get it later and it doesn’t work the same on testnet anyways
-    * You can run this command after some delay (hours/days) to get more for testing if needed
+```bash
+# development
+$ npm run start
 
----
+# watch mode
+$ npm run start:dev
 
-## Overview
+# production mode
+$ npm run start:prod
+```
 
-A collection of services to elevate user privileges in Discord.
+## Test
 
-## How it works
+```bash
+# unit tests
+$ npm run test
 
-The way this works is:
+# e2e tests
+$ npm run test:e2e
 
-1. discord.js registers with discord in general once, and watches for events.
+# test coverage
+$ npm run test:cov
+```
 
-2. discord.js watches for "guildCreate" messages which means that a person running a discord room would like to add starrybot to their room. We go ahead and add starrybot to the room on request. That interaction is a bit complex: it prints a button to the discord channel, and when the administrator clicks on the button it goes ahead and builds some roles and registers some slash commands and also starts tracking those roles in our database.
+## Support
 
-3. discord.js now watches for user commands and does a few fun things, it lets users elevate their perms, by sending those users to a wallet verification webpage where they validate their wallet.
+Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
 
-4. sagan.js is used to help generate the sagan ipsum
+## Stay in touch
 
-5. server.js watches for messages back from the wallet verification webpage.
+- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
+- Website - [https://nestjs.com](https://nestjs.com/)
+- Twitter - [@nestframework](https://twitter.com/nestframework)
 
-## Useful links:
+## License
 
-- [Adding the Discord bot](https://discord.com/oauth2/authorize?client_id=911363833925349456&scope=bot&permissions=8)
-
-## Props
-
-Props to Todd Wallar for the fun project https://github.com/omniverse/saganipsum.
-
-## TODO
-
-- add a kick command 
-
-- examine the overall flow
-- the web page could actually be merged into this back end
-- db config env vars could be cleaned up
-- rather than a db the roles could be on the blockchain
-- litter this code with try catch
-- migration scripts can only be run after the bot has been run successfully once (i.e. db.js has already created the tables)
-
-## DISCORD TO IMPROVE
-
-- private messages should emojis
-- close down command for when the starrybot is kicked so we can delete roles
-- having to add the bot twice could be improved
-- it would be nicer to know if we knew if a person was an admin or not, this would make it easier for us
-
----
-## Debugging Tips
-
-**Problem**: `Error [DISALLOWED_INTENTS]: Privileged intent provided is not enabled or whitelisted.`  
-**Answer**: Bot intents aren’t set in the dev portal correctly
-
-**Problem**: Server is showing error messages about Knex schema migration  
-**Answer**: Need to set up Postgres locally and add the environment variables to your .env
-
-**Problem**: Can’t see "Add to Server" button after clicking on the bot in the Discord Server users list  
-**Answer**: You have an older version of Discord, upgrade and try again
+Nest is [MIT licensed](LICENSE).
