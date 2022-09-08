@@ -1,22 +1,29 @@
 module.exports = {
   daoDao: {
-    next: 'handleCW20Entry',
+    next: 'promptTokenName',
     prompt: {
       type: 'modal',
-      title: 'Check out DAODAO',
-      description: 'If you have not set up a DAO, visit the link above to create a DAO with a governance token.',
-      fields: [
+      title: 'Configure DAODAO Token Rule',
+      inputs: [
         {
-          name: '🧑‍🤝‍🧑', // a big space
-          value: '☯',
-          inline: false,
+          label: 'DAODAO URL',
+          placeholder: "Paste your DAODAO URL and we'll take care of the rest!",
+          id: 'token-address',
+          required: true,
         },
         {
-          name: "Paste your DAODAO URL and we'll take care of the rest!",
-          value: "(For example, it'll look something like https://daodao.zone/dao/juno156vlvprfxc4yyu26ute4hu6tjq96pxgt5qqmm0zlt4y0khjetvhqdhmgdm)",
+          label: 'Role Name',
+          placeholder: 'Please enter the name of the role that should created',
+          id: 'role-name',
+          required: true,
+        },
+        {
+          label: 'Token Amount',
+          placeholder: 'Please enter the number of tokens a user must have to get a special role',
+          id: 'token-amount',
+          required: true,
         }
-      ],
-      url: 'https://daodao.zone'
+      ]
     }
   }
 }

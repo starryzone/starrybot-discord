@@ -137,11 +137,16 @@ function createSelectMenu({
       new SelectMenuBuilder()
         .setCustomId(customId)
         .setPlaceholder(placeholder)
-        .addOptions(...options), // Supposed to be different args
+        .addOptions(...options.map(option => ({
+          // Only first 100 char allowed
+          ...option,
+          description: option.description?.substring(0, 100),
+        }))), // Supposed to be different args
   );
+
   return {
     content: title,
-    embeds,
+    embeds: embeds.map(embed => createEmbed(embed)),
     components: [row],
   };
 }
@@ -151,7 +156,6 @@ function createModal({
   title,
   inputs = [],
 }) {
-  console.log(ModalBuilder);
   const modal = new ModalBuilder()
     .setCustomId(customId)
     .setTitle(title);
@@ -162,9 +166,9 @@ function createModal({
   const textInputs = inputs.map((input, index) => (
     new TextInputBuilder()
       .setCustomId(input.id || `input-${index}`) // TO-DO allow custom IDs to get passed through
-      .setPlaceholder(input.placeholder)
-      .setRequired(input.required)
-      .setLabel(input.label)
+      .setPlaceholder(input.placeholder || '')
+      .setRequired(input.required || false)
+      .setLabel(input.label || '')
       // can be Short, Paragraph
       .setStyle(input.style === 'Short' ? TextInputStyle.Short : TextInputStyle.Paragraph)
   ));

@@ -18,7 +18,7 @@ module.exports = {
         },
         {
           label: 'Token Amount',
-          placeholder: 'Please enter the number of tokens a user must have to get a special role.',
+          placeholder: 'Please enter the number of tokens a user must have to get a special role',
           id: 'token-amount',
           required: true,
         }

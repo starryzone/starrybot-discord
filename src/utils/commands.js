@@ -23,7 +23,7 @@ function buildCommandExecute(command) {
         config.channelError.toString() :
         config.error.toString()
       )
-      if (interactionTarget.deferReply) {
+      if (interactionTarget.deferred) {
         await interactionTarget.editReply(reply);
       } else {
         await interactionTarget.reply(reply);
@@ -46,6 +46,7 @@ function buildCommandExecute(command) {
             {
               title: config.prompt.title,
               ephemeral: config.ephemeral,
+              embeds: config.prompt.embeds,
               options: config.prompt.options.map(option => ({
                 label: option.label || `${option.emoji} ${option.description}`,
                 // TO-DO: Selects let us add more descriptions than just the label, but
@@ -56,7 +57,7 @@ function buildCommandExecute(command) {
             }
           );
           let msg
-          if (interactionTarget.deferReply) {
+          if (interactionTarget.deferred) {
             msg = await interactionTarget.editReply(selectMenu);
           } else {
             msg = await interactionTarget.reply(selectMenu);
@@ -77,7 +78,7 @@ function buildCommandExecute(command) {
           if (config.prompt.description || config.prompt.footer) {
             reply.embeds = [{description: config.prompt.description ?? 'Note:', footer: config.prompt.footer}]
           }
-          if (interactionTarget.deferReply) {
+          if (interactionTarget.deferred) {
             await interactionTarget.editReply(createMessage(reply));
           } else {
             await interactionTarget.reply(createMessage(reply));
@@ -110,7 +111,7 @@ function buildCommandExecute(command) {
       }));
 
       if (reply.content || reply.embeds?.length > 0) {
-        if (interactionTarget.deferReply) {
+        if (interactionTarget.deferred) {
           await interactionTarget.editReply(createMessage(reply));
         } else {
           await interactionTarget.reply(createMessage(reply));
@@ -136,7 +137,7 @@ function buildCommandExecute(command) {
         if (props.attachments) {
           embed.files = props.attachments
         }
-        if (interactionTarget.deferReply) {
+        if (interactionTarget.deferred) {
           await interactionTarget.editReply(embed);
         } else {
           await interactionTarget.reply(embed);
