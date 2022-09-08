@@ -2,7 +2,27 @@ module.exports = {
   // TODO: feels like this should be promptRoleName
   promptTokenName: {
     getConfig: async (state) => {
-      const selectedRoleName = state.interactionTarget.fields.getTextInputValue('input-0');
+      const selectedRoleName = state.interactionTarget.fields.getTextInputValue('role-name');
+      let amountOfTokensNeeded = parseInt(state.interactionTarget.fields.getTextInputValue('token-amount'));
+
+      // TODO: add fix so they can enter .1 instead of 0.1 and have it work
+      if (
+        !Number.isInteger(amountOfTokensNeeded) ||
+        amountOfTokensNeeded <= 0
+      ) {
+        // Invalid reply
+        return {
+          error: 'Need a positive number of tokens.',
+        };
+      }
+
+      // Multiply by the decimals for native and fungible tokens
+      if (state.tokenType === 'native' || state.tokenType === 'cw20') {
+        console.log('Multiplying by the number of decimals', state.decimals)
+        state.minimumTokensNeeded = amountOfTokensNeeded * (10 ** state.decimals)
+        console.log('New amount needed', state.minimumTokensNeeded)
+      }
+
       const { guild } = state
 
       const existingObjectRoles = await guild.roles.fetch();

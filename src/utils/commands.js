@@ -88,11 +88,11 @@ function buildCommandExecute(command) {
 
         case 'modal':
         default:
-          const { title, description, ...props } = config.prompt;
+          const { title, description, inputs, ...props } = config.prompt;
           const modal = createModal({
             title,
             embeds: config.embeds,
-            inputs: config.inputs || [
+            inputs: inputs || [
               {
                 label: config.label || 'Enter here'
               }

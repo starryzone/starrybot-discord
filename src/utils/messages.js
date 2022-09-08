@@ -162,6 +162,8 @@ function createModal({
   const textInputs = inputs.map((input, index) => (
     new TextInputBuilder()
       .setCustomId(input.id || `input-${index}`) // TO-DO allow custom IDs to get passed through
+      .setPlaceholder(input.placeholder)
+      .setRequired(input.required)
       .setLabel(input.label)
       // can be Short, Paragraph
       .setStyle(input.style === 'Short' ? TextInputStyle.Short : TextInputStyle.Paragraph)
