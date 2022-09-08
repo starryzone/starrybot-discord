@@ -72,7 +72,7 @@ function buildCommandExecute(command) {
             // TODO: eventually I'd like to add this
             // customId: buttonConfig.id ?? buttonConfig.next,
             customId: buttonConfig.next,
-            style: buttonConfig.style ||  'PRIMARY'
+            style: buttonConfig.style ||  'Primary'
           }));
           if (config.prompt.description || config.prompt.footer) {
             reply.embeds = [{description: config.prompt.description ?? 'Note:', footer: config.prompt.footer}]
