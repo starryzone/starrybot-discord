@@ -7,7 +7,7 @@ module.exports = {
         daodao: { isDaoDaoAddress, getCW20InputFromDaoDaoDao }
       }
     ) => {
-      const { userInput } = state;
+      const userInput = state.interactionTarget.fields.getTextInputValue('input-0');
       // If user has done something else (like emoji reaction) do nothing
       if (!userInput) return;
 
@@ -33,7 +33,7 @@ module.exports = {
       return {
         next: 'promptTokenAmount',
         prompt: {
-          type: 'input',
+          type: 'modal',
           title: 'How many tokens?',
           description: 'Please enter the number of tokens a user must have to get a special role.',
         }

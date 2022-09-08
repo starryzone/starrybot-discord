@@ -36,7 +36,7 @@ class Wizardware {
     const wizard = this.activeWizards.get(uniqueKey);
 
     const { currentPromptType } = wizard;
-
+    console.log(promptType, currentPromptType);
     if (promptType !== currentPromptType) {
       // The user has not responded with the same type we prompted
       // for (i.e. we're waiting for a reaction and they typed

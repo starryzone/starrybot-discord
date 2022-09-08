@@ -32,7 +32,7 @@ module.exports = {
           ephemeral: true,
           next: 'editCheck',
           prompt: {
-            type: 'input',
+            type: 'modal',
             title,
             description,
             footer,

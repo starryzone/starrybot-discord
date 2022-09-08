@@ -2,7 +2,7 @@ module.exports = {
   needsCW20: {
     next: 'handleCW20Entry',
     prompt: {
-      type: 'input',
+      type: 'modal',
       title: 'Learning about cw20 tokens…',
       description: 'This info will help you understand your options.',
       fields: [

@@ -1,7 +1,7 @@
 module.exports = {
   promptTokenAmount: {
     getConfig: async (state) => {
-      let { userInput } = state;
+      let { userInput } = state.interactionTarget.fields.getTextInputValue('input-0');
 
       let amountOfTokensNeeded = parseInt(userInput)
       // TODO: add fix so they can enter .1 instead of 0.1 and have it work
@@ -40,7 +40,7 @@ module.exports = {
       return {
         next: 'promptTokenName',
         prompt: {
-          type: 'input',
+          type: 'modal',
           title: 'What is the role name?',
           description: `Please enter the name of the role that should be given to users with at least ${noun}.`,
           footer: 'Note: this role will be created automatically',

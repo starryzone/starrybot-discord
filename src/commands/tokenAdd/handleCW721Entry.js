@@ -7,7 +7,7 @@ module.exports = {
         stargaze: { isStargazeLaunchpadAddress, getCW721FromStargazeUrl }
       }
     ) => {
-      const { userInput } = args;
+      const { userInput } = args.interactionTarget.fields.getTextInputValue('input-0');
       // If user has done something else (like emoji reaction) do nothing
       if (!userInput) return;
 
@@ -32,7 +32,7 @@ module.exports = {
       return {
         next: 'promptTokenName',
         prompt: {
-          type: 'input',
+          type: 'modal',
           title: 'What is the role name?',
           description: `Please enter the name of the role that should be given to users with at least 1 NFT from this collection.`,
           footer: 'Note: this role will be created automatically',

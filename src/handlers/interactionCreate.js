@@ -38,6 +38,8 @@ async function interactionCreate(interaction) {
 			interactionType = 'select';
 		} else if (interaction.isButton()) {
 			interactionType = 'button';
+		} else if (interaction.isModalSubmit()) {
+			interactionType = 'modal';
 		}
 
 		// text input, emoji reactions, or something else

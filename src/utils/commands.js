@@ -1,5 +1,5 @@
 const { SlashCommandBuilder } = require('discord.js');
-const { COLORS_BY_MESSAGE_TYPE, createMessage, createPrivateError, createSelectMenu } = require("../utils/messages");
+const { COLORS_BY_MESSAGE_TYPE, createMessage, createModal, createPrivateError, createSelectMenu } = require("../utils/messages");
 
 function buildCommandExecute(command) {
   return async (state, context, next, end) => {
@@ -9,8 +9,10 @@ function buildCommandExecute(command) {
 
     if (!config) { return; } // might have had error
     const { interactionTarget } = state;
-    // This will allow us to have more than 3 seconds to respond
-    if (interactionTarget.deferReply) {
+    // If sending a message, this will allow us to have more than 3 seconds to respond
+    // If we're expecting to open a modal instead, the modal needs to be the first thing:
+    // See: https://discordjs.guide/interactions/modals.html#building-and-responding-with-modals
+    if (interactionTarget.deferReply && config.prompt?.type !== 'modal') {
       await interactionTarget.deferReply({ephemeral: command.ephemeral})
     }
 
@@ -37,7 +39,6 @@ function buildCommandExecute(command) {
 
     if (config.prompt) {
       const { type: promptType } = config.prompt;
-      const messageColor = COLORS_BY_MESSAGE_TYPE['prompt'];
 
       switch(promptType) {
         case 'select':
@@ -85,23 +86,34 @@ function buildCommandExecute(command) {
           next(({ interaction }) => interaction.customId, 'button');
           break;
 
-        case 'input':
+        case 'modal':
         default:
           const { title, description, ...props } = config.prompt;
-          reply.embeds = [
-          ...(config.embeds || []),
-            {
-              color: messageColor,
-              title,
-              description,
-              ...props
-            }
-          ];
-          if (interactionTarget.deferReply) {
-            await interactionTarget.editReply(createMessage(reply));
-          } else {
-            await interactionTarget.reply(createMessage(reply));
-          }
+          // reply.embeds = [
+          // ...(config.embeds || []),
+          //   {
+          //     color: messageColor,
+          //     title,
+          //     description,
+          //     ...props
+          //   }
+          // ];
+          const modal = createModal({
+            title,
+            embeds: config.embeds,
+            inputs: [
+              {
+                label: config.label || 'Enter here' //description is currently too long,
+              }
+            ]
+          })
+          console.log(interactionTarget);
+          await interactionTarget.showModal(modal);
+          // if (interactionTarget.deferReply) {
+          //   await interactionTarget.editReply(createMessage(reply));
+          // } else {
+          //   await interactionTarget.reply(createMessage(reply));
+          // }
           next(config.next, config.prompt?.type);
           break;
       }

@@ -2,7 +2,7 @@ module.exports = {
   // TODO: feels like this should be promptRoleName
   promptTokenName: {
     getConfig: async (state) => {
-      const selectedRoleName = state.userInput
+      const selectedRoleName = state.interactionTarget.fields.getTextInputValue('input-0');
       const { guild } = state
 
       const existingObjectRoles = await guild.roles.fetch();

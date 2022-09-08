@@ -2,7 +2,7 @@ module.exports = {
   daoDao: {
     next: 'handleCW20Entry',
     prompt: {
-      type: 'input',
+      type: 'modal',
       title: 'Check out DAODAO',
       description: 'If you have not set up a DAO, visit the link above to create a DAO with a governance token.',
       fields: [

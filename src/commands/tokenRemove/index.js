@@ -28,7 +28,7 @@ module.exports = {
           ephemeral: true,
           next: 'removeVerify',
           prompt: {
-            type: 'input',
+            type: 'modal',
             title: 'Current token rules',
             description,
             footer: 'Please type a token rule to remove'

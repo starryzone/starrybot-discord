@@ -7,7 +7,7 @@ module.exports = {
       return {
         next: 'handleRoleAmountEdit',
         prompt: {
-          type: 'input',
+          type: 'modal',
           title: 'How many tokens?',
           description: `Please enter the new amount of tokens a user needs to get the role named ${selectedRoleName} (current: ${has_minimum_of / (10 ** decimals)}).`,
         }

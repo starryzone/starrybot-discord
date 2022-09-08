@@ -3,7 +3,10 @@ const {
   ButtonBuilder,
   ButtonStyle,
   EmbedBuilder,
-  SelectMenuBuilder
+  ModalBuilder,
+  SelectMenuBuilder,
+  TextInputBuilder,
+  TextInputStyle
 } = require('discord.js')
 
 const COLORS_BY_MESSAGE_TYPE = {
@@ -150,6 +153,39 @@ function createSelectMenu({
   };
 }
 
+function createModal({
+  customId = 'starrybot-modal-prompt',
+  title,
+  inputs = [],
+}) {
+  console.log(ModalBuilder);
+  const modal = new ModalBuilder()
+    .setCustomId(customId)
+    .setTitle(title);
+
+  // Create a Text Input component for each input
+  // we'd like in our form
+  // https://discordjs.guide/interactions/modals.html#input-properties
+  const textInputs = inputs.map((input, index) => (
+    new TextInputBuilder()
+      .setCustomId(input.id || `input-${index}`) // TO-DO allow custom IDs to get passed through
+      .setLabel(input.label)
+      // can be Short, Paragraph
+      .setStyle(input.style === 'Short' ? TextInputStyle.Short : TextInputStyle.Paragraph)
+  ));
+
+  // Create an action row for each Text Input
+  const actionRows = textInputs.map(textInput => (
+    new ActionRowBuilder().addComponents(textInput)
+  ));
+
+  if (actionRows.length > 0) {
+    modal.addComponents(...actionRows);
+  }
+
+  return modal;
+}
+
 function createError(errorMessage, ephemeral) {
   return createMessage({
     embeds: [
@@ -175,6 +211,7 @@ module.exports = {
   createButton,
   createEmbed,
   createMessage,
+  createModal,
   createSelectMenu,
 
   // Meaningful/reusable components
