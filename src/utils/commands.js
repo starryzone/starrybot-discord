@@ -44,13 +44,13 @@ function buildCommandExecute(command) {
         case 'select':
           const selectMenu = createSelectMenu(
             {
-              title: config.title,
+              title: config.prompt.title,
               ephemeral: config.ephemeral,
               options: config.prompt.options.map(option => ({
-                label: `${option.emoji} ${option.description}`,
+                label: option.label || `${option.emoji} ${option.description}`,
                 // TO-DO: Selects let us add more descriptions than just the label, but
                 // haven't gone back and updated all the emoji reactions text yet.
-                // description: option.description,
+                description: option.description,
                 value: option.next,
               }))
             }
@@ -89,31 +89,16 @@ function buildCommandExecute(command) {
         case 'modal':
         default:
           const { title, description, ...props } = config.prompt;
-          // reply.embeds = [
-          // ...(config.embeds || []),
-          //   {
-          //     color: messageColor,
-          //     title,
-          //     description,
-          //     ...props
-          //   }
-          // ];
           const modal = createModal({
             title,
             embeds: config.embeds,
-            inputs: [
+            inputs: config.inputs || [
               {
-                label: config.label || 'Enter here' //description is currently too long,
+                label: config.label || 'Enter here'
               }
             ]
           })
-          console.log(interactionTarget);
           await interactionTarget.showModal(modal);
-          // if (interactionTarget.deferReply) {
-          //   await interactionTarget.editReply(createMessage(reply));
-          // } else {
-          //   await interactionTarget.reply(createMessage(reply));
-          // }
           next(config.next, config.prompt?.type);
           break;
       }
