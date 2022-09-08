@@ -32,31 +32,24 @@ function createEmbed({
 }) {
   const embed = new EmbedBuilder().setColor(color);
   if (author) {
-      // Can be [author.name, author.thumbnailUrl, author.link]
-      if (Array.isArray(author)) {
-          embed.setAuthor(...author);
-      }
-      else {
-          embed.setAuthor(author);
-      }
+    // Expected to be an object like: { name, iconUrl, url }
+    embed.setAuthor(author);
   }
   if (description) {
-      embed.setDescription(description);
+    embed.setDescription(description);
   }
   if (imageUrl) {
-      embed.setImage(imageUrl);
+    embed.setImage(imageUrl);
   }
   if (fields) {
-      embed.addFields(fields);
+    embed.addFields(fields);
   }
   if (footer) {
-      // Can be [footer.text, footer.thumbnailUrl]
-      if (Array.isArray(footer)) {
-          embed.setFooter(...footer);
-      }
-      else {
-          embed.setFooter(footer);
-      }
+    if (typeof footer === 'object') {
+      embed.setFooter(footer);
+    } else {
+      embed.setFooter({ text: footer });
+    }
   }
   if (setTimestamp) {
       embed.setTimestamp();

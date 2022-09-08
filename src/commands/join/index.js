@@ -21,7 +21,7 @@ module.exports = {
           return {
             ephemeral: true,
             done: {
-              author: [`starrybot`],
+              author: { name: `starrybot`},
               description: results.saganism,
               title: `Please visit ${url}`,
               thumbnailUrl: 'https://starrybot.xyz/small-array-of-stars.gif',
