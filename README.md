@@ -19,7 +19,7 @@
 
 ### Add your Bot to your Discord Server
 * Go to the "General" tab of your app in the Discord Developer Portal and copy the application ID
-* Go to `https://discord.com/oauth2/authorize?client_id=[your application ID]&scope=applications.commands%20bot&permissions=268486720`
+* Go to `https://discord.com/oauth2/authorize?client_id=[your application ID]&scope=applications.commands%20bot&permissions=268453952`
     * Follow the steps to authorize the bot
     * You will need to kick the bot a lot for testing, so keep this URL around
 * Your bot should be successfully added to the server!
