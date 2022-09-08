@@ -33,10 +33,17 @@ async function interactionCreate(interaction) {
 		// our slash commands
 		return handleGuildCommands(interaction);
 	} else {
+		let interactionType;
+		if (interaction.isSelectMenu()) {
+			interactionType = 'select';
+		} else if (interaction.isButton()) {
+			interactionType = 'button';
+		}
+
 		// text input, emoji reactions, or something else
 		await wizardware.continue(
 			`${interaction.guildId}-${interaction.user.id}`,
-			'button',
+			interactionType,
 			{
 				interaction,
 				// Reply directly to the button interaction, otherwise

@@ -1,5 +1,5 @@
 const { SlashCommandBuilder } = require('discord.js');
-const { COLORS_BY_MESSAGE_TYPE, createMessage, createPrivateError } = require("../utils/messages");
+const { COLORS_BY_MESSAGE_TYPE, createMessage, createPrivateError, createSelectMenu } = require("../utils/messages");
 
 function buildCommandExecute(command) {
   return async (state, context, next, end) => {
@@ -40,54 +40,28 @@ function buildCommandExecute(command) {
       const messageColor = COLORS_BY_MESSAGE_TYPE['prompt'];
 
       switch(promptType) {
-        case 'reaction':
-          const reactionReply = createMessage(
+        case 'select':
+          const selectMenu = createSelectMenu(
             {
-            embeds: [{
-              color: messageColor,
-              title: 'One moment…',
-              description: 'Loading choices, fren.',
-            }],
-            // Necessary in order to react to the message
-            fetchReply: true,
-            ephemeral: config.ephemeral
-          })
+              title: config.title,
+              ephemeral: config.ephemeral,
+              options: config.prompt.options.map(option => ({
+                label: `${option.emoji} ${option.description}`,
+                // TO-DO: Selects let us add more descriptions than just the label, but
+                // haven't gone back and updated all the emoji reactions text yet.
+                // description: option.description,
+                value: option.next,
+              }))
+            }
+          );
           let msg
           if (interactionTarget.deferReply) {
-            msg = await interactionTarget.editReply(reactionReply);
+            msg = await interactionTarget.editReply(selectMenu);
           } else {
-            msg = await interactionTarget.reply(reactionReply);
+            msg = await interactionTarget.reply(selectMenu);
           }
 
-          for (let i = 0; i < config.prompt.options.length; i++) {
-            await msg.react(config.prompt.options[i].emoji);
-          }
-
-          msg.edit(createMessage({
-            embeds: [
-              ...(config.embeds || []),
-              {
-                color: messageColor,
-                title: config.prompt.title,
-                description: config.prompt.options.map(emojiConfig => `${emojiConfig.emoji} ${emojiConfig.description}`).join('\n\n'),
-              }
-            ],
-            title: config.title,
-            ephemeral: config.ephemeral
-          }));
-
-          const getNextCommandNameFromEmoji = ({ reaction }) => {
-            const emojiName = reaction?._emoji?.name;
-            if(!emojiName) return;
-            else {
-              // If there is no match, the wizard will keep waiting for user interactions
-              // until a valid emoji is selected.
-              return config.prompt.options.find(emojiConfig => emojiConfig.emoji === emojiName)?.next;
-            }
-          }
-
-          // Go to the step designated by the selected emoji's config
-          next(getNextCommandNameFromEmoji, 'reaction');
+          next(({ interaction}) => interaction.values?.[0], 'select');
           break;
 
         case 'button':

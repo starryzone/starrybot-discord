@@ -1,7 +1,7 @@
 module.exports = {
   addCW721: {
     prompt: {
-      type: 'reaction',
+      type: 'select',
       title: 'Tell us about your token',
       options: [
         {

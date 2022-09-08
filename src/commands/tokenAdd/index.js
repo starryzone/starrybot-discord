@@ -23,7 +23,7 @@ module.exports = {
     name: 'add',
     description: 'Add a new token rule',
     prompt: {
-      type: 'reaction',
+      type: 'select',
       title: 'What kind of token?',
       options: [
         {

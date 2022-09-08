@@ -7,7 +7,7 @@ module.exports = {
       },
     ],
     prompt: {
-      type: 'reaction',
+      type: 'select',
       title: 'Now, what kind of token again?',
       options: [
         {

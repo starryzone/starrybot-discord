@@ -1,4 +1,10 @@
-const { ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder } = require('discord.js')
+const {
+  ActionRowBuilder,
+  ButtonBuilder,
+  ButtonStyle,
+  EmbedBuilder,
+  SelectMenuBuilder
+} = require('discord.js')
 
 const COLORS_BY_MESSAGE_TYPE = {
   error: '#BE75A4',
@@ -123,6 +129,27 @@ function createMessage({
   };
 }
 
+function createSelectMenu({
+  customId = 'starrybot-select-menu',
+  embeds = [],
+  placeholder = 'Select an option',
+  options = [], // each need a label, description, and value
+  title,
+}) {
+  const row = new ActionRowBuilder()
+    .addComponents(
+      new SelectMenuBuilder()
+        .setCustomId(customId)
+        .setPlaceholder(placeholder)
+        .addOptions(...options), // Supposed to be different args
+  );
+  return {
+    content: title,
+    embeds,
+    components: [row],
+  };
+}
+
 function createError(errorMessage, ephemeral) {
   return createMessage({
     embeds: [
@@ -148,6 +175,7 @@ module.exports = {
   createButton,
   createEmbed,
   createMessage,
+  createSelectMenu,
 
   // Meaningful/reusable components
   createPrivateError,
