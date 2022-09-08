@@ -18,7 +18,7 @@ module.exports = {
         {
           next: 'farewellRejection',
           label: 'Cancel',
-          style: 'SECONDARY',
+          style: 'Secondary',
         }
       ]
     },

@@ -1,4 +1,4 @@
-const { MessageActionRow, MessageButton, MessageEmbed } = require('discord.js')
+const { ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder } = require('discord.js')
 
 const COLORS_BY_MESSAGE_TYPE = {
   error: '#BE75A4',
@@ -21,7 +21,7 @@ function createEmbed({
   thumbnailUrl,
   url,
 }) {
-  const embed = new MessageEmbed().setColor(color);
+  const embed = new EmbedBuilder().setColor(color);
   if (author) {
       // Can be [author.name, author.thumbnailUrl, author.link]
       if (Array.isArray(author)) {
@@ -67,11 +67,14 @@ function createEmbed({
 function createButton({
   customId = 'slash-commands-enabled',
   label,
-  style = 'PRIMARY'
+  style = 'Primary'
 }) {
-  const button = new MessageButton()
+  typeof ButtonStyle
+  const button = new ButtonBuilder()
       .setCustomId(customId)
-      .setStyle(style);
+      // TO-DO: This condition isn't necessary in typescript
+      // https://stackoverflow.com/questions/50417254/dynamically-access-enum-in-typescript-by-key
+      .setStyle(style === 'Primary' ? ButtonStyle.Primary : ButtonStyle.Secondary);
 
   if (label) {
       button.setLabel(label);
@@ -79,10 +82,10 @@ function createButton({
   return button;
 }
 
-function createMessageActionRow({
+function createActionRow({
   components,
 }) {
-  const row = new MessageActionRow();
+  const row = new ActionRowBuilder();
   components.forEach(component => row.addComponents(component));
   return row;
 }
@@ -97,7 +100,7 @@ function createMessage({
 
   let componentPayload;
   if (buttons?.length > 0) {
-    const row = createMessageActionRow({
+    const row = createActionRow({
       components: buttons.map(buttonConfig => createButton(buttonConfig)),
     });
     componentPayload = [row];
@@ -141,10 +144,10 @@ module.exports = {
   COLORS_BY_MESSAGE_TYPE,
 
   // Naive discord wrappers
+  createActionRow,
   createButton,
   createEmbed,
   createMessage,
-  createMessageActionRow,
 
   // Meaningful/reusable components
   createPrivateError,

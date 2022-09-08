@@ -1,4 +1,4 @@
-const { SlashCommandBuilder } = require('@discordjs/builders');
+const { SlashCommandBuilder } = require('discord.js');
 const { COLORS_BY_MESSAGE_TYPE, createMessage, createPrivateError } = require("../utils/messages");
 
 function buildCommandExecute(command) {

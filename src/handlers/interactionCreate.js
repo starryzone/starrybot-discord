@@ -1,3 +1,4 @@
+const { InteractionType } = require('discord.js');
 const { wizardware } = require("../commands");
 
 ///
@@ -28,7 +29,7 @@ async function handleGuildCommands(interaction) {
 ///
 
 async function interactionCreate(interaction) {
-	if (interaction.isCommand()) {
+	if (interaction.type === InteractionType.ApplicationCommand) {
 		// our slash commands
 		return handleGuildCommands(interaction);
 	} else {

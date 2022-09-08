@@ -1,8 +1,8 @@
-const { Permissions } = require('discord.js');
+const { PermissionsBitField } = require('discord.js');
 
 async function memberHasRole(member, role) {
   if (role === 'admin') {
-    return memberHasPermissions(member, Permissions.FLAGS.ADMINISTRATOR);
+    return memberHasPermissions(member, PermissionsBitField.Flags.Administrator);
   } else {
     return await member.roles.has(role);
   }

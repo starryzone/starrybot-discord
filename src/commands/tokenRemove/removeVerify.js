@@ -22,7 +22,7 @@ module.exports = {
             {
               next: 'removeRejection',
               label: 'Cancel',
-              style: 'SECONDARY',
+              style: 'Secondary',
             }
           ]
         },
