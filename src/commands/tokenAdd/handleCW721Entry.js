@@ -7,7 +7,7 @@ module.exports = {
         stargaze: { isStargazeLaunchpadAddress, getCW721FromStargazeUrl }
       }
     ) => {
-      const { userInput } = args.interactionTarget.fields.getTextInputValue('input-0');
+      const userInput = args.interactionTarget.fields.getTextInputValue('input-0');
       // If user has done something else (like emoji reaction) do nothing
       if (!userInput) return;
 
