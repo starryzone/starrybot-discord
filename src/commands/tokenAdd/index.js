@@ -4,6 +4,7 @@ const { addNativeToken } = require('./addNativeToken');
 const { createTokenRule } = require('./createTokenRule');
 const { hasCW721 } = require('./hasCW721');
 const { promptCW20 } = require('./promptCW20');
+const { promptCW721 } = require('./promptCW721');
 const { promptNativeToken } = require('./promptNativeToken');
 const { handleStakedOnlyNo } = require('./handleStakedOnlyNo');
 const { handleStakedOnlyYes } = require('./handleStakedOnlyYes');
@@ -43,6 +44,7 @@ module.exports = {
       createTokenRule,
       hasCW721,
       promptCW20,
+      promptCW721,
       promptNativeToken,
       stargaze,
       handleStakedOnlyNo,

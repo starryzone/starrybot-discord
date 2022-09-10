@@ -41,20 +41,21 @@ async function interactionCreate(interaction) {
 		} else if (interaction.isModalSubmit()) {
 			interactionType = 'modal';
 		}
-
-		// text input, emoji reactions, or something else
-		await wizardware.continue(
-			`${interaction.guildId}-${interaction.user.id}`,
-			interactionType,
-			{
-				interaction,
-				// Reply directly to the button interaction, otherwise
-				// it will not know that we've responded and will display
-				// the loading animation before saying "interaction failed",
-				// even when we're continuing the wizard successfully
-				interactionTarget: interaction
-			}
-		);
+		if (interactionType) {
+			// text input, emoji reactions, or something else
+			await wizardware.continue(
+				`${interaction.guildId}-${interaction.user.id}`,
+				interactionType,
+				{
+					interaction,
+					// Reply directly to the button interaction, otherwise
+					// it will not know that we've responded and will display
+					// the loading animation before saying "interaction failed",
+					// even when we're continuing the wizard successfully
+					interactionTarget: interaction
+				}
+			);
+		}
 	}
 }
 

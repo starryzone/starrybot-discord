@@ -8,28 +8,39 @@ function buildCommandExecute(command) {
       command;
 
     if (!config) { return; } // might have had error
+
     const { interactionTarget } = state;
-    // If sending a message, this will allow us to have more than 3 seconds to respond
-    // If we're expecting to open a modal instead, the modal needs to be the first thing:
-    // See: https://discordjs.guide/interactions/modals.html#building-and-responding-with-modals
-    if (interactionTarget.deferReply && config.prompt?.type !== 'modal') {
-      await interactionTarget.deferReply({ephemeral: command.ephemeral})
-    }
 
     if (config.error) {
-      console.warn(config.error);
       const reply = createPrivateError(
         config.channelError ?
         config.channelError.toString() :
         config.error.toString()
       )
-      if (interactionTarget.deferred) {
-        await interactionTarget.editReply(reply);
-      } else {
+      try {
         await interactionTarget.reply(reply);
+      } catch {
+        // if for some reason the interaction doesn't exist at this point,
+        // we still want people to know something went wrong.
+        await interactionTarget.channel.send(reply);
       }
+
       end();
       return;
+    }
+
+    
+    // If sending a message, this will allow us to have more than 3 seconds to respond
+    // If we're expecting to open a modal instead, the modal needs to be the first thing:
+    // See: https://discordjs.guide/interactions/modals.html#building-and-responding-with-modals
+    if (interactionTarget.deferReply && config.prompt?.type !== 'modal') {
+      // There's a rare, annoying case where this may fail due to "Unknown Interaction".
+      // If this happens, we'll just let the message try to send as normal, otherwise
+      // the entire bot may crash.
+      // See: https://github.com/discordjs/discord.js/issues/7005
+      try {
+        await interactionTarget.deferReply({ ephemeral: command.ephemeral });
+      } catch (e) {}
     }
 
     const reply = {

@@ -9,7 +9,6 @@ module.exports = {
       // Required for every flow in token-rule add
       const selectedRoleName = state.interactionTarget.fields.getTextInputValue('role-name');
 
-      // This is set for CW20 and CW721 only
       let tokenAddress;
       if (state.tokenType !== 'native') {
         tokenAddress = state.interactionTarget.fields.getTextInputValue('token-address');
@@ -23,6 +22,7 @@ module.exports = {
               tokenAddress = await getCW721FromStargazeUrl(tokenAddress);
             }
             const results = await getTokenDetails({ tokenAddress });
+
             // TO-DO: This is silly, but currently works because native token rules
             // don't go through this if statement.
             state.tokenAddress = results.tokenType === 'cw20' ? results.cw20Input : results.cw721;
@@ -35,6 +35,7 @@ module.exports = {
             return { error };
           }
         }
+
       }
 
       // This is set for native and cw20 only

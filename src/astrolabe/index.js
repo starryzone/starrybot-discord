@@ -22,8 +22,11 @@ const getTokenType = async (tokenInput) => {
 // the corresponding getTokenDetail when we have a match
 const getTokenDetails = async ({tokenAddress, network}) => {
   let tokenDetails;
-  const tokenType = await getTokenType(tokenAddress);
+
   try {
+    // Make sure both requests are in the try/catch, since the token address
+    // may not be valid
+    const tokenType = await getTokenType(tokenAddress);
     tokenDetails = await tokenType.getTokenDetails({tokenAddress, network});
   } catch (e) {
     // Throw a more specific error message if we can
