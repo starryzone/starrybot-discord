@@ -1,5 +1,4 @@
-const { removeConfirmation } = require('./removeConfirmation');
-const { removeRejection } = require('./removeRejection');
+const { removeRole } = require('./removeRole');
 const { removeVerify } = require('./removeVerify');
 
 module.exports = {
@@ -38,8 +37,7 @@ module.exports = {
       }
     },
     steps: {
-      removeConfirmation,
-      removeRejection,
+      removeRole,
       removeVerify,
     }
   }
