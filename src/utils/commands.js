@@ -52,7 +52,7 @@ function buildCommandExecute(command) {
                 // TO-DO: Selects let us add more descriptions than just the label, but
                 // haven't gone back and updated all the emoji reactions text yet.
                 description: option.description,
-                value: option.next,
+                value: option.value || option.next,
               }))
             }
           );
@@ -63,7 +63,7 @@ function buildCommandExecute(command) {
             msg = await interactionTarget.reply(selectMenu);
           }
 
-          next(({ interaction}) => interaction.values?.[0], 'select');
+          next(({ interaction }) => config.next || interaction.values?.[0], 'select');
           break;
 
         case 'button':

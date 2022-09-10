@@ -1,7 +1,11 @@
 module.exports = {
   removeVerify: {
     ephemeral: true,
-    getConfig: async ({ guildId, userInput: selectedRole }, { db: { roleGet } }) => {
+    getConfig: async (state, { db: { roleGet } }) => {
+      const { guildId, interaction: { values }} = state;
+      const selectedRole = values?.[0];
+      state.selectedRole = selectedRole;
+
       // Make sure we recognize the selected role
       const role = await roleGet(guildId, selectedRole);
       if (!role) {

@@ -4,7 +4,7 @@ const { Routes } = require("discord-api-types/v9");
 module.exports = {
   removeConfirmation: {
     getConfig: async (
-      { guild, guildId, userInput: selectedRole },
+      { guild, guildId, selectedRole },
       { db: { myConfig, rolesDelete } }
     ) => {
       const roleManager = guild.roles;
