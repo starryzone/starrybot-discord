@@ -4,9 +4,7 @@ const { addNativeToken } = require('./addNativeToken');
 const { daoDao } = require('./daoDao');
 const { hasCW20 } = require('./hasCW20');
 const { hasCW721 } = require('./hasCW721');
-const { nativeTokenJUNO } = require('./nativeTokenJUNO');
-const { nativeTokenSTARS } = require('./nativeTokenSTARS');
-const { nativeTokenSuggestion } = require('./nativeTokenSuggestion');
+const { promptNativeToken } = require('./promptNativeToken');
 const { promptTokenName } = require('./promptTokenName');
 const { handleStakedOnlyNo } = require('./handleStakedOnlyNo');
 const { handleStakedOnlyYes } = require('./handleStakedOnlyYes');
@@ -46,9 +44,7 @@ module.exports = {
       daoDao,
       hasCW20,
       hasCW721,
-      nativeTokenJUNO,
-      nativeTokenSTARS,
-      nativeTokenSuggestion,
+      promptNativeToken,
       promptTokenName,
       stargaze,
       handleStakedOnlyNo,
