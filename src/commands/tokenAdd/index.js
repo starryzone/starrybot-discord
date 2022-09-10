@@ -1,11 +1,10 @@
 const { addCW20 } = require('./addCW20');
 const { addCW721 } = require('./addCW721');
 const { addNativeToken } = require('./addNativeToken');
-const { daoDao } = require('./daoDao');
-const { hasCW20 } = require('./hasCW20');
+const { createTokenRule } = require('./createTokenRule');
 const { hasCW721 } = require('./hasCW721');
+const { promptCW20 } = require('./promptCW20');
 const { promptNativeToken } = require('./promptNativeToken');
-const { promptTokenName } = require('./promptTokenName');
 const { handleStakedOnlyNo } = require('./handleStakedOnlyNo');
 const { handleStakedOnlyYes } = require('./handleStakedOnlyYes');
 const { stargaze } = require('./stargaze');
@@ -41,11 +40,10 @@ module.exports = {
       addCW20,
       addCW721,
       addNativeToken,
-      daoDao,
-      hasCW20,
+      createTokenRule,
       hasCW721,
+      promptCW20,
       promptNativeToken,
-      promptTokenName,
       stargaze,
       handleStakedOnlyNo,
       handleStakedOnlyYes,

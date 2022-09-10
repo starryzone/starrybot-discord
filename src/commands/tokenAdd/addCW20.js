@@ -1,7 +1,8 @@
 module.exports = {
   addCW20: {
+    next: 'promptCW20',
     prompt: {
-      type: 'select',
+      type: 'button',
       title: 'Tell us about your token',
       embeds: [
         {
@@ -10,7 +11,7 @@ module.exports = {
           fields: [
               {
                 name: 'Explain cw20 tokens',
-                value: 'Cw20 tokens are the fungible tokens of the Cosmos ecosystem. You can see the spec here: https://github.com/CosmWasm/cw-plus/tree/main/packages/cw20',
+                value: 'Cw20 tokens are the fungible tokens of the Cosmos ecosystem. You can see the spec here: https://github.com/CosmWasm/cw-plus/tree/main/packages/cw20.\nThese look something like this: juno19wzrmugs633kajlsupx58srmtvy65kqumhre6yn43kl58tls056s3g62gp',
               },
               {
                 name: '\u200b', // a big space
@@ -24,7 +25,7 @@ module.exports = {
               },
               {
                 name: 'Or create your own DAO and cw20 token',
-                value: 'Visit: https://daodao.zone',
+                value: 'Visit: https://daodao.zone to find or create a new DAO. The DAODAO Url looks something like this: https://daodao.zone/dao/juno156vlvprfxc4yyu26ute4hu6tjq96pxgt5qqmm0zlt4y0khjetvhqdhmgdm',
                 inline: true
               }
           ],
@@ -33,13 +34,11 @@ module.exports = {
       options: [
         {
           label: '🌠 I have a CW20 token',
-          description: 'E.g. juno19wzrmugs633kajlsupx58srmtvy65kqumhre6yn43kl58tls056s3g62gp',
-          next: 'hasCW20',
+          value: 'CW20',
         },
         {
           label: "☯️ I have a DAODAO URL",
-          description: 'E.g. https://daodao.zone/dao/juno156vlvprfxc4yyu26ute4hu6tjq96pxgt5qqmm0zlt4y0khjetvhqdhmgdm',
-          next: 'daoDao',
+          value: 'DAODAO',
         },
       ]
     }

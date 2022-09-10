@@ -77,6 +77,8 @@ function buildCommandExecute(command) {
           }));
           if (config.prompt.description || config.prompt.footer) {
             reply.embeds = [{description: config.prompt.description ?? 'Note:', footer: config.prompt.footer}]
+          } else if (config.embeds) {
+            reply.embeds = config.embeds;
           }
           if (interactionTarget.deferred) {
             await interactionTarget.editReply(createMessage(reply));

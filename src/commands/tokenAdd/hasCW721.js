@@ -1,6 +1,6 @@
 module.exports = {
   hasCW721: {
-    next: 'promptTokenName',
+    next: 'createTokenRule',
     prompt: {
       type: 'modal',
       title: "Configure CW721 Token Rule",

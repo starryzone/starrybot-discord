@@ -23,7 +23,7 @@ module.exports = {
       }
 
       return {
-        next: 'promptTokenName',
+        next: 'createTokenRule',
         prompt: {
           type: 'modal',
           title: `Configure ${selectedToken.toUpperCase()} Token Rule`,

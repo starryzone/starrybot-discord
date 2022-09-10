@@ -1,6 +1,6 @@
 module.exports = {
   stargaze: {
-    next: 'promptTokenName',
+    next: 'createTokenRule',
     prompt: {
       type: 'modal',
       title: "Configure Stargaze Token Rule",

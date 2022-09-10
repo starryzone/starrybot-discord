@@ -1,6 +1,6 @@
 module.exports = {
   // TODO: feels like this should be promptRoleName
-  promptTokenName: {
+  createTokenRule: {
     getConfig: async (state, {
       astrolabe: { getTokenDetails },
       daodao: { isDaoDaoAddress, getCW20InputFromDaoDaoDao },
