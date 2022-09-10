@@ -2,13 +2,10 @@ const { addCW20 } = require('./addCW20');
 const { addCW721 } = require('./addCW721');
 const { addNativeToken } = require('./addNativeToken');
 const { createTokenRule } = require('./createTokenRule');
-const { hasCW721 } = require('./hasCW721');
 const { promptCW20 } = require('./promptCW20');
 const { promptCW721 } = require('./promptCW721');
 const { promptNativeToken } = require('./promptNativeToken');
-const { handleStakedOnlyNo } = require('./handleStakedOnlyNo');
-const { handleStakedOnlyYes } = require('./handleStakedOnlyYes');
-const { stargaze } = require('./stargaze');
+const { handleRoleCreate } = require('./handleRoleCreate');
 
 module.exports = {
   starryCommandTokenAdd: {
@@ -42,13 +39,10 @@ module.exports = {
       addCW721,
       addNativeToken,
       createTokenRule,
-      hasCW721,
+      handleRoleCreate,
       promptCW20,
       promptCW721,
       promptNativeToken,
-      stargaze,
-      handleStakedOnlyNo,
-      handleStakedOnlyYes,
     }
   }
 }

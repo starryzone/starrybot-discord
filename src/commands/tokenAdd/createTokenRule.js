@@ -80,15 +80,16 @@ module.exports = {
       state.selectedRoleName = selectedRoleName
 
       return {
+        next: 'handleRoleCreate',
         prompt: {
           type: 'button',
           title: 'Count only staked tokens?',
           options: [{
-            next: 'handleStakedOnlyYes',
-            label: 'Yes'
+            label: 'Yes',
+            value: 'yes',
           }, {
-            next: 'handleStakedOnlyNo',
-            label: 'No, count them all'
+            label: 'No, count them all',
+            value: 'no',
           }],
           footer: 'If you select "No" it will count liquid, staked, and currently unbonding where applicable.',
         }
