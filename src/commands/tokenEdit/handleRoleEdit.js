@@ -15,6 +15,7 @@ module.exports = {
         db: { rolesSet, rolesDelete }
       }
     ) => {
+      // Check which button they pressed based on the custom Id
       const updatedStakedOnly = (interactionTarget.customId === 'yes');
 
       // If there was ultimately no change, we don't actually need to do anything.

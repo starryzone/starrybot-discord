@@ -3,6 +3,7 @@ module.exports = {
     ephemeral: true,
     getConfig: async (state, { db: { roleGet } }) => {
       const { guildId, interaction: { values }} = state;
+      // Fetch + save the role that they selected from the dropdown
       const selectedRole = values?.[0];
       state.selectedRole = selectedRole;
 

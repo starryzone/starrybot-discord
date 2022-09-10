@@ -2,6 +2,7 @@ module.exports = {
   editRole: {
     getConfig: async (state, { db: { roleGet }}) => {
       const { guildId, interaction: { values }} = state;
+      // Fetch the role they selected from the dropdown
       const selectedRoleName = values?.[0];
       const role = await roleGet(guildId, selectedRoleName);
 

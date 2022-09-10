@@ -7,16 +7,17 @@ module.exports = {
       { guild, guildId, interactionTarget, selectedRole },
       { db: { myConfig, rolesDelete } }
     ) => {
+      // See which button they pressed based on the customId
       const shouldRemove = (interactionTarget.customId === 'yes');
       if (!shouldRemove) {
+        // They hit "Cancel", so we can back out early.
         return {
           message: '🌟 No changes made 👍',
         }
       } else {
+        // They hit "Yes", so first try to delete the role from discord
         const roleManager = guild.roles;
         const rest = new REST().setToken(myConfig.DISCORD_TOKEN);
-
-        // First try to delete the role from discord
         try {
           let roleObj = roleManager.cache.find(r => r.name === selectedRole)
           if (roleObj) await rest.delete(Routes.guildRole(guildId, roleObj.id))
