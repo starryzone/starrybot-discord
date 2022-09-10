@@ -72,7 +72,7 @@ function buildCommandExecute(command) {
             ...buttonConfig,
             // TODO: eventually I'd like to add this
             // customId: buttonConfig.id ?? buttonConfig.next,
-            customId: buttonConfig.next,
+            customId: buttonConfig.next || buttonConfig.value,
             style: buttonConfig.style ||  'Primary'
           }));
           if (config.prompt.description || config.prompt.footer) {
@@ -84,7 +84,7 @@ function buildCommandExecute(command) {
             await interactionTarget.reply(createMessage(reply));
           }
           // Go to the step designated by the clicked button's ID
-          next(({ interaction }) => interaction.customId, 'button');
+          next(({ interaction }) => config.next || interaction.customId, 'button');
           break;
 
         case 'modal':
