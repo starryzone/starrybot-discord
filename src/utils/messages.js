@@ -23,43 +23,35 @@ function createEmbed({
 }) {
   const embed = new EmbedBuilder().setColor(color);
   if (author) {
-      // Can be [author.name, author.thumbnailUrl, author.link]
-      if (Array.isArray(author)) {
-          embed.setAuthor(...author);
-      }
-      else {
-          embed.setAuthor(author);
-      }
+    // Must be an object that may contain the props of
+    // name, url, iconURL, or proxyIconURL
+    embed.setAuthor(author);
   }
   if (description) {
-      embed.setDescription(description);
+    embed.setDescription(description);
   }
   if (imageUrl) {
-      embed.setImage(imageUrl);
+    embed.setImage(imageUrl);
   }
   if (fields) {
-      embed.addFields(fields);
+    embed.addFields(fields);
   }
   if (footer) {
-      // Can be [footer.text, footer.thumbnailUrl]
-      if (Array.isArray(footer)) {
-          embed.setFooter(...footer);
-      }
-      else {
-          embed.setFooter(footer);
-      }
+    // Must be an object that may contain the props of
+    // text, iconURL, proxyURL
+    embed.setFooter(footer);
   }
   if (setTimestamp) {
-      embed.setTimestamp();
+    embed.setTimestamp();
   }
   if (title) {
-      embed.setTitle(title);
+    embed.setTitle(title);
   }
   if (thumbnailUrl) {
-      embed.setThumbnail(thumbnailUrl);
+    embed.setThumbnail(thumbnailUrl);
   }
   if (url) {
-      embed.setURL(url);
+    embed.setURL(url);
   }
   return embed;
 }

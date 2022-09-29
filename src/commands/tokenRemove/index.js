@@ -31,7 +31,9 @@ module.exports = {
             type: 'input',
             title: 'Current token rules',
             description,
-            footer: 'Please type a token rule to remove'
+            footer: {
+              text: 'Please type a token rule to remove'
+            }
           }
         }
       }

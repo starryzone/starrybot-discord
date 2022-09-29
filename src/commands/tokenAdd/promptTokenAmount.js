@@ -43,7 +43,9 @@ module.exports = {
           type: 'input',
           title: 'What is the role name?',
           description: `Please enter the name of the role that should be given to users with at least ${noun}.`,
-          footer: 'Note: this role will be created automatically',
+          footer: {
+            text: 'Note: this role will be created automatically',
+          }
         }
       }
     }

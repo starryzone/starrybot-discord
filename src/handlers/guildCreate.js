@@ -52,7 +52,9 @@ async function guildCreate(guild) {
         createEmbed({
           title: 'Hello friends!',
           description: 'starrybot just joined',
-          footer: 'Feel free to use the /starry join command.'
+          footer: {
+            text: 'Feel free to use the /starry join command.'
+          }
         })
       ]
     })

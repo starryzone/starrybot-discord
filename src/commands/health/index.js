@@ -131,7 +131,9 @@ module.exports = {
               value: syncResults,
             },
           ],
-          footer: `If there are any 🔴 above, please note that starrybot may not work as expected!`,
+          footer: {
+            text: `If there are any 🔴 above, please note that starrybot may not work as expected!`,
+          }
         }
       }
     }

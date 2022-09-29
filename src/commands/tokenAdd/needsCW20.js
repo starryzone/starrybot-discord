@@ -26,7 +26,9 @@ module.exports = {
             inline: true
           }
       ],
-      footer: "🎗️ When you're finished creating your cw20 token, please type the address in this channel.",
+      footer: {
+        text: "🎗️ When you're finished creating your cw20 token, please type the address in this channel.",
+      }
     }
   }
 }
