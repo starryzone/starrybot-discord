@@ -1,4 +1,4 @@
-const { MessageActionRow, MessageButton, MessageEmbed } = require('discord.js')
+const { ActionRowBuilder, ButtonBuilder, EmbedBuilder } = require('discord.js')
 
 const COLORS_BY_MESSAGE_TYPE = {
   error: '#BE75A4',
@@ -21,7 +21,7 @@ function createEmbed({
   thumbnailUrl,
   url,
 }) {
-  const embed = new MessageEmbed().setColor(color);
+  const embed = new EmbedBuilder().setColor(color);
   if (author) {
       // Can be [author.name, author.thumbnailUrl, author.link]
       if (Array.isArray(author)) {
@@ -69,7 +69,7 @@ function createButton({
   label,
   style = 'PRIMARY'
 }) {
-  const button = new MessageButton()
+  const button = new ButtonBuilder()
       .setCustomId(customId)
       .setStyle(style);
 
@@ -79,10 +79,10 @@ function createButton({
   return button;
 }
 
-function createMessageActionRow({
+function createActionRowBuilder({
   components,
 }) {
-  const row = new MessageActionRow();
+  const row = new ActionRowBuilder();
   components.forEach(component => row.addComponents(component));
   return row;
 }
@@ -97,7 +97,7 @@ function createMessage({
 
   let componentPayload;
   if (buttons?.length > 0) {
-    const row = createMessageActionRow({
+    const row = createActionRowBuilder({
       components: buttons.map(buttonConfig => createButton(buttonConfig)),
     });
     componentPayload = [row];
@@ -144,7 +144,7 @@ module.exports = {
   createButton,
   createEmbed,
   createMessage,
-  createMessageActionRow,
+  createActionRowBuilder,
 
   // Meaningful/reusable components
   createPrivateError,
