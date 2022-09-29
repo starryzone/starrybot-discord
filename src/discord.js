@@ -1,6 +1,6 @@
 'use strict';
 
-const { Client, Collection, Intents } = require('discord.js')
+const { Client, Collection, GatewayIntentBits } = require('discord.js')
 
 const db = require("./db")
 const logger = require("./logger")
@@ -12,8 +12,17 @@ const {
 } = require("./handlers")
 const { starryCommand } = require('./commands');
 
-const intents = new Intents([ Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILD_MEMBERS, Intents.FLAGS.GUILD_INTEGRATIONS, Intents.FLAGS.GUILD_MESSAGE_REACTIONS ]);
-const client = new Client({intents: intents })
+// List of intents: https://discord.com/developers/docs/topics/gateway#list-of-intents
+// Corresponds with client events: https://discord.js.org/#/docs/discord.js/stable/class/Client
+const client = new Client({
+  intents: [
+    GatewayIntentBits.Guilds,
+    GatewayIntentBits.GuildMessages,
+    GatewayIntentBits.GuildMembers,
+    GatewayIntentBits.GuildIntegrations,
+    GatewayIntentBits.GuildMessageReactions
+  ]
+})
 
 /// Install commands
 client.commands = new Collection();
