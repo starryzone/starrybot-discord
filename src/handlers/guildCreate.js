@@ -1,5 +1,5 @@
 const { REST } = require('@discordjs/rest');
-const { Routes } = require('discord-api-types/v9');
+const { Routes } = require('discord-api-types/v10');
 const db = require("../db");
 const { myConfig } = db;
 const { starryCommand } = require("../commands");
