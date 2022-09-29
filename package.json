@@ -26,7 +26,6 @@
 		"@cosmjs/crypto": "^0.26.4",
 		"@cosmjs/encoding": "^0.26.4",
 		"@cosmjs/stargate": "^0.26.5",
-		"@discordjs/builders": "^0.9.0",
 		"@discordjs/rest": "^0.1.0-canary.0",
 		"@google-cloud/logging-winston": "^4.0.0",
 		"cors": "^2.8.5",
