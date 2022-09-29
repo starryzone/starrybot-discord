@@ -18,6 +18,7 @@ const client = new Client({
   intents: [
     GatewayIntentBits.Guilds,
     GatewayIntentBits.GuildMessages,
+    GatewayIntentBits.MessageContent, // Temporary, will be replaced soon
     GatewayIntentBits.GuildMembers,
     GatewayIntentBits.GuildIntegrations,
     GatewayIntentBits.GuildMessageReactions
