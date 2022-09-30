@@ -6,8 +6,7 @@
 * Choose an existing Discord Server or make a new Discord Server for local dev
     * You must be an admin of this server, and starrybot must not be in there already
 * Click on “New Application” in the [Discord Developer Portal](https://discord.com/developers/applications)
-* Go to the “Bot” tab and add a bot
-    * Scroll down to "Privileged Gateway Intents" and toggle the “Server Members Intent” on
+* Go to the “Bot” tab and add a bot. Note: starrybot does _not_ need any Privileged Gateway Intents anymore!
     * (Optional) Untoggle “Public Bot” if you don’t want anyone else adding your bot to discord servers in the meantime
     * Save your changes
 
@@ -20,7 +19,13 @@
 
 ### Add your Bot to your Discord Server
 * Go to the "General" tab of your app in the Discord Developer Portal and copy the application ID
-* Go to `https://discord.com/oauth2/authorize?client_id=[your application ID]&scope=applications.commands%20bot&permissions=8`
+* Go to `https://discord.com/oauth2/authorize?client_id=[your application ID]&scope=applications.commands%20bot&permissions=268486720`
+    * This code gives the permissions for the bot to:
+        * Manage Roles (for /starry token-rule and join commands)
+        * Send Messages (for every slash command)
+        * Embed Links (for /starry join)
+        * Attach Files (for /starry export)
+        * Add Reactions (for /starry token-rule commands)
     * Follow the steps to authorize the bot
     * You will need to kick the bot a lot for testing, so keep this URL around
 * Your bot should be successfully added to the server!
