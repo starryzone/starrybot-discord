@@ -52,7 +52,7 @@ function buildCommandExecute(command) {
         config.channelError.toString() :
         config.error.toString()
       )
-      respond(reply);
+      respond(interactionTarget, reply);
 
       end();
       return;
