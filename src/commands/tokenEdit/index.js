@@ -26,7 +26,9 @@ module.exports = {
           const roleDecimals = role.decimals;
           return `★ ${roleName}\n- min: ${(roleAmt / (10 ** roleDecimals)) }\n- count staked only: ${role.count_staked_only ?? false}\n`;
         }).join('')}`;
-        const footer = 'Please type a token rule to edit';
+        const footer = {
+          text: 'Please type a token rule to edit'
+        };
 
         return {
           ephemeral: true,

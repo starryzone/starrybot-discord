@@ -8,7 +8,7 @@ const { serializeSignDoc } = require('@cosmjs/amino')
 const { Secp256k1, Secp256k1Signature, sha256 } = require('@cosmjs/crypto')
 const { fromBase64, Bech32} = require('@cosmjs/encoding')
 const { REST } = require("@discordjs/rest");
-const { Routes } = require("discord-api-types/v9");
+const { Routes } = require("discord-api-types/v10");
 const { getTokenBalance, getStakedTokenBalance } = require("./astrolabe");
 const {sumDelegationsForAccount} = require("./utils/tokens");
 

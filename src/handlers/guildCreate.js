@@ -1,5 +1,5 @@
 const { REST } = require('@discordjs/rest');
-const { Routes } = require('discord-api-types/v9');
+const { Routes } = require('discord-api-types/v10');
 const db = require("../db");
 const { myConfig } = db;
 const { starryCommand } = require("../commands");
@@ -52,7 +52,9 @@ async function guildCreate(guild) {
         createEmbed({
           title: 'Hello friends!',
           description: 'starrybot just joined',
-          footer: 'Feel free to use the /starry join command.'
+          footer: {
+            text: 'Feel free to use the /starry join command.'
+          }
         })
       ]
     })

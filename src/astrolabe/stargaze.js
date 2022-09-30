@@ -15,7 +15,7 @@ const getCW721FromStargazeLaunchpadUrl = async stargazeUrl => {
   const stargazeLaunchpadRegex = /^https:\/\/(www|app).stargaze.zone\/launchpad\/(stars\w*)/;
   const regexMatches = stargazeLaunchpadRegex.exec(stargazeUrl);
   // [0] is the string itself, [1] is the (\w*) capture group
-  const otherNftContract = regexMatches[1];
+  const otherNftContract = regexMatches[2];
 
   let cosmClient;
   // No network defined, check for existence on mainnet then testnet

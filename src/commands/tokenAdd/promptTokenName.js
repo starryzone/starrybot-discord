@@ -29,7 +29,9 @@ module.exports = {
             next: 'handleStakedOnlyNo',
             label: 'No, count them all'
           }],
-          footer: 'If you select "No" it will count liquid, staked, and currently unbonding where applicable.',
+          footer: {
+            text: 'If you select "No" it will count liquid, staked, and currently unbonding where applicable.',
+          }
         }
       }
     }
