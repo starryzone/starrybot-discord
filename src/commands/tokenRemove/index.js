@@ -1,5 +1,4 @@
-const { removeConfirmation } = require('./removeConfirmation');
-const { removeRejection } = require('./removeRejection');
+const { removeRole } = require('./removeRole');
 const { removeVerify } = require('./removeVerify');
 
 module.exports = {
@@ -22,25 +21,23 @@ module.exports = {
           ephemeral: true,
         }
       } else {
-        // Show them the options for deletion
-        const description = `${roles.map(role => role.give_role).join('\n')}`;
         return {
           ephemeral: true,
           next: 'removeVerify',
           prompt: {
-            type: 'input',
-            title: 'Current token rules',
-            description,
-            footer: {
-              text: 'Please type a token rule to remove'
-            }
+            type: 'select',
+            title: 'Which token rule would you like to remove?',
+            options: roles.map(role => ({
+              label: role.give_role,
+              description: `Type: ${role.token_type}, Min: ${role.has_minimum_of / (10 ** role.decimals)}, Count staked only: ${role.count_staked_only ?? false}`,
+              value: role.give_role,
+            }))
           }
         }
       }
     },
     steps: {
-      removeConfirmation,
-      removeRejection,
+      removeRole,
       removeVerify,
     }
   }

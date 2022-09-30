@@ -1,7 +1,12 @@
 module.exports = {
   removeVerify: {
     ephemeral: true,
-    getConfig: async ({ guildId, userInput: selectedRole }, { db: { roleGet } }) => {
+    getConfig: async (state, { db: { roleGet } }) => {
+      const { guildId, interaction: { values }} = state;
+      // Fetch + save the role that they selected from the dropdown
+      const selectedRole = values?.[0];
+      state.selectedRole = selectedRole;
+
       // Make sure we recognize the selected role
       const role = await roleGet(guildId, selectedRole);
       if (!role) {
@@ -11,18 +16,19 @@ module.exports = {
       }
 
       return {
+        next: 'removeRole',
         prompt: {
           type: 'button',
           title: `Are you sure you want to delete ${selectedRole}?`,
           options: [
             {
-              next: 'removeConfirmation',
               label: 'Yes please!',
+              value: 'yes',
             },
             {
-              next: 'removeRejection',
               label: 'Cancel',
               style: 'Secondary',
+              value: 'no',
             }
           ]
         },
