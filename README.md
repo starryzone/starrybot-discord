@@ -11,7 +11,7 @@
     * Save your changes
 
 ### Run the Bot Server
-* Run `nvm use`, or otherwise make sure you have node >= 16.6.0
+* Run `nvm use`, or otherwise make sure you have a node version >= what's in .nvmrc
 * Run `yarn install` in the root directory
 * Run `cp .env.template .env` to make your own copy of environment variables
 * Set `DISCORD_TOKEN` in `.env` to the token in the "Bot" tab
