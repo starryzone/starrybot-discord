@@ -15,10 +15,6 @@ function buildCommandExecute(command) {
 
     if (!config) { return; } // might have had error
     const { interactionTarget } = state;
-    // This will allow us to have more than 3 seconds to respond
-    if (interactionTarget.deferReply) {
-      await interactionTarget.deferReply({ephemeral: command.ephemeral})
-    }
 
     if (config.error) {
       console.warn(config.error);
@@ -27,13 +23,30 @@ function buildCommandExecute(command) {
         config.channelError.toString() :
         config.error.toString()
       )
-      if (interactionTarget.deferReply) {
-        await interactionTarget.editReply(reply);
-      } else {
+      try {
         await interactionTarget.reply(reply);
+      } catch {
+        // if for some reason we're unable to reply to the original interaction,
+        // we still want people to know something went wrong with this command
+        await interactionTarget.channel.send(reply);
       }
       end();
       return;
+    }
+
+    // If we're opening a modal, the modal needs to be the first thing that happens.
+    // See: https://discordjs.guide/interactions/modals.html#building-and-responding-with-modals
+    // Otherwise, if we're sending a message, we can defer the reply so our steps can take
+    // more than 3 seconds to respond if necessary (e.g. awaiting an external request)
+    if (interactionTarget.deferReply && config.prompt?.type !== 'modal') {
+      try {
+        await interactionTarget.deferReply({ ephemeral: command.ephemeral });
+      } catch {
+      // There's a rare, annoying case where this may fail due to "Unknown Interaction".
+      // If this happens, we'll just let the message try to send without the defer, otherwise
+      // the entire bot may crash.
+      // See: https://github.com/discordjs/discord.js/issues/7005
+      }
     }
 
     const reply = {
@@ -59,7 +72,7 @@ function buildCommandExecute(command) {
             ephemeral: config.ephemeral
           })
           let msg
-          if (interactionTarget.deferReply) {
+          if (interactionTarget.deferred) {
             msg = await interactionTarget.editReply(reactionReply);
           } else {
             msg = await interactionTarget.reply(reactionReply);
@@ -100,21 +113,26 @@ function buildCommandExecute(command) {
           reply.content = config.prompt.title;
           reply.buttons = config.prompt.options.map(buttonConfig => ({
             ...buttonConfig,
-            // TODO: eventually I'd like to add this
-            // customId: buttonConfig.id ?? buttonConfig.next,
-            customId: buttonConfig.next,
+            // This OR statement allows us to support 2 configurations: either each button
+            // picks which step it goes to, or the buttons always navigate to the same
+            // next step (and that step is responsible for extracting which button was
+            // pressed for their own use). If using the latter, we currently require
+            // each step to have a unique identifiable value, as discord requires
+            // customIds to be unique.
+            customId: buttonConfig.next || buttonConfig.value,
             style: buttonConfig.style ||  'Primary'
           }));
           if (config.prompt.description || config.prompt.footer) {
             reply.embeds = [{description: config.prompt.description ?? 'Note:', footer: config.prompt.footer}]
           }
-          if (interactionTarget.deferReply) {
+          if (interactionTarget.deferred) {
             await interactionTarget.editReply(createMessage(reply));
           } else {
             await interactionTarget.reply(createMessage(reply));
           }
-          // Go to the step designated by the clicked button's ID
-          next(({ interaction }) => interaction.customId, 'button');
+          // If every button should go to the same step, go there. Otherwise,
+          // go to the step designated by the clicked button's ID
+          next(({ interaction }) => config.next || interaction.customId, 'button');
           break;
 
         case 'select':
@@ -174,7 +192,7 @@ function buildCommandExecute(command) {
               ...props
             }
           ];
-          if (interactionTarget.deferReply) {
+          if (interactionTarget.deferred) {
             await interactionTarget.editReply(createMessage(reply));
           } else {
             await interactionTarget.reply(createMessage(reply));
@@ -190,7 +208,7 @@ function buildCommandExecute(command) {
       }));
 
       if (reply.content || reply.embeds?.length > 0) {
-        if (interactionTarget.deferReply) {
+        if (interactionTarget.deferred) {
           await interactionTarget.editReply(createMessage(reply));
         } else {
           await interactionTarget.reply(createMessage(reply));
@@ -216,7 +234,7 @@ function buildCommandExecute(command) {
         if (props.attachments) {
           embed.files = props.attachments
         }
-        if (interactionTarget.deferReply) {
+        if (interactionTarget.deferred) {
           await interactionTarget.editReply(embed);
         } else {
           await interactionTarget.reply(embed);
