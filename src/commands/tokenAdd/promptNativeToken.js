@@ -13,7 +13,7 @@ module.exports = {
         case 'stars':
           state.tokenAddress = 'stars';
           state.tokenSymbol = 'stars';
-          state.network = 'network';
+          state.network = 'mainnet';
           break;
         case 'suggestion':
         default:
