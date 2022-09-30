@@ -34,21 +34,6 @@ function buildCommandExecute(command) {
       return;
     }
 
-    // If we're opening a modal, the modal needs to be the first thing that happens.
-    // See: https://discordjs.guide/interactions/modals.html#building-and-responding-with-modals
-    // Otherwise, if we're sending a message, we can defer the reply so our steps can take
-    // more than 3 seconds to respond if necessary (e.g. awaiting an external request)
-    if (interactionTarget.deferReply && config.prompt?.type !== 'modal') {
-      try {
-        await interactionTarget.deferReply({ ephemeral: command.ephemeral });
-      } catch {
-      // There's a rare, annoying case where this may fail due to "Unknown Interaction".
-      // If this happens, we'll just let the message try to send without the defer, otherwise
-      // the entire bot may crash.
-      // See: https://github.com/discordjs/discord.js/issues/7005
-      }
-    }
-
     const reply = {
       ephemeral: config.ephemeral,
       content: config.message,
@@ -71,13 +56,7 @@ function buildCommandExecute(command) {
             fetchReply: true,
             ephemeral: config.ephemeral
           })
-          let msg
-          if (interactionTarget.deferred) {
-            msg = await interactionTarget.editReply(reactionReply);
-          } else {
-            msg = await interactionTarget.reply(reactionReply);
-          }
-
+          let msg = await interactionTarget.reply(reactionReply);
           for (let i = 0; i < config.prompt.options.length; i++) {
             await msg.react(config.prompt.options[i].emoji);
           }
@@ -125,11 +104,8 @@ function buildCommandExecute(command) {
           if (config.prompt.description || config.prompt.footer) {
             reply.embeds = [{description: config.prompt.description ?? 'Note:', footer: config.prompt.footer}]
           }
-          if (interactionTarget.deferred) {
-            await interactionTarget.editReply(createMessage(reply));
-          } else {
-            await interactionTarget.reply(createMessage(reply));
-          }
+          await interactionTarget.reply(createMessage(reply));
+
           // If every button should go to the same step, go there. Otherwise,
           // go to the step designated by the clicked button's ID
           next(({ interaction }) => config.next || interaction.customId, 'button');
@@ -151,11 +127,7 @@ function buildCommandExecute(command) {
             }
           );
 
-          if (interactionTarget.deferred) {
-            await interactionTarget.editReply(selectMenu);
-          } else {
-            await interactionTarget.reply(selectMenu);
-          }
+          await interactionTarget.reply(selectMenu);
 
           // This OR statement allows us to support 2 configurations: either the select
           // menu always navigates to the same next step (and that step is responsible
@@ -192,11 +164,7 @@ function buildCommandExecute(command) {
               ...props
             }
           ];
-          if (interactionTarget.deferred) {
-            await interactionTarget.editReply(createMessage(reply));
-          } else {
-            await interactionTarget.reply(createMessage(reply));
-          }
+          await interactionTarget.reply(createMessage(reply));
           next(config.next, config.prompt?.type);
           break;
       }
@@ -208,11 +176,7 @@ function buildCommandExecute(command) {
       }));
 
       if (reply.content || reply.embeds?.length > 0) {
-        if (interactionTarget.deferred) {
-          await interactionTarget.editReply(createMessage(reply));
-        } else {
-          await interactionTarget.reply(createMessage(reply));
-        }
+        await interactionTarget.reply(createMessage(reply));
       }
 
       if (config.next) {
@@ -234,11 +198,8 @@ function buildCommandExecute(command) {
         if (props.attachments) {
           embed.files = props.attachments
         }
-        if (interactionTarget.deferred) {
-          await interactionTarget.editReply(embed);
-        } else {
-          await interactionTarget.reply(embed);
-        }
+        await interactionTarget.reply(embed);
+
         // Chain is over, clean up
         end();
       } else {
