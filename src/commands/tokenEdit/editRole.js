@@ -1,5 +1,6 @@
 module.exports = {
   editRole: {
+    deferReply: false, // Required for type modal
     getConfig: async (state, { db: { roleGet }}) => {
       const { guildId, interaction: { values }} = state;
       // Fetch the role they selected from the dropdown

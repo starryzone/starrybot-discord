@@ -7,14 +7,43 @@ const {
   createSelectMenu,
 } = require("../utils/messages");
 
+async function respond(interactionTarget, contents) {
+  try {
+    if (interactionTarget.deferred) {
+      return interactionTarget.editReply(contents);
+    } else {
+      return interactionTarget.reply(contents);
+    }
+  } catch {
+    // if for some reason we're unable to reply to the original interaction,
+    // we still want people to know something went wrong with this command
+    return interactionTarget.channel.send(contents);
+  }
+}
+
 function buildCommandExecute(command) {
   return async (state, context, next, end) => {
+    const { interactionTarget } = state;
+    const asyncCommand = command.getConfig !== undefined;
+
+    // As long as the command doesn't explicitly want to disable deferReply (i.e. if they
+    // ultimately open a modal) and deferReply exists on the interactionTarget,
+    // we want to defer the reply before we call command.getConfig so we can take more
+    // than 3 seconds. For more information on the modal limit, see:
+    // https://discordjs.guide/interactions/modals.html#building-and-responding-with-modals
+    if (command.deferReply !== false && interactionTarget.deferReply) {
+      try {
+        await interactionTarget.deferReply({ ephemeral: command.ephemeral });
+      } catch {
+        // If this fails for some reason, we can try to let the rest of the command proceed
+        // as if it were undeferred.
+      }
+    }
+
     const config = command.getConfig ?
       await command.getConfig(state, context) :
       command;
-
     if (!config) { return; } // might have had error
-    const { interactionTarget } = state;
 
     if (config.error) {
       console.warn(config.error);
@@ -23,13 +52,8 @@ function buildCommandExecute(command) {
         config.channelError.toString() :
         config.error.toString()
       )
-      try {
-        await interactionTarget.reply(reply);
-      } catch {
-        // if for some reason we're unable to reply to the original interaction,
-        // we still want people to know something went wrong with this command
-        await interactionTarget.channel.send(reply);
-      }
+      respond(reply);
+
       end();
       return;
     }
@@ -56,7 +80,7 @@ function buildCommandExecute(command) {
             fetchReply: true,
             ephemeral: config.ephemeral
           })
-          let msg = await interactionTarget.reply(reactionReply);
+          let msg = await respond(interactionTarget, reactionReply);
           for (let i = 0; i < config.prompt.options.length; i++) {
             await msg.react(config.prompt.options[i].emoji);
           }
@@ -104,7 +128,7 @@ function buildCommandExecute(command) {
           if (config.prompt.description || config.prompt.footer) {
             reply.embeds = [{description: config.prompt.description ?? 'Note:', footer: config.prompt.footer}]
           }
-          await interactionTarget.reply(createMessage(reply));
+          await respond(interactionTarget, createMessage(reply));
 
           // If every button should go to the same step, go there. Otherwise,
           // go to the step designated by the clicked button's ID
@@ -127,7 +151,7 @@ function buildCommandExecute(command) {
             }
           );
 
-          await interactionTarget.reply(selectMenu);
+          await respond(interactionTarget, selectMenu);
 
           // This OR statement allows us to support 2 configurations: either the select
           // menu always navigates to the same next step (and that step is responsible
@@ -164,7 +188,7 @@ function buildCommandExecute(command) {
               ...props
             }
           ];
-          await interactionTarget.reply(createMessage(reply));
+          await respond(interactionTarget, createMessage(reply));
           next(config.next, config.prompt?.type);
           break;
       }
@@ -176,7 +200,7 @@ function buildCommandExecute(command) {
       }));
 
       if (reply.content || reply.embeds?.length > 0) {
-        await interactionTarget.reply(createMessage(reply));
+        await respond(interactionTarget, createMessage(reply));
       }
 
       if (config.next) {
@@ -198,7 +222,7 @@ function buildCommandExecute(command) {
         if (props.attachments) {
           embed.files = props.attachments
         }
-        await interactionTarget.reply(embed);
+        await respond(interactionTarget, embed);
 
         // Chain is over, clean up
         end();

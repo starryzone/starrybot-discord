@@ -1,6 +1,7 @@
 module.exports = {
   promptCW721: {
-    getConfig: async (state, { db: { roleGet }}) => {
+    deferReply: false, // Required for type modal
+    getConfig: async (state) => {
       // See which button they pressed and update the state appropriatley
       const selectedOption = state.interactionTarget.customId;
       state.selectedOption = selectedOption;
