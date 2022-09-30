@@ -1,5 +1,11 @@
 const { SlashCommandBuilder } = require('discord.js');
-const { COLORS_BY_MESSAGE_TYPE, createMessage, createPrivateError } = require("../utils/messages");
+const {
+  COLORS_BY_MESSAGE_TYPE,
+  createMessage,
+  createModal,
+  createPrivateError,
+  createSelectMenu,
+} = require("../utils/messages");
 
 function buildCommandExecute(command) {
   return async (state, context, next, end) => {
@@ -111,6 +117,51 @@ function buildCommandExecute(command) {
           next(({ interaction }) => interaction.customId, 'button');
           break;
 
+        case 'select':
+          const selectMenu = createSelectMenu(
+            {
+              title: config.prompt.title,
+              ephemeral: config.ephemeral,
+              embeds: config.prompt.embeds,
+              options: config.prompt.options.map(option => ({
+                label: option.label || `${option.emoji} ${option.description}`,
+                // TO-DO: Selects let us add more descriptions than just the label, but
+                // haven't gone back and updated all the emoji reactions text yet.
+                description: option.description,
+                value: option.value || option.next,
+              }))
+            }
+          );
+
+          if (interactionTarget.deferred) {
+            await interactionTarget.editReply(selectMenu);
+          } else {
+            await interactionTarget.reply(selectMenu);
+          }
+
+          // This OR statement allows us to support 2 configurations: either the select
+          // menu always navigates to the same next step (and that step is responsible
+          // for extracting the selection for their own use), or each option in the
+          // select menu can define which step it wants to go to instead. If using the
+          // latter, we currently require each step to go to a unique step, as discord
+          // requires values to be unique.
+          next(({ interaction }) => config.next || interaction.values?.[0], 'select');
+          break;
+
+        case 'modal':
+          const modal = createModal({
+            title: config.prompt.title,
+            embeds: config.embeds,
+            inputs: config.prompt?.inputs || [
+              {
+                label: config.label || 'Enter here'
+              }
+            ]
+          })
+          await interactionTarget.showModal(modal);
+          next(config.next, config.prompt?.type);
+          break;
+        
         case 'input':
         default:
           const { title, description, ...props } = config.prompt;
