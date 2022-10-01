@@ -1,15 +1,15 @@
 const { starryCommandFarewell } = require('./farewell');
-const { starryCommandHealth } = require('./health');
-const { starryCommandJoin } = require('./join');
+const starryCommandHealth = require('./health.json');
+const starryCommandJoin = require('./join.json');
 const { starryCommandTokenAdd } = require('./tokenAdd');
-const { starryCommandTokenList } = require('./tokenList');
+const starryCommandTokenList = require('./tokenList.json');
 const { starryCommandTokenEdit } = require('./tokenEdit');
 const { starryCommandTokenRemove } = require('./tokenRemove');
-const { starryCommandExport } = require('./export');
+const starryCommandExport = require('./export.json');
 
 const { buildCommandData } = require('../utils/commands');
 const { Wizardware } = require("../wizardware");
-
+console.log(starryCommandJoin);
 // Useful dependencies to inject through the steps
 const astrolabe = require("../astrolabe");
 const daodao = require("../astrolabe/daodao");

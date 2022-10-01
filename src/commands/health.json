@@ -1,0 +1,7 @@
+{
+  "name": "health",
+  "description": "Run diagnostics for starrybot",
+
+  "adminOnly": true,
+  "action": "healthCheck"
+}

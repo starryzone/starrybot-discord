@@ -1,0 +1,8 @@
+{
+  "name": "export",
+  "description": "Export a CSV of the Cosmos Hub addresses engaging with your Discord",
+
+  "adminOnly": true,
+  "ephemeral": true,
+  "action": "exportCsv"
+}
