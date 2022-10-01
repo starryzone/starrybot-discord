@@ -6,6 +6,10 @@ const { leaveGuild } = require("./leaveGuild");
 const { tokenRemovePrompt } = require("./tokenRemovePrompt");
 const { tokenRemoveFinal } = require("./tokenRemoveFinal");
 const { tokenRemoveVerify } = require("./tokenRemoveVerify");
+const { tokenEditPrompt } = require("./tokenEditPrompt");
+const { tokenEditDetails } = require("./tokenEditDetails");
+const { tokenEditStakedOnly } = require("./tokenEditStakedOnly");
+const { tokenEditFinish } = require("./tokenEditFinish");
 
 module.exports = {
   exportCsv,
@@ -16,4 +20,8 @@ module.exports = {
   tokenRemovePrompt,
   tokenRemoveFinal,
   tokenRemoveVerify,
+  tokenEditPrompt,
+  tokenEditDetails,
+  tokenEditStakedOnly,
+  tokenEditFinish,
 }

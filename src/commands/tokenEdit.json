@@ -1,0 +1,19 @@
+{
+  "adminOnly": true,
+  "name": "edit",
+  "description": "Edit a token rule's name or amount",
+  "action": "tokenEditPrompt",
+  "steps": {
+    "editRole": {
+      "deferReply": false,
+      "action": "tokenEditDetails"
+    },
+    "editRoleStakedOnly": {
+      "action": "tokenEditStakedOnly"
+    },
+    "handleRoleEdit": {
+      "action": "tokenEditFinish"
+    }
+  }
+}
+

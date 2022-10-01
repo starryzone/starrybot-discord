@@ -3,7 +3,7 @@ const starryCommandHealth = require('./health.json');
 const starryCommandJoin = require('./join.json');
 const { starryCommandTokenAdd } = require('./tokenAdd');
 const starryCommandTokenList = require('./tokenList.json');
-const { starryCommandTokenEdit } = require('./tokenEdit');
+const starryCommandTokenEdit = require('./tokenEdit.json');
 const starryCommandTokenRemove = require('./tokenRemove.json');
 const starryCommandExport = require('./export.json');
 
