@@ -1,9 +1,8 @@
 const { isStargazeLaunchpadAddress, getCW721FromStargazeUrl } = require("../../astrolabe/stargaze");
+const { isDaoDaoAddress, getCW20InputFromDaoDaoDao } = require("../../astrolabe/daodao");
+const { getTokenDetails } = require("../../astrolabe");
 
-const tokenAddStakedOnly = async (state, {
-  astrolabe: { getTokenDetails },
-  daodao: { isDaoDaoAddress, getCW20InputFromDaoDaoDao },
-}) => {
+const tokenAddStakedOnly = async state => {
   // Required for every flow in token-rule add
   const selectedRoleName = state.interactionTarget.fields.getTextInputValue('role-name');
 

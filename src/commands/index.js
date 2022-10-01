@@ -11,19 +11,13 @@ const { buildCommandData } = require('../utils/commands');
 const { Wizardware } = require("../wizardware");
 
 // Useful dependencies to inject through the steps
-const astrolabe = require("../astrolabe");
-const daodao = require("../astrolabe/daodao");
 const db = require("../db");
-const logic = require("../logic");
 
 const wizardware = new Wizardware({
 
   // Dependencies that each step should have access to
   dependencies: {
-    astrolabe,
-    daodao,
     db,
-    logic,
   }
 })
 

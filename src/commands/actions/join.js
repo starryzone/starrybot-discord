@@ -1,8 +1,9 @@
+const { hoistRequest } = require("../../logic");
+
 const join = async (
   { guildId, userId: authorId },
   {
     db: { myConfig: {VALIDATOR: validatorURL } },
-    logic: { hoistRequest }
   }
 ) => {
   try {
