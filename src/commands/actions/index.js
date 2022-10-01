@@ -10,6 +10,12 @@ const { tokenEditPrompt } = require("./tokenEditPrompt");
 const { tokenEditDetails } = require("./tokenEditDetails");
 const { tokenEditStakedOnly } = require("./tokenEditStakedOnly");
 const { tokenEditFinish } = require("./tokenEditFinish");
+const { tokenAddStakedOnly } = require("./tokenAddStakedOnly");
+const { tokenAddFinish } = require("./tokenAddFinish");
+const { tokenAddCW20 } = require("./tokenAddCW20");
+const { tokenAddCW721 } = require("./tokenAddCW721");
+const { tokenAddNative } = require("./tokenAddNative");
+const { tokenAddNativePrompt } = require("./tokenAddNativePrompt");
 
 module.exports = {
   exportCsv,
@@ -24,4 +30,10 @@ module.exports = {
   tokenEditDetails,
   tokenEditStakedOnly,
   tokenEditFinish,
+  tokenAddStakedOnly,
+  tokenAddFinish,
+  tokenAddCW20,
+  tokenAddCW721,
+  tokenAddNative,
+  tokenAddNativePrompt,
 }

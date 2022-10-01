@@ -28,7 +28,7 @@ function buildCommandExecute(command) {
 
     // As long as the command doesn't explicitly want to disable deferReply (i.e. if they
     // ultimately open a modal) and deferReply exists on the interactionTarget,
-    // we want to defer the reply before we call command.getConfig so we can take more
+    // we want to defer the reply before we call any async actions so we can take more
     // than 3 seconds. For more information on the modal limit, see:
     // https://discordjs.guide/interactions/modals.html#building-and-responding-with-modals
     if (command.deferReply !== false && interactionTarget.deferReply) {
@@ -43,9 +43,6 @@ function buildCommandExecute(command) {
     let config;
     if (Object.keys(actions).includes(command.action)) {
       config = await actions[command.action](state, context);
-    } else if (command.getConfig) {
-      // This is getting transitioned into the actions pattern insteads
-      config = await command.getConfig(state, context);
     } else {
       // If this step does not have an asynchronous action associated with it
       config = command;
