@@ -252,7 +252,7 @@ function registerSubcommand(wizardware, mainCommand, subcommand) {
   );
   wizardware.registerStep(name, {
     ...subcommand,
-    execute: subcommand.execute ? subcommand.execute : buildCommandExecute(subcommand)
+    execute: buildCommandExecute(subcommand)
   });
 
   if (subcommand.steps) {
@@ -261,7 +261,7 @@ function registerSubcommand(wizardware, mainCommand, subcommand) {
       wizardware.registerStep(name, {
         ...step,
         name,
-        execute: step.execute ? step.execute : buildCommandExecute(step),
+        execute: buildCommandExecute(step),
       });
     });
   }
