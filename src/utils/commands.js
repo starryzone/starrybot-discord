@@ -6,6 +6,7 @@ const {
   createPrivateError,
   createSelectMenu,
 } = require("../utils/messages");
+const actions = require("../commands/actions");
 
 async function respond(interactionTarget, contents) {
   try {
@@ -24,7 +25,6 @@ async function respond(interactionTarget, contents) {
 function buildCommandExecute(command) {
   return async (state, context, next, end) => {
     const { interactionTarget } = state;
-    const asyncCommand = command.getConfig !== undefined;
 
     // As long as the command doesn't explicitly want to disable deferReply (i.e. if they
     // ultimately open a modal) and deferReply exists on the interactionTarget,
@@ -40,9 +40,17 @@ function buildCommandExecute(command) {
       }
     }
 
-    const config = command.getConfig ?
-      await command.getConfig(state, context) :
-      command;
+    let config;
+    if (Object.keys(actions).includes(command.action)) {
+      config = await actions[command.action](state, context);
+    } else if (command.getConfig) {
+      // This is getting transitioned into the actions pattern insteads
+      config = await command.getConfig(state, context);
+    } else {
+      // If this step does not have an asynchronous action associated with it
+      config = command;
+    }
+
     if (!config) { return; } // might have had error
 
     if (config.error) {
