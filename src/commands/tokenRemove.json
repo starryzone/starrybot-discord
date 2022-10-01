@@ -1,8 +1,9 @@
 {
-  "ephemeral": true,
-  "adminOnly": true,
   "name": "remove",
   "description": "Remove token rule",
+
+  "adminOnly": true,
+  "ephemeral": true,
   "action": "tokenRemovePrompt",
   "steps": {
     "removeRole": {

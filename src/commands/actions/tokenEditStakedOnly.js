@@ -1,4 +1,4 @@
-const tokenEditStakedOnly = async (state) => {
+const tokenEditStakedOnly = async state => {
   const { guild, interactionTarget: { fields }, selectedRole, selectedRoleName } = state;
   
   const newRoleName = fields.getTextInputValue('role-name');

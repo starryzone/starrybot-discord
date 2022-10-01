@@ -1,4 +1,4 @@
-const tokenAddCW20 = async (state) => {
+const tokenAddCW20 = async state => {
   // See which button they pressed and update the state appropriatley
   const selectedOption = state.interactionTarget.customId;
   state.selectedOption = selectedOption;

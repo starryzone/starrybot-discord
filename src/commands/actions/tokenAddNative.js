@@ -1,4 +1,4 @@
-const tokenAddNative = async (state) => {
+const tokenAddNative = async state => {
   // See which button they pressed and update the state appropriatley
   const selectedToken = state.interactionTarget.customId;
   switch (selectedToken) {

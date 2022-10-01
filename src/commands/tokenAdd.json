@@ -1,7 +1,8 @@
 {
-  "adminOnly": true,
   "name": "add",
   "description": "Add a new token rule",
+
+  "adminOnly": true,
   "prompt": {
     "type": "select",
     "title": "What kind of token?",

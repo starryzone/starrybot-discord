@@ -1,7 +1,8 @@
 {
-  "adminOnly": true,
   "name": "edit",
   "description": "Edit a token rule's name or amount",
+
+  "adminOnly": true,
   "action": "tokenEditPrompt",
   "steps": {
     "editRole": {

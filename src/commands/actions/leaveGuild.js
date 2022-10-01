@@ -2,9 +2,7 @@ const { REST } = require("@discordjs/rest");
 const { Routes } = require("discord-api-types/v10");
 const { myConfig, rolesGetForCleanUp, rolesDeleteGuildAll } = require("../../db");
 
-const leaveGuild = async (
-  { guild, guildId, interaction },
-) => {
+const leaveGuild = async ({ guild, guildId, interaction }) => {
   const roleManager = guild.roles;
   const rest = new REST().setToken(myConfig.DISCORD_TOKEN);
 

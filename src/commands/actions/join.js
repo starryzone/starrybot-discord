@@ -1,9 +1,7 @@
 const { hoistRequest } = require("../../logic");
 const { myConfig: { VALIDATOR: validatorURL } } = require("../../db");
 
-const join = async (
-  { guildId, userId: authorId },
-) => {
+const join = async ({ guildId, userId: authorId }) => {
   try {
     let results = await hoistRequest({ guildId, authorId });
     if (results.error || !results.traveller || !results.saganism) {
