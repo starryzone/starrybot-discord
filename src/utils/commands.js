@@ -23,7 +23,7 @@ async function respond(interactionTarget, contents) {
 }
 
 function buildCommandExecute(command) {
-  return async (state, context, next, end) => {
+  return async (state, next, end) => {
     const { interactionTarget } = state;
 
     // As long as the command doesn't explicitly want to disable deferReply (i.e. if they
@@ -42,7 +42,7 @@ function buildCommandExecute(command) {
 
     let config;
     if (Object.keys(actions).includes(command.action)) {
-      config = await actions[command.action](state, context);
+      config = await actions[command.action](state);
     } else {
       // If this step does not have an asynchronous action associated with it
       config = command;

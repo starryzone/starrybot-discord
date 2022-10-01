@@ -1,4 +1,6 @@
-const tokenList = async ({ guildId }, { db: { rolesGet } }) => {
+const { rolesGet } = require("../../db");
+
+const tokenList = async ({ guildId }) => {
   let roles = await rolesGet(guildId);
   const title = `${roles.length} roles found`;
   const description = roles.length > 0 ?

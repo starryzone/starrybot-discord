@@ -1,3 +1,5 @@
+const { rolesSet } = require("../../db");
+
 const tokenAddFinish = async (
   {
     decimals,
@@ -12,9 +14,6 @@ const tokenAddFinish = async (
     tokenAddress,
     userId,
   },
-  {
-    db: { rolesSet }
-  }
 ) => {
   // See which button they pressed based on the custom ID
   const countStakedOnly = (interactionTarget.customId === 'yes');

@@ -1,4 +1,6 @@
-const tokenRemovePrompt = async ({ guildId }, { db: { rolesGet } }) => {
+const { rolesGet } = require("../../db");
+
+const tokenRemovePrompt = async ({ guildId }) => {
   let roles = await rolesGet(guildId);
   if (roles.length === 0) {
     // Nothing to actually delete

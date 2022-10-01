@@ -1,4 +1,6 @@
-const tokenEditPrompt = async ({ guildId }, { db: { rolesGet } }) => {
+const { rolesGet } = require("../../db");
+
+const tokenEditPrompt = async ({ guildId }) => {
   let roles = await rolesGet(guildId);
   if (roles.length === 0) {
     return {

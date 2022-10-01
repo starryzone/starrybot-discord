@@ -1,4 +1,6 @@
-const tokenEditDetails = async (state, { db: { roleGet }}) => {
+const { roleGet } = require("../../db");
+
+const tokenEditDetails = async state => {
   const { guildId, interaction: { values }} = state;
   // Fetch the role they selected from the dropdown
   const selectedRoleName = values?.[0];

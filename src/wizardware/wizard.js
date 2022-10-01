@@ -75,7 +75,6 @@ class Wizard {
     if (allowed) {
       return await command.execute(
         this.state,
-        this.wizardware.dependencies,
         (getCommandName, currentPromptType) => {
           this.getNextStep = getCommandName;
           this.currentPromptType = currentPromptType;

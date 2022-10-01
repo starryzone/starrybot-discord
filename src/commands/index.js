@@ -10,16 +10,7 @@ const starryCommandExport = require('./export.json');
 const { buildCommandData } = require('../utils/commands');
 const { Wizardware } = require("../wizardware");
 
-// Useful dependencies to inject through the steps
-const db = require("../db");
-
-const wizardware = new Wizardware({
-
-  // Dependencies that each step should have access to
-  dependencies: {
-    db,
-  }
-})
+const wizardware = new Wizardware({});
 
 const commandData = buildCommandData([
   {

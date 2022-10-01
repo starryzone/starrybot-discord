@@ -1,3 +1,5 @@
+const { rolesSet, rolesDelete } = require("../../db");
+
 const tokenEditFinish = async (
   {
     userId,
@@ -9,9 +11,6 @@ const tokenEditFinish = async (
     amountOfTokensNeeded,
     selectedRole: { token_address, token_type, has_minimum_of, network, decimals, staking_contract, count_staked_only }
   },
-  {
-    db: { rolesSet, rolesDelete }
-  }
 ) => {
   // Check which button they pressed based on the custom Id
   const updatedStakedOnly = (interactionTarget.customId === 'yes');

@@ -3,17 +3,11 @@ const { Wizard } = require("./wizard");
 class Wizardware {
   activeWizards = new Map();
 
-  dependencies = {};
-
   registeredSteps = new Map();
 
   timeoutDuration = 360000;
 
-  constructor({ dependencies, timeoutDuration }) {
-    if (dependencies) {
-      this.dependencies = Object.assign(this.dependencies, dependencies);
-    }
-
+  constructor({ timeoutDuration }) {
     if (timeoutDuration) {
       this.timeoutDuration = timeoutDuration;
     }

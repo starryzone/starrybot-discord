@@ -1,9 +1,10 @@
 const { REST } = require("@discordjs/rest");
 const { Routes } = require("discord-api-types/v9");
 
+const { myConfig, rolesDelete } = require("../../db");
+
 const tokenRemoveFinal = async (
   { guild, guildId, interactionTarget, selectedRole },
-  { db: { myConfig, rolesDelete } }
 ) => {
   // See which button they pressed based on the customId
   const shouldRemove = (interactionTarget.customId === 'yes');

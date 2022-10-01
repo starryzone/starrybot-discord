@@ -1,4 +1,6 @@
-const tokenRemoveVerify = async (state, { db: { roleGet } }) => {
+const { roleGet } = require("../../db");
+
+const tokenRemoveVerify = async state => {
   const { guildId, interaction: { values }} = state;
   // Fetch + save the role that they selected from the dropdown
   const selectedRole = values?.[0];
