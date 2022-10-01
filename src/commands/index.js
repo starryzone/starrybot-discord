@@ -4,7 +4,7 @@ const starryCommandJoin = require('./join.json');
 const { starryCommandTokenAdd } = require('./tokenAdd');
 const starryCommandTokenList = require('./tokenList.json');
 const { starryCommandTokenEdit } = require('./tokenEdit');
-const { starryCommandTokenRemove } = require('./tokenRemove');
+const starryCommandTokenRemove = require('./tokenRemove.json');
 const starryCommandExport = require('./export.json');
 
 const { buildCommandData } = require('../utils/commands');
