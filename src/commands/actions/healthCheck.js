@@ -1,8 +1,9 @@
+const { checkRPCStatus, checkLCDStatus, networkInfo } = require('../../astrolabe/networks');
+
 const healthCheck = async (
   { guild },
   {
     db: { rolesGet, syncDetails },
-    networks: { checkRPCStatus, checkLCDStatus, networkInfo }
   }
 ) => {
   async function checkRPC(networkName, networkUrl) {

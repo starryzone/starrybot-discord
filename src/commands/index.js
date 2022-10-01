@@ -15,8 +15,6 @@ const astrolabe = require("../astrolabe");
 const daodao = require("../astrolabe/daodao");
 const db = require("../db");
 const logic = require("../logic");
-const networks = require("../astrolabe/networks");
-const stargaze = require("../astrolabe/stargaze");
 
 const wizardware = new Wizardware({
 
@@ -26,8 +24,6 @@ const wizardware = new Wizardware({
     daodao,
     db,
     logic,
-    networks,
-    stargaze
   }
 })
 

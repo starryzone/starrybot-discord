@@ -1,7 +1,9 @@
 const fs = require('fs')
 const { Bech32 } = require('@cosmjs/encoding')
 
-const exportCsv = async (state, context) => {
+const { networkPrefixes } = require('../../astrolabe/networks');
+
+const exportCsv = async (state, { db }) => {
   const guildId = state.interaction.guildId;
 
   // Create CSV in exports directory (overwrite if exists)
@@ -11,12 +13,12 @@ const exportCsv = async (state, context) => {
   asciiName = asciiName.replace(/\//g, '')
   let stream
   let attachmentPaths = []
-  for (const network of context.networks.networkPrefixes) {
+  for (const network of networkPrefixes) {
     const filePath = `exports/${guildObj.id}-${asciiName}-${network}.csv`
     stream = fs.createWriteStream(filePath, {flags: 'w'})
     stream.write('address,amount\n')
 
-    const CosmosAddresses = await context.db.cosmosAddressesForGuild(guildId)
+    const CosmosAddresses = await db.cosmosAddressesForGuild(guildId)
     for (const { cosmos_address: cosmosAddress } of CosmosAddresses) {
       const decodedAccount = Bech32.decode(cosmosAddress).data
       const encodedAccount = Bech32.encode(network, decodedAccount)
