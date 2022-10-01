@@ -2,18 +2,20 @@ module.exports = {
   editRoleStakedOnly: {
     getConfig: async (state) => {
       const { guild, interactionTarget: { fields }, selectedRole, selectedRoleName } = state;
-      // Validate role name selection before continuing
+      
       const newRoleName = fields.getTextInputValue('role-name');
-      const existingObjectRoles = await guild.roles.fetch();
-      let roleAlreadyExists = existingObjectRoles.some(role => role.name === newRoleName);
-      if (roleAlreadyExists) {
-        // Invalid reply
-        return {
-          error: 'A token role already exists with this name. Please pick a different name, or rename that one first.'
+      // If they changed the role name, validate role name selection before continuing
+      if (selectedRoleName !== newRoleName) {
+        const existingObjectRoles = await guild.roles.fetch();
+        let roleAlreadyExists = existingObjectRoles.some(role => role.name === newRoleName);
+        if (roleAlreadyExists) {
+          // Invalid reply
+          return {
+            error: 'A token role already exists with this name. Please pick a different name, or rename that one first.'
+          }
         }
-      } else {
-        state.newRoleName = newRoleName;
       }
+      state.newRoleName = newRoleName;
 
       // Validate token amount selection before continuing
       // We only prompt token amount for native and CW20 tokens today
