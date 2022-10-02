@@ -42,7 +42,13 @@ function buildCommandExecute(command) {
 
     let config;
     if (Object.keys(actions).includes(command.action)) {
-      config = await actions[command.action](state);
+      try {
+        config = await actions[command.action](state);
+      } catch (error) {
+        // Don't let javascript failures crash the bot, just
+        // notify the room when it happens
+        config = { error };
+      }
     } else {
       // If this step does not have an asynchronous action associated with it
       config = command;

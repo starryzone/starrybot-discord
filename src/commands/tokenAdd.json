@@ -127,10 +127,6 @@
       "action": "tokenAddNativePrompt"
     },
     "addDAOVotes": {
-      "stateOnEnter": {
-        "tokenType": "votes",
-        "decimals": 1
-      },
       "next": "promptDAOVotes",
       "prompt": {
         "type": "button",
@@ -153,7 +149,7 @@
               },
               {
                 "name": "Note:",
-                "value": "All of these options can be configured with a time range (i.e. #/% votes within the past X days), and none of these options look at whether or not the user is a current member of the DAO."
+                "value": "All of these options can be configured to look at either all proposals ever or the last X number of proposals. None of these options check whether or not the user is a current member of the DAO."
               }
             ]
           }
@@ -161,15 +157,15 @@
         "options": [
           {
             "label": "≤ Vote Minimum",
-            "value": "minimum"
+            "value": "DAOVoteMinimum"
           },
           {
             "label": "% Vote Percentage",
-            "value": "percentage"
+            "value": "DAOVotePercentage"
           },
           {
             "label": "🏆 Most Participation",
-            "value": "most"
+            "value": "DAOMostParticipation"
           }
         ]
       }
@@ -187,6 +183,10 @@
     "promptCW721": {
       "deferReply": false,
       "action": "tokenAddCW721"
+    },
+    "promptDAOVotes": {
+      "deferReply": false,
+      "action": "tokenAddDaoVotes"
     },
     "promptNativeToken": {
       "deferReply": false,

@@ -14,6 +14,7 @@ const { tokenAddStakedOnly } = require("./tokenAddStakedOnly");
 const { tokenAddFinish } = require("./tokenAddFinish");
 const { tokenAddCW20 } = require("./tokenAddCW20");
 const { tokenAddCW721 } = require("./tokenAddCW721");
+const { tokenAddDaoVotes } = require("./tokenAddDaoVotes");
 const { tokenAddNative } = require("./tokenAddNative");
 const { tokenAddNativePrompt } = require("./tokenAddNativePrompt");
 
@@ -34,6 +35,7 @@ module.exports = {
   tokenAddFinish,
   tokenAddCW20,
   tokenAddCW721,
+  tokenAddDaoVotes,
   tokenAddNative,
   tokenAddNativePrompt,
 }

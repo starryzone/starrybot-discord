@@ -15,6 +15,11 @@ const getDAOAddressFromDAODAOUrl = daoDAOUrl => {
   return regexMatches[2];
 }
 
+const getCosmClientForDao = async (daoAddress, network) => {
+  const rpcEndpoint = getConnectionFromToken(daoAddress, 'rpc', network)
+  return CosmWasmClient.connect(rpcEndpoint)
+}
+
 const getCW20InputFromDaoDaoDao = async (daodaoUrl) => {
   if (!isDaoDaoAddress(daodaoUrl)) return;
 
@@ -23,9 +28,7 @@ const getCW20InputFromDaoDaoDao = async (daodaoUrl) => {
   // Let's determine the RPC to connect to
   // based on the dao address
   const daoAddress = getDAOAddressFromDAODAOUrl(daodaoUrl)
-  console.log(daoAddress);
-  const rpcEndpoint = getConnectionFromToken(daoAddress, 'rpc', network)
-  const cosmClient = await CosmWasmClient.connect(rpcEndpoint)
+  const cosmClient = await getCosmClientForDao(daoAddress, network);
   let daoInfo;
   try {
     const votingModuleAddress = await cosmClient.queryContractSmart(daoAddress, {
@@ -61,7 +64,28 @@ const getCW20InputFromDaoDaoDao = async (daodaoUrl) => {
   }
 }
 
+const getProposalInfoFromDaoDaoDao = async (daodaoUrl) => {
+  const network = daodaoUrl.includes('testnet') ? 'testnet' : 'mainnet';
+  const daoAddress = getDAOAddressFromDAODAOUrl(daodaoUrl);
+  const cosmClient = await getCosmClientForDao(daoAddress, network);
+  const proposalModules = await cosmClient.queryContractSmart(daoAddress, {
+    proposal_modules: { },
+  });
+  if (proposalModules?.length > 0) {
+    const results = await cosmClient.queryContractSmart(proposalModules[0], {
+      config: {  }
+    });
+    return results;
+  } else {
+    console.log(proposalModules);
+    throw "No voting module address found";
+  }
+}
+
 module.exports = {
   isDaoDaoAddress,
+  getCosmClientForDao,
   getCW20InputFromDaoDaoDao,
+  getDAOAddressFromDAODAOUrl,
+  getProposalInfoFromDaoDaoDao,
 }

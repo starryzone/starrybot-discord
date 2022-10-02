@@ -35,9 +35,9 @@ app.post('/starry-backend', async (req, res) => {
 app.post('/starry-test', async (req, res) => {
   try {
     const daoUrl = "https://daodao.zone/dao/juno1czh5dy2kxwwt5hlw6rr2q25clj96sheftsdccswg9qe34m3wzgdswmw8ju";
-    let results = await daodao.getCW20InputFromDaoDaoDao(daoUrl);
+    let results = await daodao.getProposalInfoFromDaoDaoDao(daoUrl);
     console.log(results);
-    res.status(200).send(results)
+    res.status(200).send("Success")
   } catch(err) {
     logger.warn(err);
     res.status(400).send({error: "Error with test endpoint"})

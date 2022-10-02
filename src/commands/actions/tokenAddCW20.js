@@ -19,7 +19,7 @@ const tokenAddCW20 = async state => {
         },
         {
           label: 'Role Name',
-          placeholder: 'Please enter the name of the role that should created',
+          placeholder: 'Please enter the name of the role that should be created',
           id: 'role-name',
           required: true,
         },
