@@ -171,25 +171,45 @@ async function addRemoveRoles(discordUserId, discordGuildId, cosmosAddress, clie
     const network = role.network;
     const tokenAddress = role.token_address
     const countStakedOnly = role.count_staked_only
-
-    let balance;
-    try {
-      if (countStakedOnly) {
-        balance = await getStakedTokenBalance({keplrAccount: cosmosAddress, tokenAddress, network, extra: { staking_contract: role.staking_contract }});
-      } else {
-        balance = await getTokenBalance({keplrAccount: cosmosAddress, tokenAddress, network, extra: { staking_contract: role.staking_contract }});
+    const tokenType = role.token_type;
+    
+    let shouldGetRole = false;
+    // HACKATHON work - this is different enough math that we should rethink how this is
+    // set up (DB structure, astrolabe exports and the calculations here).
+    if (tokenType.includes('DAO')) {
+      switch(tokenType) {
+        case 'DAOVoteMinimum':
+          break;
+        case 'DAOVotePercentage':
+          break;
+        case 'DAOMostParticipation':
+          break;
+        default:
+          // We have no idea what this is, just keep going
+          continue;
       }
-    } catch(e) {
-      console.warn(e);
-      // even if this role fails, see if we can add any others
-      continue;
+    } else {
+      let balance;
+      try {
+        if (countStakedOnly) {
+          balance = await getStakedTokenBalance({keplrAccount: cosmosAddress, tokenAddress, network, extra: { staking_contract: role.staking_contract }});
+        } else {
+          balance = await getTokenBalance({keplrAccount: cosmosAddress, tokenAddress, network, extra: { staking_contract: role.staking_contract }});
+        }
+      } catch(e) {
+        console.warn(e);
+        // even if this role fails, see if we can add any others
+        continue;
+      }
+
+      // Only proceed if the balance is greater than the minimum
+      console.log(`Comparing ${balance} against ${parseInt(role.has_minimum_of)}`);
+      const member = await guild.members.fetch(discordUserId)
+      const discordRole = guild.roles.cache.find(r => r.name === roleName)
+      shouldGetRole = (balance >= parseInt(role.has_minimum_of));
     }
 
-    // Only proceed if the balance is greater than the minimum
-    console.log(`Comparing ${balance} against ${parseInt(role.has_minimum_of)}`);
-    const member = await guild.members.fetch(discordUserId)
-    const discordRole = guild.roles.cache.find(r => r.name === roleName)
-    if (balance < parseInt(role.has_minimum_of)) {
+    if (shouldGetRole) {
       // Remove role if the have it, since they should no longer have it
       if (discordRole && member.roles.cache.has(discordRole.id)) {
         await member.roles.remove(discordRole.id)
