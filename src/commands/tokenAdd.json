@@ -5,7 +5,7 @@
   "adminOnly": true,
   "prompt": {
     "type": "select",
-    "title": "What kind of token?",
+    "title": "What should the user have to be granted your new role?",
     "options": [
       {
         "label": "🔗 Native Token",
@@ -13,20 +13,28 @@
         "next": "addNativeToken"
       },
       {
-        "label": "📜 CW20 fungible token",
+        "label": "📜 CW20 Fungible Token",
         "description": "E.g. Governance tokens that let DAO council members vote.",
         "next": "addCW20"
       },
       {
-        "label": "🎨 CW721 non-fungible token (Beta)",
+        "label": "🎨 CW721 Non-fungible Token (Beta)",
         "description": "E.g. Stargaze tokens for works of art.",
         "next": "addCW721"
+      },
+      {
+        "label": "🗳 DAODAO Proposal Votes",
+        "description": "E.g. Participation in Proposals as a DAO council member.",
+        "next": "addDAOVotes"
       }
     ]
   },
   "steps": {
     "addCW20": {
       "next": "promptCW20",
+      "stateOnEnter": {
+        "tokenType": "cw20"
+      },
       "prompt": {
         "type": "button",
         "title": "Tell us about your token",
@@ -71,6 +79,9 @@
     },
     "addCW721": {
       "next": "promptCW721",
+      "stateOnEnter": {
+        "tokenType": "cw721"
+      },
       "prompt": {
         "type": "button",
         "title": "Tell us about your token",
@@ -114,6 +125,54 @@
         "decimals": 6
       },
       "action": "tokenAddNativePrompt"
+    },
+    "addDAOVotes": {
+      "stateOnEnter": {
+        "tokenType": "votes",
+        "decimals": 1
+      },
+      "next": "promptDAOVotes",
+      "prompt": {
+        "type": "button",
+        "title": "Please select how you would like to configure your DAO Votes Role",
+        "embeds": [
+          {
+            "title": "Learning about DAO Vote Role Options",
+            "fields": [
+              {
+                "name": "≤ Vote Minimum",
+                "value": "A Vote Minimum role will only be granted to users who have voted in the DAO at least X number of times."
+              },
+              {
+                "name": "% Vote Percentage",
+                "value": "A Vote Percentage role will only be granted to users who have participated in at least X % of overall Proposals for the DAO."
+              },
+              {
+                "name": "🏆 Most Participation",
+                "value": "A Most Participation role will only be granted to the top X number or percentage of members of the DAO in terms of proposal participation."
+              },
+              {
+                "name": "Note:",
+                "value": "All of these options can be configured with a time range (i.e. #/% votes within the past X days), and none of these options look at whether or not the user is a current member of the DAO."
+              }
+            ]
+          }
+        ],
+        "options": [
+          {
+            "label": "≤ Vote Minimum",
+            "value": "minimum"
+          },
+          {
+            "label": "% Vote Percentage",
+            "value": "percentage"
+          },
+          {
+            "label": "🏆 Most Participation",
+            "value": "most"
+          }
+        ]
+      }
     },
     "createTokenRule": {
       "action": "tokenAddStakedOnly"
