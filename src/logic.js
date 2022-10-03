@@ -172,7 +172,9 @@ async function addRemoveRoles(discordUserId, discordGuildId, cosmosAddress, clie
     const tokenAddress = role.token_address
     const countStakedOnly = role.count_staked_only
     const tokenType = role.token_type;
-    
+    const member = await guild.members.fetch(discordUserId)
+    const discordRole = guild.roles.cache.find(r => r.name === roleName)
+
     let shouldGetRole = false;
     // HACKATHON work - this is different enough math that we should rethink how this is
     // set up (DB structure, astrolabe exports and the calculations here).
@@ -204,8 +206,6 @@ async function addRemoveRoles(discordUserId, discordGuildId, cosmosAddress, clie
 
       // Only proceed if the balance is greater than the minimum
       console.log(`Comparing ${balance} against ${parseInt(role.has_minimum_of)}`);
-      const member = await guild.members.fetch(discordUserId)
-      const discordRole = guild.roles.cache.find(r => r.name === roleName)
       shouldGetRole = (balance >= parseInt(role.has_minimum_of));
     }
 
