@@ -40,10 +40,19 @@ function buildCommandExecute(command) {
       }
     }
 
-    const config = command.getConfig ?
-      await command.getConfig(state, context) :
-      command;
-    if (!config) { return; } // might have had error
+    let config;
+    try {
+      config = command.getConfig ?
+        await command.getConfig(state, context) :
+        command;
+    } catch (error) {
+      // If the getConfig function itself crashed for some reason,
+      // we'd still like to surface the information
+      config = { error };
+    }
+
+    // No idea if this is still possible, but we can back out early if so
+    if (!config) { return; }
 
     if (config.error) {
       console.warn(config.error);
