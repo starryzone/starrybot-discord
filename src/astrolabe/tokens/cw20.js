@@ -97,9 +97,7 @@ const getCW20TokenBalance = async ({keplrAccount, tokenAddress, network, extra})
 const isCW20 = async (tokenAddress, network) => {
   let validCW20 = true
   try {
-    console.log(tokenAddress);
     let tokenInfo = await getTokenInfo({tokenAddress, network})
-    console.log(tokenInfo);
     // Expecting this format for tokenInfo.token:
     // {
     //   name: 'Mochi boo-boo',

@@ -34,8 +34,8 @@ app.post('/starry-backend', async (req, res) => {
 
 app.post('/starry-test', async (req, res) => {
   try {
-    const daoUrl = "https://daodao.zone/dao/juno1czh5dy2kxwwt5hlw6rr2q25clj96sheftsdccswg9qe34m3wzgdswmw8ju";
-    let results = await daodao.getProposalInfoFromDaoDaoDao(daoUrl);
+    const proposalAddress = 'juno156vlvprfxc4yyu26ute4hu6tjq96pxgt5qqmm0zlt4y0khjetvhqdhmgdm';
+    let results = await daodao.getProposalVotesFromAddress(proposalAddress, 'mainnet');
     console.log(results);
     res.status(200).send("Success")
   } catch(err) {

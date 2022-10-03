@@ -11,6 +11,7 @@ const { REST } = require("@discordjs/rest");
 const { Routes } = require("discord-api-types/v10");
 const { getTokenBalance, getStakedTokenBalance } = require("./astrolabe");
 const {sumDelegationsForAccount} = require("./utils/tokens");
+const { getProposalVotesFromAddress } = require("./astrolabe/daodao");
 
 // Returns a block with { memberId, saganism }
 // or on error either throws an error or returns { error }
@@ -175,16 +176,66 @@ async function addRemoveRoles(discordUserId, discordGuildId, cosmosAddress, clie
     const member = await guild.members.fetch(discordUserId)
     const discordRole = guild.roles.cache.find(r => r.name === roleName)
 
+    console.log(`Calculating for ${roleName}`);
     let shouldGetRole = false;
+    const decodedCosmosAccount = Bech32.decode(cosmosAddress).data;
+    // We need this to properly count up how many times they voted in proposals
+    const encodedJunoAccount = Bech32.encode('juno', decodedCosmosAccount);
     // HACKATHON work - this is different enough math that we should rethink how this is
     // set up (DB structure, astrolabe exports and the calculations here).
     if (tokenType.includes('DAO')) {
+      // Hackathon-only hacks:
+      // staking_contract is used to save the proposal address
+      // count_staked_only is used to save whether or not there's a range of proposals we
+      // compare against
+      // decimals is used to save how many proposals to compare against
+      const proposalVotes = await getProposalVotesFromAddress(
+        role.staking_contract,
+        role.network,
+        countStakedOnly && role.decimals
+      );
       switch(tokenType) {
         case 'DAOVoteMinimum':
+          const votedIn = proposalVotes.filter(proposalVote =>
+            proposalVote.votes.some(vote => {
+              return vote.voter === encodedJunoAccount
+            })
+          );
+          console.log(`Voted in ${votedIn.length} out of ${proposalVotes.length} when I needed ${role.has_minimum_of}`);
+          shouldGetRole = votedIn.length >= role.has_minimum_of;
           break;
         case 'DAOVotePercentage':
+          // TO-DO probably floor this? Do we even care? Most DAOS don't seem
+          // to have too many proposals, maybe this is overkill
+          const newNum = Math.floor(proposalVotes.length * role.has_minimum_of / 100);
+          const votedProposals = proposalVotes.filter(proposalVote =>
+            proposalVote.votes.some(vote => vote.voter === encodedJunoAccount)
+          );
+          console.log(`Voted in ${votedProposals.length} out of ${proposalVotes.length} when I needed ${newNum}`);
+          shouldGetRole = votedProposals.length >= newNum;
           break;
         case 'DAOMostParticipation':
+          // TO-DO this is where we definitely need an indexer..
+          // This tries to make a map of who's voted in the last X proposals,
+          // so that we can then sort by most participation and then take the
+          // top %. There's a cleaner way to do this but it's almost midnight.
+          const voterMap = {};
+          proposalVotes.forEach(proposalVote => {
+            proposalVote.votes.forEach(vote => {
+              if (!voterMap[vote.voter]) {
+                voterMap[vote.voter] = 0;
+              }
+              voterMap[vote.voter] = voterMap[vote.voter] + 1;
+            });
+          });
+          const sortedVoters = Object.keys(voterMap).sort((a, b) =>
+            voterMap[a] < voterMap[b]);
+          // TO-DO: Does Math.ceiling make sense here? This Math.Max also makes sure
+          // we always look at at least the top most voter
+          const topCount = Math.max(Math.ceil(sortedVoters.length * role.has_minimum_of/ 100), 1);
+          const topVoters = sortedVoters.slice(0, topCount);
+          console.log(`${topVoters.includes(encodedJunoAccount) ? 'Was' : "Wasn't"} in the top ${role.has_minimum_of}% (${topVoters.length}/${sortedVoters.length}) of voters in the past ${proposalVotes.length} proposals`);
+          shouldGetRole = topVoters.includes(encodedJunoAccount);
           break;
         default:
           // We have no idea what this is, just keep going
@@ -209,7 +260,7 @@ async function addRemoveRoles(discordUserId, discordGuildId, cosmosAddress, clie
       shouldGetRole = (balance >= parseInt(role.has_minimum_of));
     }
 
-    if (shouldGetRole) {
+    if (!shouldGetRole) {
       // Remove role if the have it, since they should no longer have it
       if (discordRole && member.roles.cache.has(discordRole.id)) {
         await member.roles.remove(discordRole.id)

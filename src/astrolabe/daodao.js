@@ -64,22 +64,29 @@ const getCW20InputFromDaoDaoDao = async (daodaoUrl) => {
   }
 }
 
-const getProposalInfoFromDaoDaoDao = async (daodaoUrl) => {
-  const network = daodaoUrl.includes('testnet') ? 'testnet' : 'mainnet';
-  const daoAddress = getDAOAddressFromDAODAOUrl(daodaoUrl);
-  const cosmClient = await getCosmClientForDao(daoAddress, network);
-  const proposalModules = await cosmClient.queryContractSmart(daoAddress, {
-    proposal_modules: { },
+// Future thought - this currently is implemented by querying the
+// proposal address for the most recent proposals, slicing the array
+// by the # of proposals to compare against (if desired), and then
+// fetching the voting information for the resulting list.
+// This is where something like an indexer would be much better.
+const getProposalVotesFromAddress = async (proposalAddress, network, limit) => {
+  const cosmClient = await getCosmClientForDao(proposalAddress, network);
+  const data = await cosmClient.queryContractSmart(proposalAddress, {
+    reverse_proposals: { },
   });
-  if (proposalModules?.length > 0) {
-    const results = await cosmClient.queryContractSmart(proposalModules[0], {
-      config: {  }
-    });
-    return results;
-  } else {
-    console.log(proposalModules);
-    throw "No voting module address found";
-  }
+
+  const proposals = limit ?
+    data.proposals.slice(0, limit) :
+    data.proposals;
+  const proposalVotes = await Promise.all(
+    proposals.map(proposal => cosmClient.queryContractSmart(proposalAddress, {
+      list_votes: { proposal_id: proposal.id }
+    }))
+  )
+  return proposals.map((proposal, index) => ({
+    proposal,
+    votes: proposalVotes[index].votes
+  }));
 }
 
 module.exports = {
@@ -87,5 +94,5 @@ module.exports = {
   getCosmClientForDao,
   getCW20InputFromDaoDaoDao,
   getDAOAddressFromDAODAOUrl,
-  getProposalInfoFromDaoDaoDao,
+  getProposalVotesFromAddress,
 }

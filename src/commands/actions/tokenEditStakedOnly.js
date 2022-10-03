@@ -17,8 +17,8 @@ const tokenEditStakedOnly = async state => {
 
   // Validate token amount selection before continuing
   // We only prompt token amount for native and CW20 tokens today
+  const amountOfTokensNeeded = parseInt(fields.getTextInputValue('token-amount'));
   if (['native', 'cw20'].includes(selectedRole.token_type)) {
-    const amountOfTokensNeeded = parseInt(fields.getTextInputValue('token-amount'));
     if (
       !Number.isInteger(amountOfTokensNeeded) ||
       amountOfTokensNeeded <= 0
@@ -28,10 +28,9 @@ const tokenEditStakedOnly = async state => {
         error: 'Need a positive number of tokens.'
       }
     }
-
-    // We'll multiply by the decimal before we update it
-    state.amountOfTokensNeeded = amountOfTokensNeeded;
   }
+  // We'll multiply by the decimal before we update it
+  state.amountOfTokensNeeded = amountOfTokensNeeded;
 
   return {
     next: 'handleRoleEdit',
