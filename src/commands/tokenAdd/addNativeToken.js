@@ -6,16 +6,17 @@ module.exports = {
       decimals: 6,
     },
     getConfig: async ({}, { networks: { networkPrefixes }}) => ({
+      next: 'promptNativeToken',
       prompt: {
         type: 'button',
         title: 'Please choose from the supported Cosmos chains:',
         options: [
           ...networkPrefixes.map(prefix => ({
-            next: `nativeToken${prefix.toUpperCase()}`,
+            value: prefix,
             label: prefix.toUpperCase()
           })),
           {
-            next: `nativeTokenSuggestion`,
+            value: `suggestion`,
             label: '🙋🏽 Suggest another!'
           }
         ]

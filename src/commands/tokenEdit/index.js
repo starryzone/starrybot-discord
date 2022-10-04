@@ -1,11 +1,6 @@
-const { editCheck } = require('./editCheck');
-const { editRoleAmount } = require('./editRoleAmount');
-const { editRoleName } = require('./editRoleName');
+const { editRole } = require('./editRole');
 const { editRoleStakedOnly } = require('./editRoleStakedOnly');
-const { handleRoleAmountEdit } = require('./handleRoleAmountEdit');
-const { handleRoleNameEdit } = require('./handleRoleNameEdit');
-const { handleRoleStakedOnlyEditYes } = require('./handleRoleStakedOnlyEditYes');
-const { handleRoleStakedOnlyEditNo } = require('./handleRoleStakedOnlyEditNo');
+const { handleRoleEdit } = require('./handleRoleEdit');
 
 module.exports = {
   starryCommandTokenEdit: {
@@ -19,38 +14,25 @@ module.exports = {
           message: 'No roles exist to edit!',
         }
       } else {
-        const title = `Current token rules`;
-        const description = `${roles.map(role => {
-          const roleName = role.give_role;
-          const roleAmt = role.has_minimum_of;
-          const roleDecimals = role.decimals;
-          return `★ ${roleName}\n- min: ${(roleAmt / (10 ** roleDecimals)) }\n- count staked only: ${role.count_staked_only ?? false}\n`;
-        }).join('')}`;
-        const footer = {
-          text: 'Please type a token rule to edit'
-        };
-
         return {
           ephemeral: true,
-          next: 'editCheck',
+          next: 'editRole',
           prompt: {
-            type: 'input',
-            title,
-            description,
-            footer,
+            type: 'select',
+            title: 'Which token rule would you like to edit?',
+            options: roles.map(role => ({
+              label: role.give_role,
+              description: `Type: ${role.token_type}, Min: ${role.has_minimum_of / (10 ** role.decimals)}, Count staked only: ${role.count_staked_only ?? false}`,
+              value: role.give_role,
+            })),
           }
         }
       }
     },
     steps: {
-      editCheck,
-      editRoleAmount,
-      editRoleName,
+      editRole,
       editRoleStakedOnly,
-      handleRoleAmountEdit,
-      handleRoleNameEdit,
-      handleRoleStakedOnlyEditYes,
-      handleRoleStakedOnlyEditNo,
+      handleRoleEdit,
     }
   }
 }

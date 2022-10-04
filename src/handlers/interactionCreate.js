@@ -1,3 +1,4 @@
+const { InteractionType } = require('discord.js');
 const { wizardware } = require("../commands");
 
 ///
@@ -28,23 +29,33 @@ async function handleGuildCommands(interaction) {
 ///
 
 async function interactionCreate(interaction) {
-	if (interaction.isCommand()) {
+	if (interaction.type === InteractionType.ApplicationCommand) {
 		// our slash commands
 		return handleGuildCommands(interaction);
 	} else {
-		// text input, emoji reactions, or something else
-		await wizardware.continue(
-			`${interaction.guildId}-${interaction.user.id}`,
-			'button',
-			{
-				interaction,
-				// Reply directly to the button interaction, otherwise
-				// it will not know that we've responded and will display
-				// the loading animation before saying "interaction failed",
-				// even when we're continuing the wizard successfully
-				interactionTarget: interaction
-			}
-		);
+		let interactionType;
+		if (interaction.isSelectMenu()) {
+			interactionType = 'select';
+		} else if (interaction.isButton()) {
+			interactionType = 'button';
+		} else if (interaction.isModalSubmit()) {
+			interactionType = 'modal';
+		}
+		if (interactionType) {
+			// text input, emoji reactions, or something else
+			await wizardware.continue(
+				`${interaction.guildId}-${interaction.user.id}`,
+				interactionType,
+				{
+					interaction,
+					// Reply directly to the button interaction, otherwise
+					// it will not know that we've responded and will display
+					// the loading animation before saying "interaction failed",
+					// even when we're continuing the wizard successfully
+					interactionTarget: interaction
+				}
+			);
+		}
 	}
 }
 

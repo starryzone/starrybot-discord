@@ -1,23 +1,26 @@
 module.exports = {
-  handleStakedOnlyNo: {
+  handleRoleCreate: {
     getConfig: async (
-      { interaction,
+      {
+        decimals,
         guild,
-        selectedRoleName,
         guildId,
+        interactionTarget,
+        minimumTokensNeeded,
+        network,
+        selectedRoleName,
+        stakingContract,
         tokenType,
         tokenAddress,
-        network,
         userId,
-        minimumTokensNeeded,
-        decimals,
-        stakingContract
       },
       {
         db: { rolesSet }
       }
     ) => {
-      console.log('User wants to count all tokens (not just staked)')
+      // See which button they pressed based on the custom ID
+      const countStakedOnly = (interactionTarget.customId === 'yes');
+
 
       // Create role in Discord
       await guild.roles.create({name: selectedRoleName, position: 0});
@@ -34,7 +37,7 @@ module.exports = {
         minimumTokensNeeded,
         decimals,
         stakingContract,
-        false // count_staked_only
+        countStakedOnly // count_staked_only
       );
 
       return {

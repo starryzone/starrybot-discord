@@ -7,7 +7,6 @@ const logger = require("./logger")
 const {
   guildCreate,
   interactionCreate,
-  messageCreate,
   messageReactionAdd,
 } = require("./handlers")
 const { starryCommand } = require('./commands');
@@ -16,12 +15,8 @@ const { starryCommand } = require('./commands');
 // Corresponds with client events: https://discord.js.org/#/docs/discord.js/stable/class/Client
 const client = new Client({
   intents: [
-    GatewayIntentBits.Guilds,
-    GatewayIntentBits.GuildMessages,
-    GatewayIntentBits.MessageContent, // Temporary, will be replaced soon
-    GatewayIntentBits.GuildMembers,
-    GatewayIntentBits.GuildIntegrations,
-    GatewayIntentBits.GuildMessageReactions
+    GatewayIntentBits.Guilds, // Allows us to manage roles
+    GatewayIntentBits.GuildMessageReactions // Allows us to detect reactions
   ]
 })
 
@@ -46,9 +41,6 @@ client.on("guildCreate", guildCreate);
 // Handler for discord bot messages being directly interacted with
 // (e.g. button press, commands used, replies in the command chain)
 client.on('interactionCreate', interactionCreate);
-
-// Handler for messages that may be responses to the command chain
-client.on('messageCreate', messageCreate);
 
 // Handler for emoji reactions on discord messages from our bot
 client.on('messageReactionAdd', messageReactionAdd );
