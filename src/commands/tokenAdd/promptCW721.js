@@ -1,6 +1,10 @@
 module.exports = {
   promptCW721: {
     deferReply: false, // Required for type modal
+    stateOnEnter: {
+      tokenType: 'cw721',
+      decimals: 0,
+    },
     getConfig: async (state) => {
       // See which button they pressed and update the state appropriatley
       const selectedOption = state.interactionTarget.customId;
@@ -8,10 +12,6 @@ module.exports = {
 
       return {
         next: 'createTokenRule',
-        stateOnEnter: {
-          tokenType: 'cw721',
-          decimals: 1,
-        },
         prompt: {
           type: 'modal',
           title: `Configure ${selectedOption} Token Rule`,

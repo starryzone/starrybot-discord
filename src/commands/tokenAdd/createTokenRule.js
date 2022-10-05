@@ -35,7 +35,10 @@ module.exports = {
             state.network = results.network;
             state.tokenType = results.tokenType;
             state.tokenSymbol = results.tokenSymbol;
-            state.decimals = results.decimals;
+            if (results.decimals) {
+              // Don't override decimals for cw721
+              state.decimals = results.decimals
+            }
           } catch (error) {
             // Notify the channel with whatever went wrong in this step
             return { error };
