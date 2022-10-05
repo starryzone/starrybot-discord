@@ -21,10 +21,9 @@ module.exports = {
       // If there was ultimately no change, we don't actually need to do anything.
       if (
         selectedRoleName === newRoleName &&
-        // Either this was a CW721 token role (which can't change the amount) or
-        // we need to also make sure we move the decimal points before comparing
+        // We need to also make sure we move the decimal points before comparing
         // with how much they asked to change
-        (token_type === 'cw721' || (has_minimum_of / (10 ** decimals)) === amountOfTokensNeeded) &&
+        (has_minimum_of / (10 ** decimals) === amountOfTokensNeeded) &&
         count_staked_only === updatedStakedOnly
       ) {
         return {
@@ -34,10 +33,7 @@ module.exports = {
         }
       }
 
-      // CW721 tokens currently cannot have token amounts changed
-      const updatedAmountOfTokensNeeded = token_type === 'cw721' ?
-        has_minimum_of :
-        amountOfTokensNeeded * (10 ** decimals);
+      const updatedAmountOfTokensNeeded = amountOfTokensNeeded * (10 ** decimals);
       
       // If the name has changed, we'll need to rename the role in discord, and then
       // replace the row in the DB altogether 
@@ -75,7 +71,7 @@ module.exports = {
       if (selectedRoleName !== newRoleName) {
         changes.push(`* Renamed from ${selectedRoleName} to ${newRoleName}`);
       }
-      if (token_type !== 'cw721' && amountOfTokensNeeded !== (has_minimum_of / (10 ** decimals))) {
+      if (amountOfTokensNeeded !== (has_minimum_of / (10 ** decimals))) {
         changes.push(`* Token minimum changed from ${has_minimum_of / (10 ** decimals)} to ${amountOfTokensNeeded}`);
       }
       if (count_staked_only !== updatedStakedOnly) {
