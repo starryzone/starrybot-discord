@@ -23,13 +23,11 @@ module.exports = {
               placeholder: 'Current name: ' + selectedRoleName,
               id: 'role-name',
             },
-            // No need to prompt for token amount if the token role they're editing
-            // is for an NFT - right now we only support checking if they do or don't have one
-            ...(role.token_type !== 'cw721' ? [{
+            {
               label: 'New Token Amount',
               placeholder: 'Current amount needed: ' + (role.has_minimum_of / (10 ** role.decimals)),
               id: 'token-amount',
-            }] : []),
+            }
           ]
         }
       }

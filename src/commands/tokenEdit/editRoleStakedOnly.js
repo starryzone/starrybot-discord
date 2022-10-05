@@ -18,22 +18,19 @@ module.exports = {
       state.newRoleName = newRoleName;
 
       // Validate token amount selection before continuing
-      // We only prompt token amount for native and CW20 tokens today
-      if (['native', 'cw20'].includes(selectedRole.token_type)) {
-        const amountOfTokensNeeded = parseInt(fields.getTextInputValue('token-amount'));
-        if (
-          !Number.isInteger(amountOfTokensNeeded) ||
-          amountOfTokensNeeded <= 0
-        ) {
-          // Invalid reply
-          return {
-            error: 'Need a positive number of tokens.'
-          }
+      const amountOfTokensNeeded = parseInt(fields.getTextInputValue('token-amount'));
+      if (
+        !Number.isInteger(amountOfTokensNeeded) ||
+        amountOfTokensNeeded <= 0
+      ) {
+        // Invalid reply
+        return {
+          error: 'Need a positive number of tokens.'
         }
-
-        // We'll multiply by the decimal before we update it
-        state.amountOfTokensNeeded = amountOfTokensNeeded;
       }
+
+      // We'll multiply by the decimal before we update it
+      state.amountOfTokensNeeded = amountOfTokensNeeded;
 
       return {
         next: 'handleRoleEdit',

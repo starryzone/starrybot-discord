@@ -9,6 +9,12 @@ module.exports = {
       // Required for every flow in token-rule add
       const selectedRoleName = state.interactionTarget.fields.getTextInputValue('role-name');
 
+      if (selectedRoleName.trim() === '') {
+        return {
+          error: 'Role Name cannot only be whitespace'
+        }
+      }
+
       let tokenAddress;
       if (state.tokenType !== 'native') {
         tokenAddress = state.interactionTarget.fields.getTextInputValue('token-address');
@@ -40,28 +46,22 @@ module.exports = {
 
       // This is set for native and cw20 only
       let amountOfTokensNeeded;
-      if (state.tokenType !== 'cw721') {
-        amountOfTokensNeeded = parseInt(state.interactionTarget.fields.getTextInputValue('token-amount'));
+      amountOfTokensNeeded = parseInt(state.interactionTarget.fields.getTextInputValue('token-amount'));
 
-        // TODO: add fix so they can enter .1 instead of 0.1 and have it work
-        if (
-          !Number.isInteger(amountOfTokensNeeded) ||
-          amountOfTokensNeeded <= 0
-        ) {
-          // Invalid reply
-          return {
-            error: 'Need a positive number of tokens.',
-          };
-        }
-
-        // Multiply by the decimals for native and fungible tokens
-        console.log('Multiplying by the number of decimals', state.decimals)
-        state.minimumTokensNeeded = amountOfTokensNeeded * (10 ** state.decimals)
-      } else {
-        // We don't currently prompt for how many NFTs someone should have
-        // to get a role
-        state.minimumTokensNeeded = 1;
+      // TODO: add fix so they can enter .1 instead of 0.1 and have it work
+      if (
+        !Number.isInteger(amountOfTokensNeeded) ||
+        amountOfTokensNeeded <= 0
+      ) {
+        // Invalid reply
+        return {
+          error: 'Need a positive number of tokens.',
+        };
       }
+
+      // Multiply by the decimals for native and fungible tokens
+      console.log('Multiplying by the number of decimals', state.decimals)
+      state.minimumTokensNeeded = amountOfTokensNeeded * (10 ** state.decimals)
       console.log('Minimum amount needed', state.minimumTokensNeeded)
 
       const { guild } = state

@@ -8,6 +8,10 @@ module.exports = {
 
       return {
         next: 'createTokenRule',
+        stateOnEnter: {
+          tokenType: 'cw721',
+          decimals: 1,
+        },
         prompt: {
           type: 'modal',
           title: `Configure ${selectedOption} Token Rule`,
@@ -26,6 +30,12 @@ module.exports = {
               id: 'role-name',
               required: true,
             },
+            {
+              label: 'Token Amount',
+              placeholder: 'Please enter the number of tokens a user must have to get a special role',
+              id: 'token-amount',
+              required: true,
+            }
           ]
         }
       }
