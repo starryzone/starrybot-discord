@@ -65,6 +65,8 @@ const getCW721TokenBalance = async ({keplrAccount, tokenAddress, network, extra}
   const nftInfo = await cosmClient.queryContractSmart(tokenAddress, {
     tokens: {
       owner: encodedAccount,
+      start_after: null,
+      limit: 100
     }
   });
 
