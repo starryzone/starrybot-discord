@@ -39,8 +39,12 @@ async function guildCreate(guild) {
       systemChannelId = existingStarryBotChannel.id
     } else {
       // Did not find an existing channel, create one
-      const creationRes = await guild.channels.create('starrybot')
-      systemChannelId = creationRes.id
+      try {
+        const creationRes = await guild.channels.create('starrybot')
+        systemChannelId = creationRes.id
+      } catch (e) {
+        console.error(`Could not create starrybot channel for guild`, guild)
+      }
     }
   }
 
