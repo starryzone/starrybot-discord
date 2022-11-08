@@ -79,7 +79,9 @@ const isCW721 = async (tokenAddress, network) => {
   // Expecting this format for tokenInfo.token:
   // { name: 'Passage Marketplace', symbol: 'yawp' }
   return tokenInfo.token &&
-    Object.keys(tokenInfo.token).length === 2 &&
+    // This line below was changed since it seems folks are adding additional fields
+    // so we're expecting it to have *at least* name and symbol
+    Object.keys(tokenInfo.token).length >= 2 &&
     tokenInfo.token.hasOwnProperty('name') &&
     tokenInfo.token.hasOwnProperty('symbol');
 }
