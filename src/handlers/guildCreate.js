@@ -48,9 +48,17 @@ async function guildCreate(guild) {
     }
   }
 
-  let systemChannel = await client.channels.fetch(systemChannelId);
   try {
     await registerGuildCommands(client.application.id, guild.id);
+  } catch (e) {
+    console.error('Could not register guild commands', e)
+  }
+
+  // If the Discord guild has, for whatever reason, disabled the system channel, get outta here
+  if (systemChannelId === null) return
+  // Otherwise, send a hello message
+  try {
+    let systemChannel = await client.channels.fetch(systemChannelId);
     systemChannel.send({
       embeds: [
         createEmbed({
