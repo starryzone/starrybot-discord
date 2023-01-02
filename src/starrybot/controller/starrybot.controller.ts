@@ -25,6 +25,8 @@ export class StarrybotController {
     try {
       let results = await logic.hoistInquire(dto.traveller);
       res.status(HttpStatus.OK).send(results);
+
+      return results;
     } catch (err) {
       logger.warn('Error hitting starry-backend', err);
       res
