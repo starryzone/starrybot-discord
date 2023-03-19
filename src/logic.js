@@ -11,6 +11,8 @@ const { REST } = require("@discordjs/rest");
 const { Routes } = require("discord-api-types/v10");
 const { getTokenBalance, getStakedTokenBalance } = require("./astrolabe");
 const {sumDelegationsForAccount} = require("./utils/tokens");
+const {Bech32Address} = require('@keplr-wallet/cosmos');
+const {PubKeySecp256k1} = require('@keplr-wallet/crypto');
 
 // Returns a block with { memberId, saganism }
 // or on error either throws an error or returns { error }
@@ -84,11 +86,19 @@ async function hoistDrop(args) {
 
 // Signing
 // Returns boolean whether the signature is valid or not
-const isValidSignature = async (signed, signature, publicKey) => {
+const isValidSignature = async (signed, signature, publicKey, address) => {
   let valid = false;
   try {
     let binaryHashSigned = sha256(serializeSignDoc(signed));
     let binaryPublicKey = new Uint8Array(Object.values(publicKey));
+
+    const cryptoPubKey = new PubKeySecp256k1(binaryPublicKey);
+    const expectedAddress = new Bech32Address(cryptoPubKey.getAddress()).toBech32(
+      'cosmos',
+    );
+    if (expectedAddress != address) {
+      return false;
+    }
 
     valid = await Secp256k1.verifySignature(
       Secp256k1Signature.fromFixedLength(fromBase64(signature)),
@@ -243,7 +253,7 @@ async function hoistFinalize(blob, client) {
   }
 
   // is signature valid?
-  const validSignature = await isValidSignature(signed, signature, publicKey);
+  const validSignature = await isValidSignature(signed, signature, publicKey, account.address);
   if (!validSignature) {
     logger.error("discord::hoist - bad sig")
     return {error:"Bad request, you're grounded"}
