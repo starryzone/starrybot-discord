@@ -28,6 +28,8 @@
 		"@cosmjs/stargate": "^0.26.5",
 		"@discordjs/rest": "^0.1.0-canary.0",
 		"@google-cloud/logging-winston": "^4.0.0",
+		"@keplr-wallet/cosmos": "^0.11.48",
+		"@keplr-wallet/crypto": "^0.11.48",
 		"cors": "^2.8.5",
 		"discord-api-types": "^0.37.11",
 		"discord.js": "^14.3.0",
