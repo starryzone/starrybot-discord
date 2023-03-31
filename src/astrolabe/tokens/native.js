@@ -1,13 +1,13 @@
 const fetch = require("node-fetch");
-const { Bech32 } = require('@cosmjs/encoding')
+const { fromBech32, toBech32} = require('@cosmjs/encoding')
 const { StargateClient } = require('@cosmjs/stargate');
 const { networkPrefixes, getConnectionFromPrefix } = require('../networks');
 const { sumDelegationsForAccount, sumUnbondingDelegationsForAccount } = require('../../utils/tokens')
 
 const getNativeTokenBalance = async ({keplrAccount, tokenAddress, network, extra}) => {
-  const decodedAccount = Bech32.decode(keplrAccount).data;
+  const decodedAccount = fromBech32(keplrAccount).data;
   // Token type is native, so the token address is expected to be a prefix
-  const encodedAccount = Bech32.encode(tokenAddress, decodedAccount);
+  const encodedAccount = toBech32(tokenAddress, decodedAccount);
   const rpcClient = await getNativeRpcClient(tokenAddress, network);
   const balances = await rpcClient.getAllBalances(encodedAccount);
   console.log(`balances ${tokenAddress}`, balances);
@@ -35,8 +35,8 @@ const getNativeTokenBalance = async ({keplrAccount, tokenAddress, network, extra
 }
 
 const getStakedNativeTokenBalance = async({keplrAccount, tokenAddress, network, extra}) => {
-  const decodedAccount = Bech32.decode(keplrAccount).data;
-  const encodedAccount = Bech32.encode(tokenAddress, decodedAccount);
+  const decodedAccount = fromBech32(keplrAccount).data;
+  const encodedAccount = toBech32(tokenAddress, decodedAccount);
   let amount = 0
   if (network === 'mainnet') {
     amount = await sumDelegationsForAccount(encodedAccount)

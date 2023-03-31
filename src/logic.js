@@ -6,7 +6,7 @@ const Sagan = require("./sagan.js")
 
 const { serializeSignDoc } = require('@cosmjs/amino')
 const { Secp256k1, Secp256k1Signature, sha256 } = require('@cosmjs/crypto')
-const { fromBase64, Bech32} = require('@cosmjs/encoding')
+const { fromBase64, fromBech32, toBech32} = require('@cosmjs/encoding')
 const { REST } = require("@discordjs/rest");
 const { Routes } = require("discord-api-types/v10");
 const { getTokenBalance, getStakedTokenBalance } = require("./astrolabe");
@@ -87,6 +87,10 @@ async function hoistDrop(args) {
 // Signing
 // Returns boolean whether the signature is valid or not
 const isValidSignature = async (signed, signature, publicKey, address) => {
+  // Turn their signed address into cosmos prefix for comparison
+  let decodedAddress = fromBech32(address).data;
+  let cosmosAddress = toBech32('cosmos', decodedAddress)
+
   let valid = false;
   try {
     let binaryHashSigned = sha256(serializeSignDoc(signed));
@@ -96,7 +100,7 @@ const isValidSignature = async (signed, signature, publicKey, address) => {
     const expectedAddress = new Bech32Address(cryptoPubKey.getAddress()).toBech32(
       'cosmos',
     );
-    if (expectedAddress != address) {
+    if (expectedAddress !== cosmosAddress) {
       return false;
     }
 
@@ -270,7 +274,7 @@ async function hoistFinalize(blob, client) {
   logger.log("*** user has passed all tests *** ")
   // Add the user's Cosmos Hub address to database
   // Convert to Cosmos Hub address
-  let cosmosHubAddress = Bech32.encode('cosmos', Bech32.decode(account.address).data)
+  let cosmosHubAddress = toBech32('cosmos', fromBech32(account.address).data)
   await db.addCosmosHubAddress(member.discord_guild_id, member.discord_account_id, cosmosHubAddress)
 
   // Add/remove roles as necessary

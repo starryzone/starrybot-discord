@@ -1,5 +1,5 @@
 const { CosmWasmClient } = require("@cosmjs/cosmwasm-stargate");
-const { Bech32 } = require("@cosmjs/encoding");
+const { fromBech32} = require("@cosmjs/encoding");
 const fetch = require("node-fetch");
 
 // See getNetworkInfo where this is taken from env vars
@@ -13,7 +13,7 @@ try {
 
 function getPrefixFromToken(tokenAddress) {
   let ret;
-  const decodedAccount = Bech32.decode(tokenAddress);
+  const decodedAccount = fromBech32(tokenAddress);
   if (decodedAccount && decodedAccount.prefix) {
     ret = decodedAccount.prefix
   } else {

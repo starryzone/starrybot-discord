@@ -1,5 +1,5 @@
 const { CosmWasmClient } = require("@cosmjs/cosmwasm-stargate");
-const { Bech32 } = require('@cosmjs/encoding')
+const { fromBech32, toBech32} = require('@cosmjs/encoding')
 const { getConnectionFromPrefix, getConnectionFromToken, getPrefixFromToken } = require('../networks')
 
 const checkForCW20 = async (cosmClient, cw20Input) => {
@@ -48,10 +48,10 @@ const getCW20TokenDetails = async ({tokenAddress, network}) => {
 }
 
 const getStakedCW20TokenBalance = async ({keplrAccount, tokenAddress, network, extra}) => {
-  const decodedAccount = Bech32.decode(keplrAccount).data;
+  const decodedAccount = fromBech32(keplrAccount).data;
   const prefix = getPrefixFromToken(tokenAddress);
   if (!prefix) throw 'Could not determine prefix';
-  const encodedAccount = Bech32.encode(prefix, decodedAccount);
+  const encodedAccount = toBech32(prefix, decodedAccount);
   const rpcEndpoint = getConnectionFromPrefix(prefix, 'rpc', network);
   const cosmClient = await CosmWasmClient.connect(rpcEndpoint);
   let balance = 0
@@ -67,11 +67,11 @@ const getStakedCW20TokenBalance = async ({keplrAccount, tokenAddress, network, e
 }
 
 const getCW20TokenBalance = async ({keplrAccount, tokenAddress, network, extra}) => {
-  const decodedAccount = Bech32.decode(keplrAccount).data;
+  const decodedAccount = fromBech32(keplrAccount).data;
   const prefix = getPrefixFromToken(tokenAddress);
   if (!prefix) throw 'Could not determine prefix';
 
-  const encodedAccount = Bech32.encode(prefix, decodedAccount);
+  const encodedAccount = toBech32(prefix, decodedAccount);
   const rpcEndpoint = getConnectionFromPrefix(prefix, 'rpc', network);
   const cosmClient = await CosmWasmClient.connect(rpcEndpoint);
   const smartContract = await cosmClient.queryContractSmart(tokenAddress, {

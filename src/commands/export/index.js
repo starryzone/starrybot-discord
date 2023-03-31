@@ -1,5 +1,5 @@
 const fs = require('fs')
-const { Bech32 } = require('@cosmjs/encoding')
+const { fromBech32, toBech32} = require('@cosmjs/encoding')
 
 
 module.exports = {
@@ -25,8 +25,8 @@ module.exports = {
 
         const CosmosAddresses = await context.db.cosmosAddressesForGuild(guildId)
         for (const { cosmos_address: cosmosAddress } of CosmosAddresses) {
-          const decodedAccount = Bech32.decode(cosmosAddress).data
-          const encodedAccount = Bech32.encode(network, decodedAccount)
+          const decodedAccount = fromBech32(cosmosAddress).data
+          const encodedAccount = toBech32(network, decodedAccount)
           stream.write(`${encodedAccount},1000000\n`)
         }
         stream.close()

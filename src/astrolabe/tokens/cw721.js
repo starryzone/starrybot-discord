@@ -1,6 +1,6 @@
 const { CosmWasmClient } = require("@cosmjs/cosmwasm-stargate");
 const { getConnectionFromPrefix, getConnectionFromToken, getPrefixFromToken } = require('../networks')
-const { Bech32 } = require("@cosmjs/encoding");
+const { fromBech32, toBech32} = require("@cosmjs/encoding");
 
 const checkForCW721 = async (cosmClient, cw721Input) => {
   return cosmClient.queryContractSmart(cw721Input, {
@@ -55,11 +55,11 @@ const getStakedCW721TokenBalance = async ({keplrAccount, tokenAddress, network, 
 const getCW721TokenBalance = async ({keplrAccount, tokenAddress, network, extra}) => {
   // Given the wallet address, NFT collection address,
   // and the network it's on, do the math for the following correctly
-  const decodedAccount = Bech32.decode(keplrAccount).data;
+  const decodedAccount = fromBech32(keplrAccount).data;
   const prefix = getPrefixFromToken(tokenAddress);
   if (!prefix) throw 'Could not determine prefix';
 
-  const encodedAccount = Bech32.encode(prefix, decodedAccount);
+  const encodedAccount = toBech32(prefix, decodedAccount);
   const rpcEndpoint = getConnectionFromPrefix(prefix, 'rpc', network);
   const cosmClient = await CosmWasmClient.connect(rpcEndpoint);
   const nftInfo = await cosmClient.queryContractSmart(tokenAddress, {
