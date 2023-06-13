@@ -141,10 +141,17 @@ async function tokenRuleInfo(body, client) {
 	const { discordUserId, guildId } = body
   // Add/remove roles as necessary
   const cosmosHubAddress = await db.getCosmosHubAddress({guildId, discordUserId})
-  console.log(`Guild ${guildId} has user ${discordUserId} whose Cosmos Hub address is ${cosmosHubAddress}`);
+  // console.log(`Guild ${guildId} has user ${discordUserId} whose Cosmos Hub address is ${cosmosHubAddress}`);
   // Some folks who used starrybot early on didn't have their Cosmos address captured
   if (!cosmosHubAddress) {
-    return { error: 'User must use "/starry login" to capture Cosmos Hub address'}
+    // This was added when graphein DMed me about how they're migrating to a new Discord bot
+    // So two bots need to co-exist, and this will help. I think.
+    return { success: {
+        'added': [],
+        'removed': []
+      }
+    }
+    // return { error: 'User must use "/starry login" to capture Cosmos Hub address'}
   }
   const addedRemovedRoleNames = await addRemoveRoles(discordUserId, guildId, cosmosHubAddress, client)
   console.log('Added/removed role names', addedRemovedRoleNames)

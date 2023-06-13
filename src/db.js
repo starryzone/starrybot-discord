@@ -331,7 +331,11 @@ const getCosmosHubAddress = async ({guildId, discordUserId}) => {
 		.distinct('cosmos_address')
 		// This orderBy is because some members have multiple rows, and the old ones may have a null cosmos address
 		.orderBy('cosmos_address', 'asc')
-	return cosmosHubAddresses[0].cosmos_address
+	if (cosmosHubAddresses.length === 0) {
+		return null
+	} else {
+		return cosmosHubAddresses[0].cosmos_address
+	}
 }
 
 module.exports = { membersAll, memberExists, memberBySessionToken, memberByIdAndGuild, memberAdd, memberDelete, myConfig, rolesGet, roleGet, rolesSet, rolesDelete, rolesDeleteGuildAll, rolesGetForCleanUp, inferPreferredNativeToken, addCosmosHubAddress, nativeTokensFromGuild, getCosmosHubAddress, syncDetails, cosmosAddressesForGuild, metrics }
